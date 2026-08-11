@@ -150,6 +150,9 @@ h2 span{font-weight:600;text-transform:none;color:var(--ink3);letter-spacing:0}
  .tkh,.tkl{grid-template-columns:50px 1fr 84px!important}
  .tkh>span:not(:first-child):not(:nth-child(2)):not(:last-child),
  .tkl>span:not(:first-child):not(:nth-child(2)):not(:last-child){display:none}
+ .vchart{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
+ .vgrid{grid-auto-columns:66px}
+ .vsub{font-size:9.5px}
  .nwrap{padding:12px}
  .nwcard{max-height:88vh;overflow-y:auto}
 }
@@ -741,7 +744,7 @@ table.wide tr.tot td{background:var(--panel2);font-weight:800;border-top:1.5px s
 .vchart{position:relative;padding:16px 0 0}
 .vplanline{position:absolute;left:0;right:0;top:calc(16px + 88px);height:0;border-top:1.5px dashed var(--line2);z-index:1}
 .vplanline span{position:absolute;right:0;top:-8px;background:var(--panel);padding:0 6px;font-size:9.5px;font-weight:800;letter-spacing:.06em;color:var(--ink3);text-transform:uppercase}
-.vgrid{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;position:relative;z-index:2}
+.vgrid{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;position:relative;z-index:2}
 .vcol{display:flex;flex-direction:column;align-items:center;cursor:pointer}
 .vcol:hover .vlbl{color:var(--coral-d)}
 .vbox{position:relative;width:100%;height:176px}
