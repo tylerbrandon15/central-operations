@@ -17,6 +17,10 @@
 --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace}
 body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.45;-webkit-font-smoothing:antialiased;display:flex;min-height:100vh}
 .side{width:216px;flex:0 0 216px;background:var(--panel);border-right:1px solid var(--line);padding:16px 12px;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.logorow{display:flex;align-items:center;gap:8px}
+.obhelp{width:19px;height:19px;border-radius:999px;border:1px solid var(--line2);background:none;color:var(--ink3);
+ font-family:var(--sans);font-size:11px;font-weight:800;line-height:1;cursor:pointer;padding:0;display:grid;place-items:center;flex:0 0 auto}
+.obhelp:hover{border-color:var(--coral);color:var(--coral)}
 .logo{font-size:23px;font-weight:800;color:var(--coral);letter-spacing:-.03em;padding:0 7px;position:relative;display:inline-block}
 .logo i{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--coral);top:5px;right:0;font-style:normal}
 .sub{font-size:10px;font-weight:700;color:var(--coral);padding:1px 7px 14px;letter-spacing:.06em;line-height:1.45}
@@ -75,7 +79,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:13.
 .kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 13px;position:relative;overflow:hidden}
 .kpi .kl{font-size:10px;font-weight:700;color:var(--ink3);letter-spacing:.03em}
 .kpi .kv{font-size:29px;font-weight:600;letter-spacing:-.025em;line-height:1.05;margin:5px 0 2px;font-variant-numeric:tabular-nums}
-.kpi .kv.r{color:var(--coral)}.kpi .kv.a{color:var(--amber)}.kpi .kv.g{color:var(--mint)}
+.kpi .kv.r{color:var(--coral)}.kpi .kv.a{color:var(--amber-d)}.kpi .kv.g{color:var(--mint-d)}
 .kpi .kd{font-size:10.5px;color:var(--ink3);display:flex;align-items:center;gap:5px}
 .kpi .spark{position:absolute;right:10px;bottom:9px;opacity:.85}
 .up{color:var(--mint)}.down{color:var(--coral)}
@@ -128,7 +132,7 @@ h2{font-size:12px;font-weight:800;letter-spacing:.04em;margin:20px 0 8px;text-tr
 h2 span{font-weight:600;text-transform:none;color:var(--ink3);letter-spacing:0}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px}
 .grid{display:grid;gap:10px}
-.g6{grid-template-columns:repeat(6,1fr)}.g5{grid-template-columns:repeat(5,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1fr 1fr}
+.g6{grid-template-columns:repeat(auto-fit,minmax(148px,1fr))}.g5{grid-template-columns:repeat(5,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1fr 1fr}
 @media(max-width:1250px){.g6{grid-template-columns:repeat(3,1fr)}.g5{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:800px){.g6,.g5,.g4,.g3,.g2{grid-template-columns:1fr 1fr}}
 /* ---- phones and small tablets: the rail becomes a top bar ---- */
@@ -201,6 +205,12 @@ td:first-child{font-family:var(--sans);font-weight:700;font-size:12px}
 .dec .q{font-size:13px;font-weight:700;line-height:1.35}
 .dec .s{font-size:11px;color:var(--ink3);margin-top:2px;font-family:var(--mono)}
 .bt{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.br{display:grid;grid-template-columns:186px 1fr 58px;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line)}
+.br:last-of-type{border-bottom:0}
+.bkt{display:block;height:14px;background:var(--panel2);border-radius:3px;overflow:hidden}
+.bkt i{display:block;height:100%;background:var(--amber);border-radius:3px;min-width:2px}
+.bn{font-family:var(--mono);font-size:12px;text-align:right;color:var(--ink)}
+@media(max-width:800px){.br{grid-template-columns:1fr 74px 52px}}
 .b{border:1px solid var(--line2);background:var(--panel2);border-radius:7px;padding:6px 11px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:var(--sans);color:var(--ink2);white-space:nowrap}
 .b:hover{border-color:var(--ink3)}.b.p{background:var(--coral);border-color:var(--coral);color:#fff}
 .b.g{background:var(--mint-t);border-color:#BEDFCB;color:var(--mint-d)}
@@ -783,9 +793,54 @@ table.wide tr.tot td{background:var(--panel2);font-weight:800;border-top:1.5px s
 .nwesc{font-size:12px;color:var(--ink2);line-height:1.55}
 .nwn{font-size:11.5px;color:var(--ink3);line-height:1.55;margin-top:14px;padding:10px 12px;background:var(--panel2);border-radius:9px}
 .nwa{padding:14px 22px 18px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--line);flex-wrap:wrap}
+
+/* ================= first run intro ================= */
+.ob{position:fixed;inset:0;z-index:4000;display:none;align-items:center;justify-content:center;padding:24px;
+ background:rgba(28,27,25,.42);-webkit-backdrop-filter:saturate(140%) blur(7px);backdrop-filter:saturate(140%) blur(7px)}
+.ob.on{display:flex;animation:obfade .28s ease}
+@keyframes obfade{from{opacity:0}to{opacity:1}}
+@keyframes obrise{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+.obcard{width:min(560px,100%);background:var(--panel);border-radius:22px;overflow:hidden;position:relative;
+ box-shadow:0 30px 80px rgba(28,27,25,.28),0 2px 8px rgba(28,27,25,.10);animation:obrise .34s cubic-bezier(.2,.8,.25,1)}
+.obx{position:absolute;top:14px;right:14px;z-index:2;width:30px;height:30px;border-radius:999px;border:0;cursor:pointer;
+ background:rgba(28,27,25,.06);color:var(--ink2);font-size:17px;line-height:1;display:grid;place-items:center;transition:background .15s}
+.obx:hover{background:rgba(28,27,25,.12)}
+.obart{height:186px;display:grid;place-items:center;position:relative;overflow:hidden;background:var(--bg);
+ border-bottom:1px solid var(--line)}
+.obart:before{content:'';position:absolute;inset:-40% -10% auto -10%;height:150%;
+ background:radial-gradient(60% 60% at 50% 40%,var(--wash) 0%,transparent 70%)}
+.obglyph{position:relative;width:82px;height:82px;border-radius:24px;display:grid;place-items:center;
+ font-size:34px;line-height:1;color:#fff;box-shadow:0 10px 26px rgba(28,27,25,.16)}
+.obchips{position:relative;display:flex;gap:6px;margin-top:16px;flex-wrap:wrap;justify-content:center;padding:0 22px}
+.obchip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 11px;
+ font-size:10.5px;font-weight:700;color:var(--ink2);letter-spacing:.02em;white-space:nowrap}
+.obbody{padding:24px 30px 4px;text-align:center}
+.obeye{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--coral);margin-bottom:9px}
+.obh{font-size:25px;font-weight:800;letter-spacing:-.025em;line-height:1.15;color:var(--ink);margin-bottom:9px}
+.obp{font-size:13.5px;line-height:1.55;color:var(--ink2);max-width:400px;margin:0 auto}
+.obp b{color:var(--ink);font-weight:700}
+.obfoot{display:flex;align-items:center;gap:14px;padding:22px 26px 24px}
+.obdots{display:flex;gap:6px;flex:1}
+.obdot{width:6px;height:6px;border-radius:999px;background:var(--line2);transition:all .25s}
+.obdot.on{background:var(--coral);width:20px}
+.obbtns{display:flex;align-items:center;gap:9px}
+.obskip{background:none;border:0;cursor:pointer;font-family:var(--sans);font-size:12.5px;font-weight:700;color:var(--ink3);padding:9px 6px}
+.obskip:hover{color:var(--ink2)}
+.obback{background:none;border:1px solid var(--line);border-radius:999px;cursor:pointer;font-family:var(--sans);
+ font-size:12.5px;font-weight:700;color:var(--ink2);padding:9px 15px}
+.obback:hover{border-color:var(--ink3)}
+.obnext{background:var(--ink);color:#fff;border:0;border-radius:999px;cursor:pointer;font-family:var(--sans);
+ font-size:12.5px;font-weight:700;padding:9px 20px;transition:background .15s}
+.obnext:hover{background:var(--coral)}
+.obhint{position:absolute;bottom:9px;left:0;right:0;text-align:center;font-size:9.5px;color:var(--ink3);letter-spacing:.04em}
+@media(max-width:560px){
+ .obart{height:150px}.obglyph{width:66px;height:66px;font-size:27px;border-radius:20px}
+ .obbody{padding:20px 20px 2px}.obh{font-size:21px}.obp{font-size:12.5px}
+ .obfoot{padding:16px 18px 20px;gap:8px}.obchip{font-size:9.5px;padding:4px 9px}
+}
 </style></head><body>
 <div class="side">
-  <div class="logo">veho<i></i></div>
+  <div class="logorow"><div class="logo">veho<i></i></div><button class="obhelp" onclick="obOpen(0)" title="What is this?" aria-label="What is this">?</button></div>
   <div class="sub">CENTRAL OPS<br>CONTROL TOWER</div>
   <div class="nav" id="nav1" style="flex:0 0 auto"></div>
   <div class="sfoot">
@@ -800,6 +855,23 @@ table.wide tr.tot td{background:var(--panel2);font-weight:800;border-top:1.5px s
   <div id="body"></div>
 </div>
 
+<div class="ob" id="ob" onclick="if(event.target===this)obEnd()"><div class="obcard">
+  <button class="obx" onclick="obEnd()" title="Close">&times;</button>
+  <div class="obart" id="obart"></div>
+  <div class="obbody">
+    <div class="obeye" id="obeye"></div>
+    <div class="obh" id="obh"></div>
+    <div class="obp" id="obp"></div>
+  </div>
+  <div class="obfoot">
+    <div class="obdots" id="obdots"></div>
+    <div class="obbtns">
+      <button class="obskip" id="obskip" onclick="obEnd()">Skip</button>
+      <button class="obback" id="obback" onclick="obPrev()" style="display:none">Back</button>
+      <button class="obnext" id="obnext" onclick="obNext()">Next</button>
+    </div>
+  </div>
+</div></div>
 <button id="askfab" class="fab" onclick="toggleAsk()" title="Ask Central Ops"><span class="fabtag">AI assist</span><span class="fabv">v<i></i></span></button>
 <div id="askpanel" class="askp" style="display:none">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
@@ -1286,37 +1358,109 @@ function pick(k){if(SEATS[SEAT].lock&&k!==SEATS[SEAT].lock)return;SEL=k;SLOTSEL=
 
 function setSeat(s){SEAT=s;TOURC=null;TOUR=-1; const L=SEATS[s].lock; if(L)SEL=L;
  if(!SEATS[s].tabs.includes(SCR))SCR=SEATS[s].tabs[0]; draw()}
-function boot(){ initMap(); draw() }
+
+/* ================= first run intro ================= */
+const OBS=[
+ {eye:'Veho · Central Operations',
+  glyph:'◉', col:'var(--coral)', wash:'var(--coral-t)',
+  h:'The Control Tower',
+  p:'The start of the Central Ops hub. Four tabs, live and clickable. <b>This is the function running a network, not one building at a time.</b>',
+  chips:['Home','Staging','Labor Plan','NOC']},
+ {eye:'Tab one',
+  glyph:'⌂', col:'var(--coral)', wash:'var(--coral-t)',
+  h:'Home',
+  p:'The network in one look. On-time, rate, driver wait, hours against standard, and a live map with National Weather Service alerts scored against every site.',
+  chips:['Filter by site or 3PL','Live radar','Against plan']},
+ {eye:'Tab two',
+  glyph:'▦', col:'#2C5F8A', wash:'var(--blue-t)',
+  h:'Staging',
+  p:'A driver checks in and the system already knows the slot. Carts get assigned to lanes ahead of arrival, oversize gets its own bay, and it warns you when drivers will outnumber slots.',
+  chips:['Run the simulation','Driver app view','Cart runner view']},
+ {eye:'Tab three',
+  glyph:'▤', col:'#8A6A12', wash:'var(--amber-t)',
+  h:'Labor Plan',
+  p:'Hours actually worked against the hours the volume should have taken. <b>Both columns are measured.</b> Anything modelled on this tab is tagged as modelled.',
+  chips:['7 day forward plan','Network master','Moving benchmark']},
+ {eye:'Tab four',
+  glyph:'⚡', col:'#2E7A52', wash:'var(--mint-t)',
+  h:'NOC',
+  p:'The ticket desk. Raise one and it decides whether it leaves the building or goes back to you with the SOP. <b>Only what Central Ops owns reaches the queue.</b>',
+  chips:['Raise a ticket','SOP deflection','Derived priority']}
+];
+let OBI=0;
+function obOpen(i){OBI=i||0;const w=$('ob');if(!w)return;w.classList.add('on');obPaint()}
+function obEnd(){const w=$('ob');if(w)w.classList.remove('on');
+ try{localStorage.setItem('vhob','1')}catch(e){}}
+function obNext(){if(OBI>=OBS.length-1){obEnd();return}OBI++;obPaint()}
+function obPrev(){if(OBI>0){OBI--;obPaint()}}
+function obPaint(){
+ const s=OBS[OBI];
+ const art=$('obart'); if(art){art.style.setProperty('--wash',s.wash);
+  art.innerHTML='<div class="obglyph" style="background:'+s.col+'">'+s.glyph+'</div>'+
+   '<div class="obchips">'+s.chips.map(c=>'<span class="obchip">'+c+'</span>').join('')+'</div>';}
+ setTx('obeye',s.eye); setHt('obh',s.h); setHt('obp',s.p);
+ setHt('obdots',OBS.map((x,i)=>'<i class="obdot'+(i===OBI?' on':'')+'"></i>').join(''));
+ const b=$('obback'); if(b)b.style.display=OBI?'block':'none';
+ setTx('obnext',OBI>=OBS.length-1?'Start exploring':'Next');
+ const sk=$('obskip'); if(sk)sk.style.display=OBI>=OBS.length-1?'none':'block';
+}
+function obBoot(){
+ let seen=false; try{seen=localStorage.getItem('vhob')==='1'}catch(e){}
+ if(!seen)setTimeout(()=>obOpen(0),450);
+}
+document.addEventListener('keydown',e=>{
+ const w=$('ob'); if(!w||!w.classList.contains('on'))return;
+ if(e.key==='Escape'){obEnd()}
+ else if(e.key==='ArrowRight'||e.key==='Enter'){obNext()}
+ else if(e.key==='ArrowLeft'){obPrev()}
+});
+
+function boot(){ initMap(); draw(); obBoot() }
 function toggleAsk(){ASK=!ASK; const p=$('askpanel'); if(p)p.style.display=ASK?'block':'none'; if(ASK)drawAsk()}
 
 /* ================= live weather ================= */
-let MAP=null,RADAR=[],RIDX=0,RLAYER=null,PLAYING=null,ALERTS=[],WXRISK=[],PINS=[];
+let MAP=null,RADAR=[],RIDX=0,RLAYER=null,PLAYING=null,ALERTS=[],WXRISK=[],PINS=[],WXDONE=false,MAPEL=null;
+/* one map node that outlives every re-render, so zoom and pan are not thrown away */
+function mapHost(){
+ const slot=$('mapslot'); if(!slot)return null;
+ if(!MAPEL){MAPEL=document.createElement('div');MAPEL.style.cssText='height:100%;width:100%'}
+ if(MAPEL.parentNode!==slot){slot.innerHTML='';slot.appendChild(MAPEL)}
+ return MAPEL;
+}
 function initMap(){
- if(!$('map'))return;
+ const host=mapHost(); if(!host)return;
  if(MAP){try{MAP.remove()}catch(e){}MAP=null}
  if(typeof L==='undefined'){          /* CDN blocked: no map, but the alert read still runs */
-  const el=$('map'); if(el)el.innerHTML='<div style="height:100%;display:grid;place-items:center;color:var(--ink3);font-size:12px;text-align:center;padding:20px">Map tiles could not load.<br>The National Weather Service check still runs.</div>';
+  const el=mapHost(); if(el)el.innerHTML='<div style="height:100%;display:grid;place-items:center;color:var(--ink3);font-size:12px;text-align:center;padding:20px">Map tiles could not load.<br>The National Weather Service check still runs.</div>';
   loadWx(); return;
  }
- MAP=L.map('map',{zoomControl:true,attributionControl:false}).setView([38.5,-96],4);
+ MAP=L.map(host,{zoomControl:true,attributionControl:false}).setView([38.5,-96],4);
  setTimeout(()=>{try{MAP.invalidateSize(false);MAP.setView(MAP.getCenter(),MAP.getZoom(),{animate:false})}catch(e){}},400);
- L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:12}).addTo(MAP);
+ L.tileLayer('https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:12,crossOrigin:true}).addTo(MAP);
  for(const h in HUBGEO){const g=HUBGEO[h];
   for(const k of AZ){const p=GEO[k];
    try{L.polyline([[g[0],g[1]],[p[0],p[1]]],{color:'#8B867E',weight:.7,opacity:.2}).addTo(MAP)}catch(e){}}}
  loadWx();
 }
+function paintAlerts(){
+ ALERTS.forEach(f=>{const p=f.properties,s=p.severity;
+  const col=(s==='Extreme'||s==='Severe')?'#E84931':s==='Moderate'?'#EBC44E':'#A8C6E4';
+  try{L.geoJSON(f.geometry,{style:{color:col,weight:1,fillColor:col,fillOpacity:.16}}).addTo(MAP)}catch(e){}});
+}
 async function loadWx(){
- try{const r=await fetch('https://api.rainviewer.com/public/weather-maps.json').then(x=>x.json());
-  RADAR=((r.radar&&r.radar.past)||[]).map(f=>({t:f.time,url:r.host+f.path+'/512/{z}/{x}/{y}/4/1_1.png'}));
-  RIDX=RADAR.length-1; showRadar(); setTx('wxSrc','Live radar · RainViewer');
- }catch(e){setTx('wxSrc','Radar feed unreachable');setTx('wxTs','')}
- try{const a=await fetch('https://api.weather.gov/alerts/active?area=GA,NC,FL,CA,IL,TX,AZ,PA,NY,NJ,MD,DE,CT,MA,DC,VA,WV,OH,TN,SC,AL,MO,IN,NV,OR,WA').then(x=>x.json());
-  ALERTS=((a&&a.features)||[]).filter(f=>f.geometry);
-  ALERTS.forEach(f=>{const p=f.properties,s=p.severity;
-   const col=(s==='Extreme'||s==='Severe')?'#E84931':s==='Moderate'?'#EBC44E':'#A8C6E4';
-   try{L.geoJSON(f.geometry,{style:{color:col,weight:1,fillColor:col,fillOpacity:.16}}).addTo(MAP)}catch(e){}});
- }catch(e){ALERTS=[]}
+ if(RADAR.length){ showRadar(); setTx('wxSrc','Live radar · RainViewer'); }
+ else{
+  try{const r=await fetch('https://api.rainviewer.com/public/weather-maps.json').then(x=>x.json());
+   RADAR=((r.radar&&r.radar.past)||[]).map(f=>({t:f.time,url:r.host+f.path+'/512/{z}/{x}/{y}/4/1_1.png'}));
+   RIDX=RADAR.length-1; showRadar(); setTx('wxSrc','Live radar · RainViewer');
+  }catch(e){setTx('wxSrc','Radar feed unreachable');setTx('wxTs','')}
+ }
+ if(WXDONE){ paintAlerts(); }
+ else{
+  try{const a=await fetch('https://api.weather.gov/alerts/active?area=GA,NC,FL,CA,IL,TX,AZ,PA,NY,NJ,MD,DE,CT,MA,DC,VA,WV,OH,TN,SC,AL,MO,IN,NV,OR,WA').then(x=>x.json());
+   ALERTS=((a&&a.features)||[]).filter(f=>f.geometry); WXDONE=true; paintAlerts();
+  }catch(e){ALERTS=[]}
+ }
  scoreWx();
 }
 function showRadar(){ if(!RADAR.length||!MAP)return;
@@ -1523,8 +1667,8 @@ function strip(){
    B.empty+' open · '+B.due+' due · '+B.waiting.length+' waiting</span>'+
  '</div>';
 }
-function hdr(h,sub,noclock){return '<div class="hd"><h1>'+h+'</h1><div class="hdm">'+sub+'</div>'+
- '<span class="hdr">'+MK[SEL].n+' · '+MK[SEL].fac+(noclock?'':' · '+hm(T)+' · '+phase(T)[1])+'</span></div>'}
+function hdr(h,sub,noclock,scope){return '<div class="hd"><h1>'+h+'</h1><div class="hdm">'+sub+'</div>'+
+ '<span class="hdr">'+(scope||(MK[SEL].n+' · '+MK[SEL].fac))+(noclock?'':' · '+hm(T)+' · '+phase(T)[1])+'</span></div>'}
 function tile(l,v,n,c){return '<div class="t"><div class="l">'+l+'</div><div class="v '+(c||'')+'">'+v+'</div><div class="n">'+n+'</div></div>'}
 
 /* ================= STAGING (sort tab) ================= */
@@ -1750,8 +1894,7 @@ function vPhones(){
     '<div class="phb hhb">'+hh+'</div></div></div>'+
   '<div class="devcol grow"><div class="devlbl">What this replaces</div>'+
    '<div class="card" style="height:100%">'+
-    '<div class="spec"><span>Radio calls to place one cart</span><span></span><span></span><span class="sv">3</span></div>'+
-    '<div class="spec"><span>Drivers told a slot by voice</span><span></span><span></span><span class="sv">every one</span></div>'+
+
     '<div class="spec"><span>Carts moved on this shift</span><span></span><span></span><span class="sv">'+S.staged+'</span></div>'+
     '<div class="spec"><span>Slot handoffs the engine made</span><span></span><span></span><span class="sv">'+S.staged+'</span></div>'+
     '<div class="spec" style="border-bottom:none"><span>Driver waiting removed by sequencing</span><span></span><span></span><span class="sv">'+f1(Math.max(0,unsequenced(k).waitMin-S.waitMin)/60)+' hrs</span></div>'+
@@ -1883,7 +2026,7 @@ function vPlanSite(){
  '</div>'+
  '<div class="card"><div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">'+
   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Seven day plan</div>'+
-  '<span class="tag meas">MEASURED BASIS</span>'+
+  '<span class="tag mod">PROJECTED &middot; MEASURED INPUTS</span>'+
   (S.edited?'<span class="f a">EDITED</span>':'')+
   (can?'<span class="act" style="margin-left:auto"><span style="font-size:11px;color:var(--ink3)">Site UPH</span>'+
    '<input type="number" step="0.1" class="cin" style="width:74px" value="'+f1(S.uph)+'" onchange="setSiteUph(\''+k+'\',this.value)">'+
@@ -1910,7 +2053,7 @@ function vPlanSite(){
    '<span class="tag mod">MODEL</span></div>'+
    '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:10px">'+MK[k].n+' runs '+f1(L.act)+' hours a day against a standard of '+f1(L.std)+'. These five buckets are an attempt to account for the '+(L.varH>=0?'+':'')+f1(L.varH)+' hour gap, using workbook rates and assumed times per occurrence. The assumptions are on each row.</div>'+
    IBK.map(b=>'<div class="br hi"><span>'+b[0]+'<i style="display:block;font-style:normal;font-size:10px;color:var(--ink3)">'+b[2]+'</i></span>'+
-    '<span class="bt"><i style="width:'+(100*bk[b[0]]/Math.max(.1,mx))+'%"></i></span><span class="bn">'+f1(bk[b[0]])+'</span></div>').join('')+
+    '<span class="bkt"><i style="width:'+Math.round(100*bk[b[0]]/Math.max(.1,mx))+'%"></i></span><span class="bn">'+f1(bk[b[0]])+'</span></div>').join('')+
    '<div class="drv" style="margin-top:8px;font-weight:800"><span>Model accounts for</span><span></span><span style="font-family:var(--mono);font-size:12px">'+f1(bk._tot)+' hrs</span></div>'+
    '<div class="drv"><span>Actual gap to standard</span><span></span><span style="font-family:var(--mono);font-size:12px">'+(L.varH>=0?'+':'')+f1(L.varH)+' hrs</span></div>'+
    '<div style="font-size:11px;color:var(--ink3);margin-top:8px;line-height:1.5">The two do not have to agree, and where they do not is the interesting part. The gap to standard is measured. The split is a hypothesis to go test on the floor.</div>'+
@@ -1973,7 +2116,7 @@ function vPlanNet(){
    '<td><b>'+f1(w.uph)+'</b></td><td style="color:var(--ink3)">'+f1(B.std)+'</td></tr>').join('')+
   '</tbody></table>'+
   '<div class="warnbox" style="background:var(--panel2);border-color:var(--line);color:var(--ink)">The network moved <b>'+(B.drift>=0?'+':'')+f1(B.drift)+' UPH</b> in six weeks and sits <b>'+f1(B.cur.uph-B.std)+'</b> against the standard. It is flat. '+
-  'That is the case for Central Ops: nothing in the network is closing this on its own.</div>'+
+  'Nothing in the network is closing this on its own.</div>'+
   '<div class="act" style="margin-top:11px"><button class="bsub" onclick="pushBar()">'+(PUSHED?'Standard published':'Publish the standard to all markets')+'</button>'+
    (PUSHED?'<span style="font-size:11.5px;color:var(--mint-d);font-weight:700">Published '+hm(PUSHED)+' · '+f1(B.std)+' UPH</span>'
           :'<span style="font-size:11.5px;color:var(--ink3)">'+f1(B.std)+' UPH and each market&rsquo;s own standard hours.</span>')+'</div></div>'+
@@ -2091,7 +2234,7 @@ function vNew(){
      :'In the '+m.team+' queue at '+hm(T)+', first response due '+hm(T+m.sla)+'.')+'</div></div>'+
    '<div class="nwb"><div class="nwn">'+(toSop
      ? 'It shows on the SOP hub as being worked. If the standard clears it, nothing ever reaches the NOC and that is the point. If it does not, one button turns it into a '+kd.escTeam+' ticket with the steps you already took attached.'
-     : 'It is in the queue now and the SLA clock is running. Priority and team were derived from what you entered, so there is nothing to argue about on arrival.')+'</div></div>'+
+     : 'It is in the queue now and the SLA clock is running. Priority and team were derived from your inputs. Both can be overridden on the ticket.')+'</div></div>'+
    '<div class="nwa"><button class="abtn" onclick="closeNew()">Close</button>'+
    '<button class="abtn p" onclick="nOpenMade()">'+(toSop?'Open it on the SOP hub':'Open it in the queue')+'</button></div>';
  }
@@ -2362,7 +2505,7 @@ function spark(a,w,h){
 
 /* ================= HOME · network snapshot ================= */
 let FTYPE='all', FSITE='all', HQ=0, LOOK='7d';
-const LOOKS=[['day','Wk 30'],['7d','6 week average'],['6wk','All six weeks']];
+const LOOKS=[['day','Last week &middot; Wk 30'],['7d','6 week average']];
 function setFType(v){FTYPE=v;draw()} function setFSite(v){FSITE=v;draw()}
 function setLook(v){LOOK=v;draw()}  function setHQ(i){HQ=i;draw()}
 function clearF(){FTYPE='all';FSITE='all';draw()}
@@ -2373,9 +2516,7 @@ function look(k){
  const d=DS[k], w=d.wk_otd, R=rng(MK[k].seed*17+(LOOK==='day'?1:LOOK==='7d'?2:3));
  const j=(b,a)=>Math.round(b*(1+(R()-.5)*a)*100)/100;
  const fin=o=>{o.hours=Math.round(o.vol/o.uph*10)/10; return o};   /* hours follow from volume and UPH */
- if(LOOK==='7d') return fin({otd:w[w.length-1],uph:d.uph,rework:d.rework,ci:d.ci_med,aband:d.aband,
-   hand:d.hand,late:d.arr_late,raband:d.raband,vol:d.vol,wk:w});
- if(LOOK==='6wk'){const m=w.reduce((a,b)=>a+b,0)/w.length;
+ if(LOOK!=='day'){const m=w.reduce((a,b)=>a+b,0)/w.length;   /* the real six week mean */
   return fin({otd:Math.round(m*100)/100,uph:d.uph,rework:d.rework,ci:d.ci_med,
    aband:d.aband,hand:d.hand,late:d.arr_late,raband:d.raband,vol:d.vol,wk:w})}
  /* a single week: that market's own last week, no invented noise */
@@ -2414,7 +2555,7 @@ function vWx(){
   '<span style="margin-left:auto;color:#8B857C;text-transform:none;letter-spacing:0;font-weight:400">'+W.rows.length+' market'+(W.rows.length===1?'':'s')+' exposed</span></div>'+
   '<div class="find"><span class="fv no">'+fm(W.exposed)+' PACKAGES AT RISK</span>'+
    '<div class="ft">'+W.rows.map(r=>r.m.n).join(', ')+'</div>'+
-   '<div class="fb">'+W.rows.map(r=>'<b>'+r.m.n+'</b> · '+r.ev+' · about '+fm(r.risk)+' packages and '+r.otd+' points of on-time.').join('<br>')+'<div style="font-size:10.5px;color:#8B857C;margin-top:7px">Alerts and radar are live from the National Weather Service. The exposure percentages are assumptions, not fitted to history: there is no weather field in the workbook, and instrumenting it is the first thing I would ask for.</div></div>'+
+   '<div class="fb">'+W.rows.map(r=>'<b>'+r.m.n+'</b> · '+r.ev+' · about '+fm(r.risk)+' packages and '+r.otd+' points of on-time.').join('<br>')+'<div style="font-size:10.5px;color:#8B857C;margin-top:7px">Alerts and radar are live from the National Weather Service. The exposure percentages are assumptions, not fitted to history: there is no weather field in the workbook, so instrumenting it is a prerequisite for calibrating this.</div></div>'+
   (W.hubs.length?'<div class="find"><span class="fv up">HUB EXPOSED</span><div class="ft">'+W.hubs.map(h=>h.name).join(', ')+'</div>'+
    '<div class="fb">Every destination on that lane is exposed, not just the city under the cell. Pull departures forward before the wave, not after.</div></div>':'')+
   '<div class="find"><div class="ft">Recommended</div><div class="fb">Hold launch 30 minutes at the affected markets and shrink route plans before staging. Tell Marketplace now so pay can move while drivers are still deciding.</div></div></div>';
@@ -2445,7 +2586,7 @@ const HOMEQ=[
  ['Is the network improving?', ()=>{const N=netBench();
    return 'Standard is <b>'+f1(N.std)+' UPH</b>. The network ran <b>'+f1(N.actual)+'</b> across six weeks.<br>'+
     N.first.w+' '+f1(N.first.uph)+' → '+N.cur.w+' '+f1(N.cur.uph)+', a move of <b>'+(N.drift>=0?'+':'')+f1(N.drift)+'</b>.<br><br>'+
-    'It is flat. Nothing here is closing on its own, which is the argument for the function.'}]];
+    'It is flat. Nothing here is closing on its own.'}]];
 
 function vHome(){
  const F=fmkts();
@@ -2457,7 +2598,7 @@ function vHome(){
    under=rows.filter(r=>r.A.band==='under').length;
  const sorted=rows.slice().sort((a,b)=>b.A.pct-a.A.pct), span=12;
  const lbl=LOOKS.find(x=>x[0]===LOOK)[1];
- return hdr('Network',lbl+' &middot; '+NETD.start+' to '+NETD.end+' &middot; '+F.length+' market'+(F.length===1?'':'s'),true)+
+ return hdr('Network',lbl+' &middot; '+NETD.start+' to '+NETD.end+' &middot; '+F.length+' market'+(F.length===1?'':'s'),true,(SITEF==='all'?'All sites':MK[SITEF].n)+' &middot; '+(FTYPE==='all'?'Veho and 3PL':FTYPE))+
  '<div class="filt">'+
   '<span class="fl">Window</span><div class="seg">'+LOOKS.map(x=>
    '<button class="'+(LOOK===x[0]?'on':'')+'" onclick="setLook(\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div>'+
@@ -2479,9 +2620,9 @@ function vHome(){
   '<div class="card" style="padding:0;overflow:hidden">'+
    '<div style="padding:10px 14px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--line)">'+
    '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Network map</div>'+
-   '<button class="mk" id="wxPlay" onclick="playRadar()">Play radar</button><span class="hdr" id="wxTs"></span>'+
+   '<button class="mk'+(PLAYING?' on':'')+'" id="wxPlay" onclick="playRadar()">'+(PLAYING?'Pause':'Play radar')+'</button><span class="hdr" id="wxTs"></span>'+
    '<span class="hdr" id="wxSrc" style="margin-left:auto">loading radar</span></div>'+
-   '<div id="map" style="height:428px;width:100%"></div></div>'+
+   '<div id="mapslot" style="height:428px;width:100%"></div></div>'+
   '<div id="wxPanel2">'+vWx()+'</div>'+
  '</div>'+
  '<div class="card mt12"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:4px">'+
@@ -2556,7 +2697,12 @@ function draw(){
  else if(SCR==='plan')h=vPlan();
  else if(SCR==='noc')h=vNoc();
  setHt('body',h);
- if(SCR==='home'&&!MAP) initMap(); else if(SCR==='home'&&MAP) setTimeout(()=>{try{MAP.invalidateSize(false)}catch(e){}},60);
+ if(SCR==='home'){
+  const host=mapHost();
+  let live=false; try{live=!!(MAP&&host&&MAP.getContainer()===host&&host.isConnected)}catch(e){live=false}
+  if(!live) initMap();
+  else setTimeout(()=>{try{MAP.invalidateSize(false)}catch(e){}},60);
+ }
  if(ASK)drawAsk();
 }
 boot();
