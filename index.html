@@ -74,6 +74,16 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:13.
 .hd{display:flex;align-items:baseline;gap:14px;margin-bottom:16px;flex-wrap:wrap}
 /* KPI strip */
 .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:12px}
+.kband{display:flex;gap:22px;align-items:stretch;margin-bottom:12px;flex-wrap:wrap}
+.kseg{display:flex;flex-direction:column;gap:6px;min-width:0}
+.kseg.o{flex:2 1 320px} .kseg.u{flex:3 1 430px} .kseg.r{flex:2 1 290px}
+.ksegh{display:flex;align-items:baseline;gap:7px;padding-left:2px;flex-wrap:wrap}
+.ksegt{font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+.ksegs{font-size:9.5px;color:var(--ink3)}
+.kseg .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(134px,1fr));gap:10px;flex:1}
+.kseg.u .ksegt{color:var(--blue-d)} .kseg.r .ksegt{color:var(--coral-d)}
+.kseg.u,.kseg.r{border-left:1px solid var(--line);padding-left:22px}
+@media(max-width:1250px){.kseg.o,.kseg.u,.kseg.r{flex:1 1 100%}.kseg.u,.kseg.r{border-left:0;padding-left:0}}
 @media(max-width:1400px){.kpis{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.kpis{grid-template-columns:1fr 1fr}}
 .kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 13px;position:relative;overflow:hidden}
@@ -2622,13 +2632,20 @@ function vHome(){
    MKT.map(m=>'<option value="'+m.k+'"'+(FSITE===m.k?' selected':'')+'>'+m.n+'</option>').join('')+'</select>'+
   ((FTYPE!=='all'||FSITE!=='all')?'<button class="abtn" onclick="clearF()">Clear</button>':'')+
   '<span class="fl" style="margin-left:auto">'+fm(K.vol)+' packages a day · '+fm(K.hours)+' paid hours a day</span></div>'+
- '<div class="kpis">'+
-  '<div class="kpi"><div class="kl">On-time delivery</div><div class="kv '+(K.otd<93?'r':K.otd<95?'a':'g')+'">'+f1(K.otd)+'%</div><div class="kd">'+lbl.toLowerCase()+', volume weighted</div></div>'+
-  '<div class="kpi"><div class="kl">UPH</div><div class="kv">'+f1(K.uph)+'</div><div class="kd">bar '+f1(N.cur.uph)+' · '+(N.dUph>=0?'+':'')+f1(N.dUph)+' on last week</div></div>'+
-  '<div class="kpi"><div class="kl">Check-in to load</div><div class="kv '+(K.ci>20?'r':K.ci>14?'a':'g')+'">'+f1(K.ci)+'</div><div class="kd">median minutes a driver waits</div></div>'+
-  '<div class="kpi"><div class="kl">Hours vs standard</div><div class="kv '+(O.pct>4?'r':O.pct>0?'a':'g')+'">'+(O.pct>=0?'+':'')+f1(O.pct)+'%</div><div class="kd">'+f1(O.act)+' run against '+f1(O.std)+'</div></div>'+
-  '<div class="kpi"><div class="kl">Inbound freight on time</div><div class="kv '+(100-K.late<90?'r':100-K.late<93?'a':'g')+'">'+f1(100-K.late)+'%</div><div class="kd">middle mile into the building</div></div>'+
-  '<div class="kpi"><div class="kl">Weather exposure</div><div class="kv g" id="wxN">0</div><div class="kd" id="wxL">checking</div></div>'+
+ '<div class="kband">'+
+  '<div class="kseg o"><div class="ksegh"><span class="ksegt">Network</span><span class="ksegs">the promise, and what arrives</span></div><div class="row">'+
+   '<div class="kpi"><div class="kl">On-time delivery</div><div class="kv '+(K.otd<93?'r':K.otd<95?'a':'g')+'">'+f1(K.otd)+'%</div><div class="kd">'+lbl.toLowerCase()+', volume weighted</div></div>'+
+   '<div class="kpi"><div class="kl">Inbound freight on time</div><div class="kv '+(100-K.late<90?'r':100-K.late<93?'a':'g')+'">'+f1(100-K.late)+'%</div><div class="kd">middle mile, before the roof</div></div>'+
+  '</div></div>'+
+  '<div class="kseg u"><div class="ksegh"><span class="ksegt">UTR · under the roof</span><span class="ksegs">the site runs it, Central Ops sets the standard</span></div><div class="row">'+
+   '<div class="kpi"><div class="kl">Packages per hour</div><div class="kv">'+f1(K.uph)+'</div><div class="kd">bar '+f1(N.cur.uph)+' · '+(N.dUph>=0?'+':'')+f1(N.dUph)+' on last week</div></div>'+
+   '<div class="kpi"><div class="kl">Hours vs standard</div><div class="kv '+(O.pct>4?'r':O.pct>0?'a':'g')+'">'+(O.pct>=0?'+':'')+f1(O.pct)+'%</div><div class="kd">'+f1(O.act)+' run against '+f1(O.std)+'</div></div>'+
+   '<div class="kpi"><div class="kl">Check-in to load</div><div class="kv '+(K.ci>20?'r':K.ci>14?'a':'g')+'">'+f1(K.ci)+'</div><div class="kd">the handoff · median minutes</div></div>'+
+  '</div></div>'+
+  '<div class="kseg r"><div class="ksegh"><span class="ksegt">OTR · on the road</span><span class="ksegs">marketplace health</span></div><div class="row">'+
+   '<div class="kpi"><div class="kl">Routes abandoned</div><div class="kv '+(K.aband>250?'r':K.aband>120?'a':'g')+'">'+fm(Math.round(K.aband))+'</div><div class="kd">per 10,000 packages</div></div>'+
+   '<div class="kpi"><div class="kl">Repeat abandonment</div><div class="kv '+(K.raband>4?'r':K.raband>2?'a':'g')+'">'+f1(K.raband)+'</div><div class="kd">same driver again · per 10,000</div></div>'+
+  '</div></div>'+
  '</div>'+
  '<div class="mapwrap">'+
   '<div class="card" style="padding:0;overflow:hidden">'+
