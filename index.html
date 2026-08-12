@@ -1389,8 +1389,7 @@ const OBS=[
 ];
 let OBI=0;
 function obOpen(i){OBI=i||0;const w=$('ob');if(!w)return;w.classList.add('on');obPaint()}
-function obEnd(){const w=$('ob');if(w)w.classList.remove('on');
- try{localStorage.setItem('vhob','1')}catch(e){}}
+function obEnd(){const w=$('ob');if(w)w.classList.remove('on')}
 function obNext(){if(OBI>=OBS.length-1){obEnd();return}OBI++;obPaint()}
 function obPrev(){if(OBI>0){OBI--;obPaint()}}
 function obPaint(){
@@ -1404,10 +1403,7 @@ function obPaint(){
  setTx('obnext',OBI>=OBS.length-1?'Start exploring':'Next');
  const sk=$('obskip'); if(sk)sk.style.display=OBI>=OBS.length-1?'none':'block';
 }
-function obBoot(){
- let seen=false; try{seen=localStorage.getItem('vhob')==='1'}catch(e){}
- if(!seen)setTimeout(()=>obOpen(0),450);
-}
+function obBoot(){ setTimeout(()=>obOpen(0),300) }
 document.addEventListener('keydown',e=>{
  const w=$('ob'); if(!w||!w.classList.contains('on'))return;
  if(e.key==='Escape'){obEnd()}
