@@ -76,14 +76,14 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:13.
 .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:12px}
 .kband{display:flex;gap:22px;align-items:stretch;margin-bottom:12px;flex-wrap:wrap}
 .kseg{display:flex;flex-direction:column;gap:6px;min-width:0}
-.kseg.o{flex:2 1 320px} .kseg.u{flex:3 1 430px} .kseg.r{flex:2 1 290px}
+.kseg.o{flex:2 1 320px} .kseg.u{flex:5 1 660px} .kseg.r{flex:3 1 400px}
 .ksegh{display:flex;align-items:baseline;gap:7px;padding-left:2px;flex-wrap:wrap}
 .ksegt{font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
 .ksegs{font-size:9.5px;color:var(--ink3)}
 .kseg .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(134px,1fr));gap:10px;flex:1}
 .kseg.u .ksegt{color:var(--blue-d)} .kseg.r .ksegt{color:var(--coral-d)}
-.kseg.u,.kseg.r{border-left:1px solid var(--line);padding-left:22px}
-@media(max-width:1250px){.kseg.o,.kseg.u,.kseg.r{flex:1 1 100%}.kseg.u,.kseg.r{border-left:0;padding-left:0}}
+.kseg.r{border-left:1px solid var(--line);padding-left:22px}
+@media(max-width:1250px){.kseg.o,.kseg.u,.kseg.r{flex:1 1 100%}.kseg.r{border-left:0;padding-left:0}}
 @media(max-width:1400px){.kpis{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:760px){.kpis{grid-template-columns:1fr 1fr}}
 .kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 13px;position:relative;overflow:hidden}
@@ -909,7 +909,7 @@ function hm(m){m=Math.round(m);const h=Math.floor(m/60)%24,x=m%60;return String(
 function fm(n){return Math.round(n).toLocaleString()}
 function f1(n){return (Math.round(n*10)/10).toFixed(1)}
 
-const DS={"A":{"otd":94.65,"uph":88.1,"hours":4885,"hours_std":4686,"hrs_day":116.3,"rework":13.9,"ci_med":13.0,"ci_p90":22.7,"aband":154.2,"hand":66.1,"raband":2.16,"arr_late":6.0,"arr_p90":-13.0,"dep_sd":32.5,"adher":99.86,"vol":10259,"wk_otd":[93.7,94.4,91.0,95.5,96.3,97.3],"wk_uph":[85.7,87.1,91.3,89.7,86.3,88.7],"region":"Southeast","fac":"Veho","sh_ab":28.8,"sh_in":43.0,"dl_med":10.0,"pkgs":430886,"std_day":111.6,"dv":[10995,10803,10984,11200,10837,8700,8296]},"B":{"otd":95.96,"uph":99.7,"hours":5684,"hours_std":6172,"hrs_day":135.3,"rework":13.7,"ci_med":9.5,"ci_p90":14.0,"aband":47.9,"hand":39.7,"raband":0.71,"arr_late":5.5,"arr_p90":-13.0,"dep_sd":30.2,"adher":99.85,"vol":13516,"wk_otd":[98.5,95.1,98.2,91.2,95.8,97.0],"wk_uph":[100.5,99.6,96.0,100.6,101.4,100.2],"region":"West","fac":"Veho","sh_ab":11.9,"sh_in":60.1,"dl_med":7.0,"pkgs":567689,"std_day":147.0,"dv":[14938,13916,14054,14298,14098,11691,11622]},"C":{"otd":93.85,"uph":85.4,"hours":4133,"hours_std":3842,"hrs_day":98.4,"rework":14.0,"ci_med":17.0,"ci_p90":24.0,"aband":235.7,"hand":92.5,"raband":3.39,"arr_late":6.4,"arr_p90":-11.2,"dep_sd":30.9,"adher":99.87,"vol":8411,"wk_otd":[91.0,94.3,93.8,95.4,92.8,95.8],"wk_uph":[80.1,84.8,82.6,85.6,90.0,90.0],"region":"Northeast","fac":"3PL","sh_ab":38.3,"sh_in":31.9,"dl_med":13.5,"pkgs":353280,"std_day":91.5,"dv":[8885,8829,9119,9149,8974,7059,6864]},"D":{"otd":89.11,"uph":81.2,"hours":6015,"hours_std":5320,"hrs_day":143.2,"rework":27.0,"ci_med":40.5,"ci_p90":53.9,"aband":716.1,"hand":66.0,"raband":9.81,"arr_late":6.6,"arr_p90":-11.9,"dep_sd":29.9,"adher":99.87,"vol":11648,"wk_otd":[91.6,91.7,86.4,89.4,88.4,87.3],"wk_uph":[85.5,84.8,81.9,78.2,79.4,78.1],"region":"Northeast","fac":"3PL","sh_ab":65.7,"sh_in":20.6,"dl_med":37.5,"pkgs":489210,"std_day":126.7,"dv":[12711,12612,12400,11631,12764,9488,9929]},"E":{"otd":97.02,"uph":97.2,"hours":4880,"hours_std":5163,"hrs_day":116.2,"rework":13.0,"ci_med":8.5,"ci_p90":18.0,"aband":78.6,"hand":26.3,"raband":1.17,"arr_late":5.5,"arr_p90":-14.0,"dep_sd":27.8,"adher":99.83,"vol":11308,"wk_otd":[97.1,97.6,96.6,97.4,95.5,98.0],"wk_uph":[95.5,97.3,99.4,96.6,96.9,97.3],"region":"Southeast","fac":"Veho","sh_ab":26.3,"sh_in":49.4,"dl_med":6.5,"pkgs":474950,"std_day":122.9,"dv":[12110,12218,11752,11567,11967,9856,9688]},"F":{"otd":96.03,"uph":90.1,"hours":7900,"hours_std":7747,"hrs_day":188.1,"rework":14.8,"ci_med":12.5,"ci_p90":17.0,"aband":135.4,"hand":66.1,"raband":1.98,"arr_late":4.6,"arr_p90":-14.8,"dep_sd":26.1,"adher":99.85,"vol":16963,"wk_otd":[95.2,96.6,95.6,95.4,96.5,96.9],"wk_uph":[87.0,88.5,90.6,90.4,90.9,92.9],"region":"West","fac":"Veho","sh_ab":34.1,"sh_in":33.3,"dl_med":11.0,"pkgs":712448,"std_day":184.5,"dv":[17758,17720,18390,19134,18309,13782,13649]},"G":{"otd":87.0,"uph":85.9,"hours":4606,"hours_std":4307,"hrs_day":109.7,"rework":14.4,"ci_med":12.0,"ci_p90":17.9,"aband":156.7,"hand":59.4,"raband":2.27,"arr_late":21.2,"arr_p90":65.6,"dep_sd":49.9,"adher":99.86,"vol":9431,"wk_otd":[85.5,83.7,84.3,90.9,88.6,89.2],"wk_uph":[88.2,85.9,84.0,83.8,85.9,87.8],"region":"Southeast","fac":"3PL","sh_ab":12.1,"sh_in":66.4,"dl_med":9.0,"pkgs":396115,"std_day":102.5,"dv":[10134,9792,10092,10029,10042,7926,8004]},"H":{"otd":94.65,"uph":85.5,"hours":3508,"hours_std":3268,"hrs_day":83.5,"rework":13.4,"ci_med":12.5,"ci_p90":18.9,"aband":169.3,"hand":72.7,"raband":2.35,"arr_late":7.2,"arr_p90":-14.0,"dep_sd":28.1,"adher":99.87,"vol":7154,"wk_otd":[94.4,95.9,95.0,92.8,96.0,93.7],"wk_uph":[89.8,83.9,84.8,87.6,84.9,82.6],"region":"Central","fac":"Veho","sh_ab":31.6,"sh_in":39.2,"dl_med":9.0,"pkgs":300484,"std_day":77.8,"dv":[7805,7506,7579,7739,7405,6030,6016]}};
+const DS={"A":{"pu":3,"otd":94.65,"uph":88.1,"hours":4885,"hours_std":4686,"hrs_day":116.3,"rework":13.9,"ci_med":13.0,"ci_p90":22.7,"aband":154.2,"hand":66.1,"raband":2.16,"arr_late":6.0,"arr_p90":-13.0,"dep_sd":32.5,"adher":99.86,"vol":10259,"wk_otd":[93.7,94.4,91.0,95.5,96.3,97.3],"wk_uph":[85.7,87.1,91.3,89.7,86.3,88.7],"region":"Southeast","fac":"Veho","sh_ab":28.8,"sh_in":43.0,"dl_med":10.0,"pkgs":430886,"std_day":111.6,"dv":[10995,10803,10984,11200,10837,8700,8296]},"B":{"pu":0,"otd":95.96,"uph":99.7,"hours":5684,"hours_std":6172,"hrs_day":135.3,"rework":13.7,"ci_med":9.5,"ci_p90":14.0,"aband":47.9,"hand":39.7,"raband":0.71,"arr_late":5.5,"arr_p90":-13.0,"dep_sd":30.2,"adher":99.85,"vol":13516,"wk_otd":[98.5,95.1,98.2,91.2,95.8,97.0],"wk_uph":[100.5,99.6,96.0,100.6,101.4,100.2],"region":"West","fac":"Veho","sh_ab":11.9,"sh_in":60.1,"dl_med":7.0,"pkgs":567689,"std_day":147.0,"dv":[14938,13916,14054,14298,14098,11691,11622]},"C":{"pu":6,"otd":93.85,"uph":85.4,"hours":4133,"hours_std":3842,"hrs_day":98.4,"rework":14.0,"ci_med":17.0,"ci_p90":24.0,"aband":235.7,"hand":92.5,"raband":3.39,"arr_late":6.4,"arr_p90":-11.2,"dep_sd":30.9,"adher":99.87,"vol":8411,"wk_otd":[91.0,94.3,93.8,95.4,92.8,95.8],"wk_uph":[80.1,84.8,82.6,85.6,90.0,90.0],"region":"Northeast","fac":"3PL","sh_ab":38.3,"sh_in":31.9,"dl_med":13.5,"pkgs":353280,"std_day":91.5,"dv":[8885,8829,9119,9149,8974,7059,6864]},"D":{"pu":22,"otd":89.11,"uph":81.2,"hours":6015,"hours_std":5320,"hrs_day":143.2,"rework":27.0,"ci_med":40.5,"ci_p90":53.9,"aband":716.1,"hand":66.0,"raband":9.81,"arr_late":6.6,"arr_p90":-11.9,"dep_sd":29.9,"adher":99.87,"vol":11648,"wk_otd":[91.6,91.7,86.4,89.4,88.4,87.3],"wk_uph":[85.5,84.8,81.9,78.2,79.4,78.1],"region":"Northeast","fac":"3PL","sh_ab":65.7,"sh_in":20.6,"dl_med":37.5,"pkgs":489210,"std_day":126.7,"dv":[12711,12612,12400,11631,12764,9488,9929]},"E":{"pu":5,"otd":97.02,"uph":97.2,"hours":4880,"hours_std":5163,"hrs_day":116.2,"rework":13.0,"ci_med":8.5,"ci_p90":18.0,"aband":78.6,"hand":26.3,"raband":1.17,"arr_late":5.5,"arr_p90":-14.0,"dep_sd":27.8,"adher":99.83,"vol":11308,"wk_otd":[97.1,97.6,96.6,97.4,95.5,98.0],"wk_uph":[95.5,97.3,99.4,96.6,96.9,97.3],"region":"Southeast","fac":"Veho","sh_ab":26.3,"sh_in":49.4,"dl_med":6.5,"pkgs":474950,"std_day":122.9,"dv":[12110,12218,11752,11567,11967,9856,9688]},"F":{"pu":3,"otd":96.03,"uph":90.1,"hours":7900,"hours_std":7747,"hrs_day":188.1,"rework":14.8,"ci_med":12.5,"ci_p90":17.0,"aband":135.4,"hand":66.1,"raband":1.98,"arr_late":4.6,"arr_p90":-14.8,"dep_sd":26.1,"adher":99.85,"vol":16963,"wk_otd":[95.2,96.6,95.6,95.4,96.5,96.9],"wk_uph":[87.0,88.5,90.6,90.4,90.9,92.9],"region":"West","fac":"Veho","sh_ab":34.1,"sh_in":33.3,"dl_med":11.0,"pkgs":712448,"std_day":184.5,"dv":[17758,17720,18390,19134,18309,13782,13649]},"G":{"pu":1,"otd":87.0,"uph":85.9,"hours":4606,"hours_std":4307,"hrs_day":109.7,"rework":14.4,"ci_med":12.0,"ci_p90":17.9,"aband":156.7,"hand":59.4,"raband":2.27,"arr_late":21.2,"arr_p90":65.6,"dep_sd":49.9,"adher":99.86,"vol":9431,"wk_otd":[85.5,83.7,84.3,90.9,88.6,89.2],"wk_uph":[88.2,85.9,84.0,83.8,85.9,87.8],"region":"Southeast","fac":"3PL","sh_ab":12.1,"sh_in":66.4,"dl_med":9.0,"pkgs":396115,"std_day":102.5,"dv":[10134,9792,10092,10029,10042,7926,8004]},"H":{"pu":4,"otd":94.65,"uph":85.5,"hours":3508,"hours_std":3268,"hrs_day":83.5,"rework":13.4,"ci_med":12.5,"ci_p90":18.9,"aband":169.3,"hand":72.7,"raband":2.35,"arr_late":7.2,"arr_p90":-14.0,"dep_sd":28.1,"adher":99.87,"vol":7154,"wk_otd":[94.4,95.9,95.0,92.8,96.0,93.7],"wk_uph":[89.8,83.9,84.8,87.6,84.9,82.6],"region":"Central","fac":"Veho","sh_ab":31.6,"sh_in":39.2,"dl_med":9.0,"pkgs":300484,"std_day":77.8,"dv":[7805,7506,7579,7739,7405,6030,6016]}};
 const NETD={"days":42,"uph_std":91.8,"hours":41611,"hours_std":40505,"pkgs":3725062,"otd":93.8,"start":"2026-06-15","end":"2026-07-26","shape":[1.0749,1.053,1.064,1.0682,1.0644,0.8404,0.8351]};
 /* Markets carry the real case study figures. Volume, operator and region come from the
    workbook; routes are volume over a 90 package route; the failure mode is whichever of
@@ -2529,7 +2529,8 @@ function fmkts(){return MKT.filter(m=>(FTYPE==='all'||m.fac===FTYPE)&&(FSITE==='
 function look(k){
  const d=DS[k], w=d.wk_otd, R=rng(MK[k].seed*17+(LOOK==='day'?1:LOOK==='7d'?2:3));
  const j=(b,a)=>Math.round(b*(1+(R()-.5)*a)*100)/100;
- const fin=o=>{o.hours=Math.round(o.vol/o.uph*10)/10; return o};   /* hours follow from volume and UPH */
+ const fin=o=>{o.hours=Math.round(o.vol/o.uph*10)/10;
+  o.pu=d.pu||0; o.lnch=100*(NETD.days-o.pu)/NETD.days; return o};   /* hours follow from volume and UPH */
  /* Yesterday: volume is that market's measured volume for that weekday.
     Everything else stays at the six week figure, because the workbook has no daily grain. */
  if(LOOK==='yday'){const dv=(d.dv&&d.dv[ydayIdx()])?d.dv[ydayIdx()]:d.vol;
@@ -2547,8 +2548,9 @@ function netLook(list){const v=list.reduce((a,m)=>a+look(m.k).vol,0);
  const h=list.reduce((a,m)=>a+look(m.k).hours,0);
  const w=f=>list.reduce((a,m)=>a+look(m.k)[f]*look(m.k).vol,0)/v;
  /* UPH for a group is total packages over total hours, not the mean of the members' rates */
+ const sd=list.length*NETD.days, pu=list.reduce((a,m)=>a+look(m.k).pu,0);
  return {vol:v,hours:h,uph:h?v/h:0,otd:w('otd'),rework:w('rework'),ci:w('ci'),aband:w('aband'),
-  hand:w('hand'),late:w('late'),raband:w('raband')};
+  hand:w('hand'),late:w('late'),raband:w('raband'),lnch:100*(sd-pu)/sd,pu:pu,sd:sd};
 }
 /* against the engineered standard from the workbook, not the mean of these same eight */
 function attain(k){const a=look(k).uph, p=NETD.uph_std, pct=100*a/p;
@@ -2633,18 +2635,19 @@ function vHome(){
   ((FTYPE!=='all'||FSITE!=='all')?'<button class="abtn" onclick="clearF()">Clear</button>':'')+
   '<span class="fl" style="margin-left:auto">'+fm(K.vol)+' packages a day · '+fm(K.hours)+' paid hours a day</span></div>'+
  '<div class="kband">'+
-  '<div class="kseg o"><div class="ksegh"><span class="ksegt">Network</span><span class="ksegs">the promise, and what arrives</span></div><div class="row">'+
+  '<div class="kseg u"><div class="ksegh"><span class="ksegt">UTR &middot; under the roof</span>'+
+   '<span class="ksegs">launch and the building. The site runs it, Central Ops sets the standard.</span></div><div class="row">'+
    '<div class="kpi"><div class="kl">On-time delivery</div><div class="kv '+(K.otd<93?'r':K.otd<95?'a':'g')+'">'+f1(K.otd)+'%</div><div class="kd">'+lbl.toLowerCase()+', volume weighted</div></div>'+
-   '<div class="kpi"><div class="kl">Inbound freight on time</div><div class="kv '+(100-K.late<90?'r':100-K.late<93?'a':'g')+'">'+f1(100-K.late)+'%</div><div class="kd">middle mile, before the roof</div></div>'+
+   '<div class="kpi"><div class="kl">On-time launch</div><div class="kv '+(K.lnch<92?'r':K.lnch<97?'a':'g')+'">'+f1(K.lnch)+'%</div><div class="kd">'+fm(K.sd-K.pu)+' of '+fm(K.sd)+' site days left at plan</div></div>'+
+   '<div class="kpi"><div class="kl">Packages per hour</div><div class="kv">'+f1(K.uph)+'</div><div class="kd">standard '+f1(NETD.uph_std)+' &middot; '+(N.dUph>=0?'+':'')+f1(N.dUph)+' on last week</div></div>'+
+   '<div class="kpi"><div class="kl">Handling errors</div><div class="kv '+(K.hand>85?'r':K.hand>55?'a':'g')+'">'+fm(Math.round(K.hand))+'</div><div class="kd">per 10,000 packages</div></div>'+
+   '<div class="kpi"><div class="kl">Hours on rework</div><div class="kv '+(K.rework>20?'r':K.rework>15?'a':'g')+'">'+f1(K.rework)+'%</div><div class="kd">share of paid hours spent twice</div></div>'+
   '</div></div>'+
-  '<div class="kseg u"><div class="ksegh"><span class="ksegt">UTR · under the roof</span><span class="ksegs">the site runs it, Central Ops sets the standard</span></div><div class="row">'+
-   '<div class="kpi"><div class="kl">Packages per hour</div><div class="kv">'+f1(K.uph)+'</div><div class="kd">bar '+f1(N.cur.uph)+' · '+(N.dUph>=0?'+':'')+f1(N.dUph)+' on last week</div></div>'+
-   '<div class="kpi"><div class="kl">Hours vs standard</div><div class="kv '+(O.pct>4?'r':O.pct>0?'a':'g')+'">'+(O.pct>=0?'+':'')+f1(O.pct)+'%</div><div class="kd">'+f1(O.act)+' run against '+f1(O.std)+'</div></div>'+
-   '<div class="kpi"><div class="kl">Check-in to load</div><div class="kv '+(K.ci>20?'r':K.ci>14?'a':'g')+'">'+f1(K.ci)+'</div><div class="kd">the handoff · median minutes</div></div>'+
-  '</div></div>'+
-  '<div class="kseg r"><div class="ksegh"><span class="ksegt">OTR · on the road</span><span class="ksegs">marketplace health</span></div><div class="row">'+
-   '<div class="kpi"><div class="kl">Routes abandoned</div><div class="kv '+(K.aband>250?'r':K.aband>120?'a':'g')+'">'+fm(Math.round(K.aband))+'</div><div class="kd">per 10,000 packages</div></div>'+
-   '<div class="kpi"><div class="kl">Repeat abandonment</div><div class="kv '+(K.raband>4?'r':K.raband>2?'a':'g')+'">'+f1(K.raband)+'</div><div class="kd">same driver again · per 10,000</div></div>'+
+  '<div class="kseg r"><div class="ksegh"><span class="ksegt">OTR &middot; on the road</span>'+
+   '<span class="ksegs">middle mile in, drivers out. Different team, different fix.</span></div><div class="row">'+
+   '<div class="kpi"><div class="kl">Freight arriving on time</div><div class="kv '+((100-K.late)<90?'r':(100-K.late)<94?'a':'g')+'">'+f1(100-K.late)+'%</div><div class="kd">middle mile trips landing at or before plan</div></div>'+
+   '<div class="kpi"><div class="kl">Driver wait</div><div class="kv '+(K.ci>20?'r':K.ci>14?'a':'g')+'">'+f1(K.ci)+'</div><div class="kd">median minutes, check in to first load</div></div>'+
+   '<div class="kpi"><div class="kl">Drivers quitting routes</div><div class="kv '+(K.aband>250?'r':K.aband>120?'a':'g')+'">'+fm(Math.round(K.aband))+'</div><div class="kd">packages missed to a quit, per 10,000</div></div>'+
   '</div></div>'+
  '</div>'+
  '<div class="mapwrap">'+
@@ -2676,7 +2679,7 @@ function vHome(){
  '<div class="tscroll"><table class="wide"><thead><tr>'+
   '<th>Market</th><th>Region</th><th>Type</th><th>Volume / day</th><th>On-time delivery</th><th>6 week OTD</th>'+
   '<th>UPH</th><th>Paid hrs / day</th><th>Hours vs standard</th><th>Rework</th><th>Check-in to load</th>'+
-  '<th>Not delivered</th><th>Routes abandoned</th><th>Handling defects</th><th>Freight late</th></tr></thead><tbody>'+
+  '<th>Missed to quits</th><th>Routes abandoned</th><th>Handling defects</th><th>Freight late</th></tr></thead><tbody>'+
  rows.sort((x,y)=>x.L.otd-y.L.otd).map(r=>
   '<tr style="cursor:pointer" onclick="pick(\''+r.m.k+'\');go(\'plan\')">'+
   '<td>'+r.m.n+' <span style="color:var(--ink3);font-weight:400">'+r.m.k+'</span></td>'+
@@ -2696,8 +2699,8 @@ function vHome(){
   '<td>'+f1(K.uph)+'</td><td>'+f1(K.hours)+'</td><td>'+(O.pct>=0?'+':'')+f1(O.pct)+'%</td><td>'+f1(K.rework)+'%</td>'+
   '<td>'+f1(K.ci)+' min</td><td>'+(K.aband/100).toFixed(2)+'%</td><td>'+f1(K.raband)+'%</td>'+
   '<td>'+(K.hand/100).toFixed(2)+'%</td><td>'+f1(K.late)+'%</td></tr></tbody></table></div>'+
- '<div class="legend"><b>Not delivered</b> packages that came back instead of reaching the customer, as a share of volume. '+
-  '<b>Routes abandoned</b> routes a driver accepted and then dropped. '+
+ '<div class="legend"><b>Missed to quits</b> packages that missed because a driver dropped the route, as a share of volume. '+
+  '<b>Routes abandoned</b> share of planned routes a driver accepted and then dropped. '+
   '<b>Handling defects</b> mis-stowed, damaged or misrouted units, as a share of volume. '+
   '<b>Indirect share</b> paid hours that did not move a package.</div>';
 }
