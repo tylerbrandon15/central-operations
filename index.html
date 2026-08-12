@@ -2643,14 +2643,14 @@ function vHome(){
    '<div class="kpi"><div class="kl">On-time delivery</div><div class="kv '+(K.otd<93?'r':K.otd<95?'a':'g')+'">'+f1(K.otd)+'%</div><div class="kd">'+lbl.toLowerCase()+', volume weighted</div></div>'+
    '<div class="kpi"><div class="kl">On-time launch</div><div class="kv '+(K.lnch<92?'r':K.lnch<97?'a':'g')+'">'+f1(K.lnch)+'%</div><div class="kd">'+fm(K.sd-K.pu)+' of '+fm(K.sd)+' site days left at plan</div></div>'+
    '<div class="kpi"><div class="kl">Packages per hour</div><div class="kv">'+f1(K.uph)+'</div><div class="kd">standard '+f1(NETD.uph_std)+' &middot; '+(K.uph-NETD.uph_std>=0?'+':'')+f1(K.uph-NETD.uph_std)+' against it</div></div>'+
-   '<div class="kpi"><div class="kl">Handling errors</div><div class="kv '+(K.hand>85?'r':K.hand>55?'a':'g')+'">'+fm(Math.round(K.hand))+'</div><div class="kd">per 10,000 packages</div></div>'+
+   '<div class="kpi"><div class="kl">Handling errors</div><div class="kv '+(K.hand>85?'r':K.hand>55?'a':'g')+'">'+fm(Math.round(K.hand/1e4*K.vol))+'</div><div class="kd">a day &middot; mis-stow, late stow, wrong driver</div></div>'+
    '<div class="kpi"><div class="kl">Hours on rework</div><div class="kv '+(K.rework>20?'r':K.rework>15?'a':'g')+'">'+f1(K.rework)+'%</div><div class="kd">share of paid hours spent twice</div></div>'+
   '</div></div>'+
   '<div class="kseg r"><div class="ksegh"><span class="ksegt">OTR &middot; on the road</span>'+
    '<span class="ksegs">middle mile in, drivers out. Different team, different fix.</span></div><div class="row">'+
    '<div class="kpi"><div class="kl">Freight arriving on time</div><div class="kv '+((100-K.late)<90?'r':(100-K.late)<94?'a':'g')+'">'+f1(100-K.late)+'%</div><div class="kd">middle mile trips landing at or before plan</div></div>'+
    '<div class="kpi"><div class="kl">Driver wait</div><div class="kv '+(K.ci>20?'r':K.ci>14?'a':'g')+'">'+f1(K.ci)+'</div><div class="kd">median minutes, check in to first load</div></div>'+
-   '<div class="kpi"><div class="kl">Drivers quitting routes</div><div class="kv '+(K.aband>250?'r':K.aband>120?'a':'g')+'">'+fm(Math.round(K.aband))+'</div><div class="kd">packages missed to a quit, per 10,000</div></div>'+
+   '<div class="kpi"><div class="kl">Packages missed to a quit</div><div class="kv '+(K.aband>250?'r':K.aband>120?'a':'g')+'">'+fm(Math.round(K.aband/1e4*K.vol))+'</div><div class="kd">a day &middot; driver dropped the route</div></div>'+
   '</div></div>'+
  '</div>'+
  '<div class="mapwrap">'+
