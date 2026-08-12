@@ -2518,14 +2518,14 @@ function fmkts(){return MKT.filter(m=>(FTYPE==='all'||m.fac===FTYPE)&&(FSITE==='
 /* the same measures over three windows. A single day swings, a month barely moves. */
 function look(k){
  const d=DS[k], w=d.wk_otd, R=rng(MK[k].seed*17+(LOOK==='day'?1:LOOK==='7d'?2:3));
+ const j=(b,a)=>Math.round(b*(1+(R()-.5)*a)*100)/100;
+ const fin=o=>{o.hours=Math.round(o.vol/o.uph*10)/10; return o};   /* hours follow from volume and UPH */
  /* Yesterday: volume is that market's measured volume for that weekday.
     Everything else stays at the six week figure, because the workbook has no daily grain. */
  if(LOOK==='yday'){const dv=(d.dv&&d.dv[ydayIdx()])?d.dv[ydayIdx()]:d.vol;
   const m6=w.reduce((a,b)=>a+b,0)/w.length;
   return fin({otd:Math.round(m6*100)/100,uph:d.uph,rework:d.rework,ci:d.ci_med,aband:d.aband,
    hand:d.hand,late:d.arr_late,raband:d.raband,vol:dv,wk:w})}
- const j=(b,a)=>Math.round(b*(1+(R()-.5)*a)*100)/100;
- const fin=o=>{o.hours=Math.round(o.vol/o.uph*10)/10; return o};   /* hours follow from volume and UPH */
  if(LOOK!=='day'){const m=w.reduce((a,b)=>a+b,0)/w.length;   /* the real six week mean */
   return fin({otd:Math.round(m*100)/100,uph:d.uph,rework:d.rework,ci:d.ci_med,
    aband:d.aband,hand:d.hand,late:d.arr_late,raband:d.raband,vol:d.vol,wk:w})}
