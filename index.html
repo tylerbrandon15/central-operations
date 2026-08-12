@@ -628,6 +628,9 @@ table.sheet tr.tot td:first-child{font-weight:800}
 .nav a .ic{width:17px;display:inline-block;color:var(--coral);font-size:13px;text-align:center;line-height:1}
 .nav a.on .ic{color:var(--coral-d)}
 .nav a:hover .ic{color:var(--coral-d)}
+.ybanner{flex:1 0 100%;order:-1;background:var(--amber-t);color:var(--amber-d);border-radius:8px;
+ padding:7px 11px;font-size:11px;line-height:1.45;margin-bottom:2px}
+.ybanner b{font-weight:800}
 .filt{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 11px;margin-bottom:12px}
 .filt .fl{font-size:9.5px;font-weight:800;letter-spacing:.07em;color:var(--ink3);text-transform:uppercase}
 .dbwrap{display:flex;flex-direction:column;gap:4px}
@@ -896,7 +899,7 @@ function hm(m){m=Math.round(m);const h=Math.floor(m/60)%24,x=m%60;return String(
 function fm(n){return Math.round(n).toLocaleString()}
 function f1(n){return (Math.round(n*10)/10).toFixed(1)}
 
-const DS={"A":{"otd":94.65,"uph":88.1,"hours":4885,"hours_std":4686,"hrs_day":116.3,"rework":13.9,"ci_med":13.0,"ci_p90":22.7,"aband":154.2,"hand":66.1,"raband":2.16,"arr_late":6.0,"arr_p90":-13.0,"dep_sd":32.5,"adher":99.86,"vol":10259,"wk_otd":[93.7,94.4,91.0,95.5,96.3,97.3],"wk_uph":[85.7,87.1,91.3,89.7,86.3,88.7],"region":"Southeast","fac":"Veho","sh_ab":28.8,"sh_in":43.0,"dl_med":10.0,"pkgs":430886,"std_day":111.6},"B":{"otd":95.96,"uph":99.7,"hours":5684,"hours_std":6172,"hrs_day":135.3,"rework":13.7,"ci_med":9.5,"ci_p90":14.0,"aband":47.9,"hand":39.7,"raband":0.71,"arr_late":5.5,"arr_p90":-13.0,"dep_sd":30.2,"adher":99.85,"vol":13516,"wk_otd":[98.5,95.1,98.2,91.2,95.8,97.0],"wk_uph":[100.5,99.6,96.0,100.6,101.4,100.2],"region":"West","fac":"Veho","sh_ab":11.9,"sh_in":60.1,"dl_med":7.0,"pkgs":567689,"std_day":147.0},"C":{"otd":93.85,"uph":85.4,"hours":4133,"hours_std":3842,"hrs_day":98.4,"rework":14.0,"ci_med":17.0,"ci_p90":24.0,"aband":235.7,"hand":92.5,"raband":3.39,"arr_late":6.4,"arr_p90":-11.2,"dep_sd":30.9,"adher":99.87,"vol":8411,"wk_otd":[91.0,94.3,93.8,95.4,92.8,95.8],"wk_uph":[80.1,84.8,82.6,85.6,90.0,90.0],"region":"Northeast","fac":"3PL","sh_ab":38.3,"sh_in":31.9,"dl_med":13.5,"pkgs":353280,"std_day":91.5},"D":{"otd":89.11,"uph":81.2,"hours":6015,"hours_std":5320,"hrs_day":143.2,"rework":27.0,"ci_med":40.5,"ci_p90":53.9,"aband":716.1,"hand":66.0,"raband":9.81,"arr_late":6.6,"arr_p90":-11.9,"dep_sd":29.9,"adher":99.87,"vol":11648,"wk_otd":[91.6,91.7,86.4,89.4,88.4,87.3],"wk_uph":[85.5,84.8,81.9,78.2,79.4,78.1],"region":"Northeast","fac":"3PL","sh_ab":65.7,"sh_in":20.6,"dl_med":37.5,"pkgs":489210,"std_day":126.7},"E":{"otd":97.02,"uph":97.2,"hours":4880,"hours_std":5163,"hrs_day":116.2,"rework":13.0,"ci_med":8.5,"ci_p90":18.0,"aband":78.6,"hand":26.3,"raband":1.17,"arr_late":5.5,"arr_p90":-14.0,"dep_sd":27.8,"adher":99.83,"vol":11308,"wk_otd":[97.1,97.6,96.6,97.4,95.5,98.0],"wk_uph":[95.5,97.3,99.4,96.6,96.9,97.3],"region":"Southeast","fac":"Veho","sh_ab":26.3,"sh_in":49.4,"dl_med":6.5,"pkgs":474950,"std_day":122.9},"F":{"otd":96.03,"uph":90.1,"hours":7900,"hours_std":7747,"hrs_day":188.1,"rework":14.8,"ci_med":12.5,"ci_p90":17.0,"aband":135.4,"hand":66.1,"raband":1.98,"arr_late":4.6,"arr_p90":-14.8,"dep_sd":26.1,"adher":99.85,"vol":16963,"wk_otd":[95.2,96.6,95.6,95.4,96.5,96.9],"wk_uph":[87.0,88.5,90.6,90.4,90.9,92.9],"region":"West","fac":"Veho","sh_ab":34.1,"sh_in":33.3,"dl_med":11.0,"pkgs":712448,"std_day":184.5},"G":{"otd":87.0,"uph":85.9,"hours":4606,"hours_std":4307,"hrs_day":109.7,"rework":14.4,"ci_med":12.0,"ci_p90":17.9,"aband":156.7,"hand":59.4,"raband":2.27,"arr_late":21.2,"arr_p90":65.6,"dep_sd":49.9,"adher":99.86,"vol":9431,"wk_otd":[85.5,83.7,84.3,90.9,88.6,89.2],"wk_uph":[88.2,85.9,84.0,83.8,85.9,87.8],"region":"Southeast","fac":"3PL","sh_ab":12.1,"sh_in":66.4,"dl_med":9.0,"pkgs":396115,"std_day":102.5},"H":{"otd":94.65,"uph":85.5,"hours":3508,"hours_std":3268,"hrs_day":83.5,"rework":13.4,"ci_med":12.5,"ci_p90":18.9,"aband":169.3,"hand":72.7,"raband":2.35,"arr_late":7.2,"arr_p90":-14.0,"dep_sd":28.1,"adher":99.87,"vol":7154,"wk_otd":[94.4,95.9,95.0,92.8,96.0,93.7],"wk_uph":[89.8,83.9,84.8,87.6,84.9,82.6],"region":"Central","fac":"Veho","sh_ab":31.6,"sh_in":39.2,"dl_med":9.0,"pkgs":300484,"std_day":77.8}};
+const DS={"A":{"otd":94.65,"uph":88.1,"hours":4885,"hours_std":4686,"hrs_day":116.3,"rework":13.9,"ci_med":13.0,"ci_p90":22.7,"aband":154.2,"hand":66.1,"raband":2.16,"arr_late":6.0,"arr_p90":-13.0,"dep_sd":32.5,"adher":99.86,"vol":10259,"wk_otd":[93.7,94.4,91.0,95.5,96.3,97.3],"wk_uph":[85.7,87.1,91.3,89.7,86.3,88.7],"region":"Southeast","fac":"Veho","sh_ab":28.8,"sh_in":43.0,"dl_med":10.0,"pkgs":430886,"std_day":111.6,"dv":[10995,10803,10984,11200,10837,8700,8296]},"B":{"otd":95.96,"uph":99.7,"hours":5684,"hours_std":6172,"hrs_day":135.3,"rework":13.7,"ci_med":9.5,"ci_p90":14.0,"aband":47.9,"hand":39.7,"raband":0.71,"arr_late":5.5,"arr_p90":-13.0,"dep_sd":30.2,"adher":99.85,"vol":13516,"wk_otd":[98.5,95.1,98.2,91.2,95.8,97.0],"wk_uph":[100.5,99.6,96.0,100.6,101.4,100.2],"region":"West","fac":"Veho","sh_ab":11.9,"sh_in":60.1,"dl_med":7.0,"pkgs":567689,"std_day":147.0,"dv":[14938,13916,14054,14298,14098,11691,11622]},"C":{"otd":93.85,"uph":85.4,"hours":4133,"hours_std":3842,"hrs_day":98.4,"rework":14.0,"ci_med":17.0,"ci_p90":24.0,"aband":235.7,"hand":92.5,"raband":3.39,"arr_late":6.4,"arr_p90":-11.2,"dep_sd":30.9,"adher":99.87,"vol":8411,"wk_otd":[91.0,94.3,93.8,95.4,92.8,95.8],"wk_uph":[80.1,84.8,82.6,85.6,90.0,90.0],"region":"Northeast","fac":"3PL","sh_ab":38.3,"sh_in":31.9,"dl_med":13.5,"pkgs":353280,"std_day":91.5,"dv":[8885,8829,9119,9149,8974,7059,6864]},"D":{"otd":89.11,"uph":81.2,"hours":6015,"hours_std":5320,"hrs_day":143.2,"rework":27.0,"ci_med":40.5,"ci_p90":53.9,"aband":716.1,"hand":66.0,"raband":9.81,"arr_late":6.6,"arr_p90":-11.9,"dep_sd":29.9,"adher":99.87,"vol":11648,"wk_otd":[91.6,91.7,86.4,89.4,88.4,87.3],"wk_uph":[85.5,84.8,81.9,78.2,79.4,78.1],"region":"Northeast","fac":"3PL","sh_ab":65.7,"sh_in":20.6,"dl_med":37.5,"pkgs":489210,"std_day":126.7,"dv":[12711,12612,12400,11631,12764,9488,9929]},"E":{"otd":97.02,"uph":97.2,"hours":4880,"hours_std":5163,"hrs_day":116.2,"rework":13.0,"ci_med":8.5,"ci_p90":18.0,"aband":78.6,"hand":26.3,"raband":1.17,"arr_late":5.5,"arr_p90":-14.0,"dep_sd":27.8,"adher":99.83,"vol":11308,"wk_otd":[97.1,97.6,96.6,97.4,95.5,98.0],"wk_uph":[95.5,97.3,99.4,96.6,96.9,97.3],"region":"Southeast","fac":"Veho","sh_ab":26.3,"sh_in":49.4,"dl_med":6.5,"pkgs":474950,"std_day":122.9,"dv":[12110,12218,11752,11567,11967,9856,9688]},"F":{"otd":96.03,"uph":90.1,"hours":7900,"hours_std":7747,"hrs_day":188.1,"rework":14.8,"ci_med":12.5,"ci_p90":17.0,"aband":135.4,"hand":66.1,"raband":1.98,"arr_late":4.6,"arr_p90":-14.8,"dep_sd":26.1,"adher":99.85,"vol":16963,"wk_otd":[95.2,96.6,95.6,95.4,96.5,96.9],"wk_uph":[87.0,88.5,90.6,90.4,90.9,92.9],"region":"West","fac":"Veho","sh_ab":34.1,"sh_in":33.3,"dl_med":11.0,"pkgs":712448,"std_day":184.5,"dv":[17758,17720,18390,19134,18309,13782,13649]},"G":{"otd":87.0,"uph":85.9,"hours":4606,"hours_std":4307,"hrs_day":109.7,"rework":14.4,"ci_med":12.0,"ci_p90":17.9,"aband":156.7,"hand":59.4,"raband":2.27,"arr_late":21.2,"arr_p90":65.6,"dep_sd":49.9,"adher":99.86,"vol":9431,"wk_otd":[85.5,83.7,84.3,90.9,88.6,89.2],"wk_uph":[88.2,85.9,84.0,83.8,85.9,87.8],"region":"Southeast","fac":"3PL","sh_ab":12.1,"sh_in":66.4,"dl_med":9.0,"pkgs":396115,"std_day":102.5,"dv":[10134,9792,10092,10029,10042,7926,8004]},"H":{"otd":94.65,"uph":85.5,"hours":3508,"hours_std":3268,"hrs_day":83.5,"rework":13.4,"ci_med":12.5,"ci_p90":18.9,"aband":169.3,"hand":72.7,"raband":2.35,"arr_late":7.2,"arr_p90":-14.0,"dep_sd":28.1,"adher":99.87,"vol":7154,"wk_otd":[94.4,95.9,95.0,92.8,96.0,93.7],"wk_uph":[89.8,83.9,84.8,87.6,84.9,82.6],"region":"Central","fac":"Veho","sh_ab":31.6,"sh_in":39.2,"dl_med":9.0,"pkgs":300484,"std_day":77.8,"dv":[7805,7506,7579,7739,7405,6030,6016]}};
 const NETD={"days":42,"uph_std":91.8,"hours":41611,"hours_std":40505,"pkgs":3725062,"otd":93.8,"start":"2026-06-15","end":"2026-07-26","shape":[1.0749,1.053,1.064,1.0682,1.0644,0.8404,0.8351]};
 /* Markets carry the real case study figures. Volume, operator and region come from the
    workbook; routes are volume over a 90 package route; the failure mode is whichever of
@@ -2501,7 +2504,12 @@ function spark(a,w,h){
 
 /* ================= HOME · network snapshot ================= */
 let FTYPE='all', FSITE='all', HQ=0, LOOK='7d';
-const LOOKS=[['day','Last week &middot; Wk 30'],['7d','6 week average']];
+const DOWL=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+/* yesterday's weekday, so the label is never wrong */
+function ydayIdx(){const j=new Date();j.setDate(j.getDate()-1);return (j.getDay()+6)%7}
+function ydayName(){const j=new Date();j.setDate(j.getDate()-1);
+ return DOWL[ydayIdx()]+' '+(j.getMonth()+1)+'/'+j.getDate()}
+const LOOKS=[['yday','Yesterday'],['day','Last week &middot; Wk 30'],['7d','6 week average']];
 function setFType(v){FTYPE=v;draw()} function setFSite(v){FSITE=v;draw()}
 function setLook(v){LOOK=v;draw()}  function setHQ(i){HQ=i;draw()}
 function clearF(){FTYPE='all';FSITE='all';draw()}
@@ -2510,6 +2518,12 @@ function fmkts(){return MKT.filter(m=>(FTYPE==='all'||m.fac===FTYPE)&&(FSITE==='
 /* the same measures over three windows. A single day swings, a month barely moves. */
 function look(k){
  const d=DS[k], w=d.wk_otd, R=rng(MK[k].seed*17+(LOOK==='day'?1:LOOK==='7d'?2:3));
+ /* Yesterday: volume is that market's measured volume for that weekday.
+    Everything else stays at the six week figure, because the workbook has no daily grain. */
+ if(LOOK==='yday'){const dv=(d.dv&&d.dv[ydayIdx()])?d.dv[ydayIdx()]:d.vol;
+  const m6=w.reduce((a,b)=>a+b,0)/w.length;
+  return fin({otd:Math.round(m6*100)/100,uph:d.uph,rework:d.rework,ci:d.ci_med,aband:d.aband,
+   hand:d.hand,late:d.arr_late,raband:d.raband,vol:dv,wk:w})}
  const j=(b,a)=>Math.round(b*(1+(R()-.5)*a)*100)/100;
  const fin=o=>{o.hours=Math.round(o.vol/o.uph*10)/10; return o};   /* hours follow from volume and UPH */
  if(LOOK!=='day'){const m=w.reduce((a,b)=>a+b,0)/w.length;   /* the real six week mean */
@@ -2594,8 +2608,12 @@ function vHome(){
    under=rows.filter(r=>r.A.band==='under').length;
  const sorted=rows.slice().sort((a,b)=>b.A.pct-a.A.pct), span=12;
  const lbl=LOOKS.find(x=>x[0]===LOOK)[1];
- return hdr('Network',lbl+' &middot; '+NETD.start+' to '+NETD.end+' &middot; '+F.length+' market'+(F.length===1?'':'s'),true,(FSITE==='all'?'All sites':MK[FSITE].n)+' &middot; '+(FTYPE==='all'?'Veho and 3PL':FTYPE))+
+ const sub=(LOOK==='yday')
+  ? 'Yesterday &middot; '+ydayName()+' &middot; '+F.length+' market'+(F.length===1?'':'s')
+  : lbl+' &middot; '+NETD.start+' to '+NETD.end+' &middot; '+F.length+' market'+(F.length===1?'':'s');
+ return hdr('Network',sub,true,(FSITE==='all'?'All sites':MK[FSITE].n)+' &middot; '+(FTYPE==='all'?'Veho and 3PL':FTYPE))+
  '<div class="filt">'+
+  (LOOK==='yday'?'<div class="ybanner">Volume is each market\'s <b>measured</b> volume for '+DOWL[ydayIdx()]+'. Rate, on-time, driver wait and freight sit at the six week figure: the source workbook is weekly, it has no daily grain.</div>':'')+
   '<span class="fl">Window</span><div class="seg">'+LOOKS.map(x=>
    '<button class="'+(LOOK===x[0]?'on':'')+'" onclick="setLook(\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div>'+
   '<span class="fl">Type</span><div class="seg">'+[['all','All'],['Veho','Veho'],['3PL','3PL']].map(x=>
@@ -2609,7 +2627,7 @@ function vHome(){
   '<div class="kpi"><div class="kl">UPH</div><div class="kv">'+f1(K.uph)+'</div><div class="kd">bar '+f1(N.cur.uph)+' · '+(N.dUph>=0?'+':'')+f1(N.dUph)+' on last week</div></div>'+
   '<div class="kpi"><div class="kl">Check-in to load</div><div class="kv '+(K.ci>20?'r':K.ci>14?'a':'g')+'">'+f1(K.ci)+'</div><div class="kd">median minutes a driver waits</div></div>'+
   '<div class="kpi"><div class="kl">Hours vs standard</div><div class="kv '+(O.pct>4?'r':O.pct>0?'a':'g')+'">'+(O.pct>=0?'+':'')+f1(O.pct)+'%</div><div class="kd">'+f1(O.act)+' run against '+f1(O.std)+'</div></div>'+
-  '<div class="kpi"><div class="kl">Cost of the gap</div><div class="kv '+(O.overCost>3000?'r':'a')+'">$'+fm(O.overCost)+'</div><div class="kd">a week, markets over standard</div></div>'+
+  '<div class="kpi"><div class="kl">Inbound freight on time</div><div class="kv '+(100-K.late<90?'r':100-K.late<93?'a':'g')+'">'+f1(100-K.late)+'%</div><div class="kd">middle mile into the building</div></div>'+
   '<div class="kpi"><div class="kl">Weather exposure</div><div class="kv g" id="wxN">0</div><div class="kd" id="wxL">checking</div></div>'+
  '</div>'+
  '<div class="mapwrap">'+
