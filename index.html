@@ -2598,7 +2598,7 @@ function vHome(){
    under=rows.filter(r=>r.A.band==='under').length;
  const sorted=rows.slice().sort((a,b)=>b.A.pct-a.A.pct), span=12;
  const lbl=LOOKS.find(x=>x[0]===LOOK)[1];
- return hdr('Network',lbl+' &middot; '+NETD.start+' to '+NETD.end+' &middot; '+F.length+' market'+(F.length===1?'':'s'),true,(SITEF==='all'?'All sites':MK[SITEF].n)+' &middot; '+(FTYPE==='all'?'Veho and 3PL':FTYPE))+
+ return hdr('Network',lbl+' &middot; '+NETD.start+' to '+NETD.end+' &middot; '+F.length+' market'+(F.length===1?'':'s'),true,(FSITE==='all'?'All sites':MK[FSITE].n)+' &middot; '+(FTYPE==='all'?'Veho and 3PL':FTYPE))+
  '<div class="filt">'+
   '<span class="fl">Window</span><div class="seg">'+LOOKS.map(x=>
    '<button class="'+(LOOK===x[0]?'on':'')+'" onclick="setLook(\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div>'+
