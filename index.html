@@ -1511,7 +1511,7 @@ function drawPins(){ if(!MAP)return;
   const r=f.type==='Hub'?6:Math.max(7,Math.min(16,f.vol/1100));
   const tpl=f.fac==='3PL';
   try{const mk=L.circleMarker([f.lat,f.lng],{radius:r,fillColor:col,color:tpl?'#1B1A18':'#fff',weight:tpl?3:2,fillOpacity:.95,className:'pin'})
-   .bindTooltip('<b>'+f.name+'</b> · '+f.city+'<br>'+(f.type==='Hub'?'Origin hub':(f.fac==='3PL'?'Partner operated':'Veho operated'))+
+   .bindTooltip('<b>'+f.name+'</b> · '+f.city+'<br>'+(f.type==='Hub'?'Origin hub':(f.fac==='3PL'?'3PL operated':'Company operated'))+
     (f.vol?'<br>'+fm(f.vol)+' pkgs/day · '+board(f.id,T).empty+' slots free':'')+'<br>'+f.why,{direction:'top'});
    mk.addTo(MAP); PINS.push(mk)}catch(e){}}
 }
@@ -1674,13 +1674,13 @@ function strip(){
   (lock?'':'<button class="sarr" onclick="stepSite(1)">&rsaquo;</button>')+
   '<span class="smeta">'+MK[SEL].rt+' routes</span>'+
   '<span class="smeta">'+B.total+' slots</span>'+
-  '<span class="smeta">'+MK[SEL].fac+'</span>'+
+  '<span class="smeta">'+facN(MK[SEL].fac)+'</span>'+
   '<span class="smeta" style="margin-left:auto"><span class="dt '+s.lvlLaunch+'"></span> '+
    B.empty+' open · '+B.due+' due · '+B.waiting.length+' waiting</span>'+
  '</div>';
 }
 function hdr(h,sub,noclock,scope){return '<div class="hd"><h1>'+h+'</h1><div class="hdm">'+sub+'</div>'+
- '<span class="hdr">'+(scope||(MK[SEL].n+' · '+MK[SEL].fac))+(noclock?'':' · '+hm(T)+' · '+phase(T)[1])+'</span></div>'}
+ '<span class="hdr">'+(scope||(MK[SEL].n+' · '+facN(MK[SEL].fac)))+(noclock?'':' · '+hm(T)+' · '+phase(T)[1])+'</span></div>'}
 function tile(l,v,n,c){return '<div class="t"><div class="l">'+l+'</div><div class="v '+(c||'')+'">'+v+'</div><div class="n">'+n+'</div></div>'}
 
 /* ================= STAGING (sort tab) ================= */
@@ -1997,7 +1997,7 @@ function siteVar(k){const w=siteWeeks(k), cur=w[w.length-1].uph, B=netBench(), L
 function vPlan(){
  const lock=SEATS[SEAT].lock, canNet=!lock;
  const sel='<select class="pl" style="min-width:250px;font-weight:700" onchange="pick(this.value)"'+(lock?' disabled':'')+'>'+
-  MKT.map(m=>'<option value="'+m.k+'"'+(m.k===SEL?' selected':'')+'>'+m.n+' · '+m.rt+' routes · '+m.fac+'</option>').join('')+'</select>';
+  MKT.map(m=>'<option value="'+m.k+'"'+(m.k===SEL?' selected':'')+'>'+m.n+' · '+m.rt+' routes · '+facN(m.fac)+'</option>').join('')+'</select>';
  const tabs = canNet ? '<div class="seg" style="margin-left:auto">'+
    '<button class="'+(PLANVIEW==='site'?'on':'')+'" onclick="setPlanView(\'site\')">Site sheet</button>'+
    '<button class="'+(PLANVIEW==='net'?'on':'')+'" onclick="setPlanView(\'net\')">Network master</button></div>' : '';
@@ -2105,7 +2105,7 @@ function vPlanNet(){
   '<span class="hdr" style="margin-left:auto">'+fm(NETD.hours)+' actual against '+fm(NETD.hours_std)+' standard over '+NETD.days+' days</span></div>'+
   '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:9px">Both columns are workbook figures. No assumptions in this table.</div>'+
   '<table class="sheet"><thead><tr><th>Market</th><th>Type</th><th>Actual hrs / day</th><th>Standard hrs / day</th><th>Variance</th><th>%</th><th>Hrs / week</th><th>Cost / week</th><th>UPH run</th><th>UPH at standard hrs</th></tr></thead><tbody>'+
-  rank.map(r=>'<tr style="cursor:pointer" onclick="pick(\''+r.m.k+'\');setPlanView(\'site\')"><td>'+r.m.n+'</td><td>'+r.m.fac+'</td>'+
+  rank.map(r=>'<tr style="cursor:pointer" onclick="pick(\''+r.m.k+'\');setPlanView(\'site\')"><td>'+r.m.n+'</td><td>'+facN(r.m.fac)+'</td>'+
    '<td>'+f1(r.L.act)+'</td><td>'+f1(r.L.std)+'</td>'+
    '<td class="'+(r.L.over?'neg':'pos')+'">'+(r.L.varH>=0?'+':'')+f1(r.L.varH)+'</td>'+
    '<td class="'+(r.L.over?'neg':'pos')+'">'+(r.L.pct>=0?'+':'')+f1(r.L.pct)+'%</td>'+
@@ -2517,6 +2517,8 @@ function spark(a,w,h){
 
 /* ================= HOME · network snapshot ================= */
 let FTYPE='all', FSITE='all', HQ=0, LOOK='7d';
+/* the dataset labels company run sites by the operator's name. Show the operating model instead. */
+const facN=f=>f==='Veho'?'Company':f;
 const DOWL=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 /* yesterday's weekday, so the label is never wrong */
 function ydayIdx(){const j=new Date();j.setDate(j.getDate()-1);return (j.getDay()+6)%7}
@@ -2596,13 +2598,13 @@ const HOMEQ=[
      r.map(x=>'<b>'+x.m.n+'</b> '+(x.L.pct>=0?'+':'')+f1(x.L.pct)+'% · $'+fm(x.L.cost)+' a week').join('<br>')+
      '<br><br>Both hour columns are workbook figures, so this needs no assumptions.'
     : 'Every site in view is at or under its standard hours.'}],
- ['3PL or Veho, who runs better?', ()=>{const g=t=>{const s=MKT.filter(m=>m.fac===t), v=s.reduce((a,m)=>a+look(m.k).vol,0);
+ ['3PL or company run, who runs better?', ()=>{const g=t=>{const s=MKT.filter(m=>m.fac===t), v=s.reduce((a,m)=>a+look(m.k).vol,0);
      return {n:s.length, otd:s.reduce((a,m)=>a+look(m.k).otd*look(m.k).vol,0)/v,
              uph:s.reduce((a,m)=>a+look(m.k).uph*look(m.k).vol,0)/v}};
    const v=g('Veho'), p=g('3PL');
-   return '<b>Veho</b> ('+v.n+' sites) · '+f1(v.otd)+'% OTD · '+f1(v.uph)+' UPH<br>'+
+   return '<b>Company run</b> ('+v.n+' sites) · '+f1(v.otd)+'% OTD · '+f1(v.uph)+' UPH<br>'+
     '<b>3PL</b> ('+p.n+' sites) · '+f1(p.otd)+'% OTD · '+f1(p.uph)+' UPH<br><br>'+
-    (v.otd>p.otd?'Veho is '+f1(v.otd-p.otd)+' points better on time':'3PL is '+f1(p.otd-v.otd)+' points better on time')+'.'}],
+    (v.otd>p.otd?'Company run is '+f1(v.otd-p.otd)+' points better on time':'3PL is '+f1(p.otd-v.otd)+' points better on time')+'.'}],
  ['What is sequencing worth?', ()=>{const F=fmkts();
    const s=F.reduce((a,m)=>a+Math.max(0,unsequenced(m.k).waitMin-sch(m.k).waitMin),0);
    const rt=F.reduce((a,m)=>a+Math.round(m.vol/90),0);
@@ -2626,12 +2628,12 @@ function vHome(){
  const sub=(LOOK==='yday')
   ? 'Yesterday &middot; '+ydayName()+' &middot; '+F.length+' market'+(F.length===1?'':'s')
   : lbl+' &middot; '+NETD.start+' to '+NETD.end+' &middot; '+F.length+' market'+(F.length===1?'':'s');
- return hdr('Network',sub,true,(FSITE==='all'?'All sites':MK[FSITE].n)+' &middot; '+(FTYPE==='all'?'Veho and 3PL':FTYPE))+
+ return hdr('Network',sub,true,(FSITE==='all'?'All sites':MK[FSITE].n)+' &middot; '+(FTYPE==='all'?'Company and 3PL':facN(FTYPE)))+
  '<div class="filt">'+
   (LOOK==='yday'?'<div class="ybanner">Volume is each market\'s <b>measured</b> volume for '+DOWL[ydayIdx()]+'. Rate, on-time, driver wait and freight sit at the six week figure: the source workbook is weekly, it has no daily grain.</div>':'')+
   '<span class="fl">Window</span><div class="seg">'+LOOKS.map(x=>
    '<button class="'+(LOOK===x[0]?'on':'')+'" onclick="setLook(\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div>'+
-  '<span class="fl">Type</span><div class="seg">'+[['all','All'],['Veho','Veho'],['3PL','3PL']].map(x=>
+  '<span class="fl">Type</span><div class="seg">'+[['all','All'],['Veho','Company'],['3PL','3PL']].map(x=>
    '<button class="'+(FTYPE===x[0]?'on':'')+'" onclick="setFType(\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div>'+
   '<span class="fl">Site</span><select class="pl" onchange="setFSite(this.value)"><option value="all">All sites</option>'+
    MKT.map(m=>'<option value="'+m.k+'"'+(FSITE===m.k?' selected':'')+'>'+m.n+'</option>').join('')+'</select>'+
@@ -2686,7 +2688,7 @@ function vHome(){
  rows.sort((x,y)=>x.L.otd-y.L.otd).map(r=>
   '<tr style="cursor:pointer" onclick="pick(\''+r.m.k+'\');go(\'plan\')">'+
   '<td>'+r.m.n+' <span style="color:var(--ink3);font-weight:400">'+r.m.k+'</span></td>'+
-  '<td class="tx2">'+r.m.region+'</td><td class="tx2">'+r.m.fac+'</td><td>'+fm(r.L.vol)+'</td>'+
+  '<td class="tx2">'+r.m.region+'</td><td class="tx2">'+facN(r.m.fac)+'</td><td>'+fm(r.L.vol)+'</td>'+
   '<td class="'+(r.L.otd<92?'neg':r.L.otd>=96?'pos':'')+'">'+f1(r.L.otd)+'%</td>'+
   '<td>'+spark(r.L.wk,54,15)+'</td>'+
   '<td class="'+(r.L.uph<86?'neg':r.L.uph>=95?'pos':'')+'">'+f1(r.L.uph)+'</td>'+
