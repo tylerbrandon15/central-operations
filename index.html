@@ -81,6 +81,12 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:13.
 .ksegt{font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
 .ksegs{font-size:9.5px;color:var(--ink3)}
 .kseg .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(134px,1fr));gap:10px;flex:1}
+.cin.cell{width:100%;min-width:46px;text-align:right;border-color:transparent;background:transparent;padding:2px 3px}
+.cin.cell:hover{border-color:var(--line2)}
+.cin.cell:focus{border-color:var(--coral);background:#fff}
+.cin.edt{background:var(--coral-t);border-color:var(--coral-l);font-weight:700}
+.sheet th.we,.sheet td.we{background:#FAF8F4}
+.sheet td i.who,.sheet th i.who{display:block;font-style:normal;font-size:9.5px;color:var(--ink3);font-weight:400}
 .kseg .kpi{display:flex;flex-direction:column}
 .kseg .kl{min-height:2.5em;line-height:1.25}
 .kseg .kd{margin-top:auto}
@@ -2019,126 +2025,203 @@ function sheet(k){
   pct:t('tot')?100*t('varH')/t('tot'):0, edited:!!(PV[k]||PI[k]||SUPH[k])};
 }
 
-function vPlanSite(){
- const k=SEL, S=sheet(k), L=labor(k), B=netBench(), bk=buckets(k), V=siteVar(k);
- const can=!SEATS[SEAT].lock||SEATS[SEAT].lock===k;
- const mx=Math.max.apply(null,IBK.map(b=>bk[b[0]]));
- return '<div class="baseban">'+
-  '<span class="bb1">Network standard</span>'+
-  '<span class="bb2">UPH <b>'+f1(B.std)+'</b></span>'+
-  '<span class="bb2">'+MK[k].n+' ran <b>'+f1(L.uph)+'</b></span>'+
-  '<span class="bb2">Standard hours <b>'+f1(L.std)+'</b> / day</span>'+
-  '<span class="bb3">Standard hours come from the workbook. Volume divided by UPH is the same definition it uses.</span></div>'+
- '<div class="grid g5" style="margin-bottom:12px">'+
-  tile('7 day volume',fm(S.vol),'planned packages')+
-  tile('Hours to plan',f1(S.tot),'volume ÷ '+f1(S.uph)+' UPH')+
-  tile('At the standard',f1(S.sh),'volume ÷ '+f1(S.std)+' UPH')+
-  tile('Variance',(S.varH>=0?'+':'')+f1(S.varH)+' hrs',f1(S.pct)+'% of planned hours',S.varH>40?'r':S.varH>0?'a':'g')+
-  tile('Cost of it',L.over?'$'+fm(L.cost):'None','a week at $'+RATE.toFixed(2)+'/hr',L.cost>2000?'r':L.cost>0?'a':'g')+
- '</div>'+
- '<div class="card"><div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">'+
-  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Seven day plan</div>'+
-  '<span class="tag mod">PROJECTED &middot; MEASURED INPUTS</span>'+
-  (S.edited?'<span class="f a">EDITED</span>':'')+
-  (can?'<span class="act" style="margin-left:auto"><span style="font-size:11px;color:var(--ink3)">Site UPH</span>'+
-   '<input type="number" step="0.1" class="cin" style="width:74px" value="'+f1(S.uph)+'" onchange="setSiteUph(\''+k+'\',this.value)">'+
-   (S.edited?'<button class="abtn" onclick="resetSite(\''+k+'\')">Reset</button>':'')+'</span>':'')+'</div>'+
-  '<table class="sheet"><thead><tr><th>Day</th><th>Date</th><th>Planned volume</th><th>UPH</th><th>Hours to plan</th><th>At the standard</th><th>Variance</th><th>% of plan</th></tr></thead><tbody>'+
-  S.rows.map(r=>'<tr><td>'+r.d.dow+'</td><td>'+r.d.lbl+'</td>'+
-   '<td>'+(can?'<input type="number" class="cin" value="'+r.v+'" onchange="setVol(\''+k+'\','+r.d.i+',this.value)">':fm(r.v))+'</td>'+
-   '<td>'+f1(r.uph)+'</td><td>'+f1(r.tot)+'</td><td style="color:var(--ink3)">'+f1(r.sh)+'</td>'+
-   '<td class="'+(r.varH>0?'neg':'pos')+'">'+(r.varH>=0?'+':'')+f1(r.varH)+'</td>'+
-   '<td class="'+(r.pct>8?'neg':'')+'">'+f1(r.pct)+'%</td></tr>').join('')+
-  '<tr class="tot"><td>Total</td><td></td><td>'+fm(S.vol)+'</td><td>'+f1(S.uph)+'</td><td>'+f1(S.tot)+'</td>'+
-   '<td style="color:var(--ink3)">'+f1(S.sh)+'</td><td class="'+(S.varH>0?'neg':'pos')+'">'+(S.varH>=0?'+':'')+f1(S.varH)+'</td><td>'+f1(S.pct)+'%</td></tr>'+
-  '</tbody></table>'+
-  (can?'<div class="act" style="margin-top:11px"><button class="bsub" onclick="submitPlan(\''+k+'\')">'+(SUBMITTED[k]?'Submitted':'Submit to Central Ops')+'</button>'+
-   '<select class="pl" onchange="setPRsn(\''+k+'\',this.value)"><option value="">Reason if off the standard</option>'+
-   ['Inbound arrival profile','Dock and staging constraint','Volume mix, more oversize','New or ramping headcount',
-    'Device and equipment shortage','3PL staffing model','Training and certification','Peak ramp']
-    .map(x=>'<option'+(PRSN[k]===x?' selected':'')+'>'+x+'</option>').join('')+'</select>'+
-   (SUBMITTED[k]?'<span style="font-size:11.5px;color:var(--mint-d);font-weight:700">Logged '+hm(SUBMITTED[k])+'</span>':'')+'</div>':'')+
- '</div>'+
- '<div class="grid g2" style="margin-top:12px;align-items:start">'+
-  '<div class="card"><div style="display:flex;align-items:center;gap:9px;margin-bottom:2px">'+
-   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Where the variance went</div>'+
-   '<span class="tag mod">MODEL</span></div>'+
-   '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:10px">'+MK[k].n+' runs '+f1(L.act)+' hours a day against a standard of '+f1(L.std)+'. These five buckets are an attempt to account for the '+(L.varH>=0?'+':'')+f1(L.varH)+' hour gap, using workbook rates and assumed times per occurrence. The assumptions are on each row.</div>'+
-   IBK.map(b=>'<div class="br hi"><span>'+b[0]+'<i style="display:block;font-style:normal;font-size:10px;color:var(--ink3)">'+b[2]+'</i></span>'+
-    '<span class="bkt"><i style="width:'+Math.round(100*bk[b[0]]/Math.max(.1,mx))+'%"></i></span><span class="bn">'+f1(bk[b[0]])+'</span></div>').join('')+
-   '<div class="drv" style="margin-top:8px;font-weight:800"><span>Model accounts for</span><span></span><span style="font-family:var(--mono);font-size:12px">'+f1(bk._tot)+' hrs</span></div>'+
-   '<div class="drv"><span>Actual gap to standard</span><span></span><span style="font-family:var(--mono);font-size:12px">'+(L.varH>=0?'+':'')+f1(L.varH)+' hrs</span></div>'+
-   '<div style="font-size:11px;color:var(--ink3);margin-top:8px;line-height:1.5">The two do not have to agree, and where they do not is the interesting part. The gap to standard is measured. The split is a hypothesis to go test on the floor.</div>'+
-  '</div>'+
-  '<div class="card"><div style="display:flex;align-items:center;gap:9px;margin-bottom:8px">'+
-   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">'+MK[k].n+', six weeks</div>'+
-   '<span class="tag meas">MEASURED</span></div>'+
-   '<table class="sheet"><thead><tr><th>Week</th><th>UPH</th><th>Network</th><th>Gap</th><th>Standard</th><th>Gap</th></tr></thead><tbody>'+
-   siteWeeks(k).map((w,i)=>{const n=B.wk[i];
-    return '<tr><td>'+w.w+'</td><td>'+f1(w.uph)+'</td><td style="color:var(--ink3)">'+f1(n.uph)+'</td>'+
-    '<td class="'+(w.uph<n.uph?'neg':'pos')+'">'+(w.uph>=n.uph?'+':'')+f1(w.uph-n.uph)+'</td>'+
-    '<td style="color:var(--ink3)">'+f1(B.std)+'</td>'+
-    '<td class="'+(w.uph<B.std?'neg':'pos')+'">'+(w.uph>=B.std?'+':'')+f1(w.uph-B.std)+'</td></tr>'}).join('')+
-   '</tbody></table>'+
-   '<div style="font-size:11.5px;color:var(--ink2);margin-top:9px;line-height:1.5">'+
-   MK[k].n+' moved '+(V.drift>=0?'+':'')+f1(V.drift)+' UPH across the six weeks. The network moved '+(B.drift>=0?'+':'')+f1(B.drift)+
-   '. The standard has not moved at all, which is the point: it is engineered, not a rank order.</div></div>'+
- '</div>';
+/* ================= LABOR PLAN · weekly, two track =================
+   Central Ops publishes a rate per function on Wednesday for the following
+   Mon to Sun. Company run sites plan hours against it. 3PL sites get committed
+   capacity and the rate as a cost expectation, never a headcount, because
+   directing a partner's employees is control we do not want. */
+const FLOORR={sort:4.78,launch:1.71,dock:2.16,ps:1.34};
+const WHOF={sort:'B',launch:'B',dock:'B',ps:'E'};
+const FNL=[['sort','Sort'],['launch','Launch'],['dock','Dock'],['ps','Problem solve']];
+const FNR={A:{sort:5.38,launch:1.91,dock:2.49,ps:1.58},B:{sort:4.78,launch:1.71,dock:2.16,ps:1.37},
+ C:{sort:5.55,launch:2.00,dock:2.52,ps:1.64},D:{sort:4.99,launch:1.76,dock:2.23,ps:3.33},
+ E:{sort:4.91,launch:1.81,dock:2.23,ps:1.34},F:{sort:5.18,launch:1.91,dock:2.37,ps:1.64},
+ G:{sort:5.50,launch:2.00,dock:2.47,ps:1.68},H:{sort:5.56,launch:2.02,dock:2.54,ps:1.57}};
+const PRATE={}; FNL.forEach(f=>PRATE[f[0]]=FLOORR[f[0]]);
+const LEADD=10;
+const PFV={}, SCELL={}, SRSN={}, SSUB={}, CAPC={};
+let LPUB=false, LDRY=false;
+const LRSN=['','New hire class','Problem solve backlog','Equipment down','Peak ramp','Oversize mix','Certification'];
+
+function lpWeek(){const n=new Date(); const d=new Date(n);
+ d.setDate(n.getDate()+((8-n.getDay())%7||7));
+ const out=[]; for(let i=0;i<7;i++){const x=new Date(d); x.setDate(d.getDate()+i);
+  out.push({dow:DOWL[i], lbl:(x.getMonth()+1)+'/'+x.getDate(), we:i>4})}
+ const w=new Date(d); w.setDate(d.getDate()-5);
+ return {days:out, span:out[0].lbl+' to '+out[6].lbl, pub:(w.getMonth()+1)+'/'+w.getDate()};
 }
+function lpVol(k,i){if(PFV[k]&&PFV[k][i]!=null)return PFV[k][i];
+ const dv=DS[k].dv; return dv?dv[i]:Math.round(DS[k].vol)}
+function lpWk(k){let t=0;for(let i=0;i<7;i++)t+=lpVol(k,i);return t}
+function rateTotP(){let t=0;FNL.forEach(f=>t+=PRATE[f[0]]);return t}
+function floorTotP(){let t=0;FNL.forEach(f=>t+=FLOORR[f[0]]);return t}
+function LPL(){return FNL.concat([['train','Training'],['lead','Lead and supervision']])}
+function lpBase(k,f,i){return f==='lead'?LEADD:f==='train'?0:lpVol(k,i)/1000*PRATE[f]}
+function lpCell(k,f,i){const c=SCELL[k]&&SCELL[k][f]; return (c&&c[i]!=null)?c[i]:lpBase(k,f,i)}
+function lpEd(k,f,i){const c=SCELL[k]&&SCELL[k][f]; return !!(c&&c[i]!=null)}
+function lpDelta(k){let b=0,m=0; LPL().forEach(f=>{for(let i=0;i<7;i++){b+=lpBase(k,f[0],i);m+=lpCell(k,f[0],i)}});
+ return m-b}
+function owes(k){let g=-9,on=''; FNL.forEach(f=>{const d=FNR[k][f[0]]-PRATE[f[0]]; if(d>g){g=d;on=f[1]}});
+ return {gap:g,fn:on}}
+function is3PL(k){return MK[k].fac==='3PL'}
+
+function setPRate(f,v){PRATE[f]=Math.max(.05,+v||FLOORR[f]);draw()}
+function setPFV(k,v){const nw=+v||0, old=lpWk(k), dv=DS[k].dv||[];
+ PFV[k]=dv.map(x=>Math.round(x*nw/(old||1))); delete SCELL[k]; draw()}
+function lpPublish(){LPUB=true;draw()}
+function setDry(v){LDRY=v;draw()}
+function setCell(k,f,i,v){if(!SCELL[k])SCELL[k]={}; if(!SCELL[k][f])SCELL[k][f]=[null,null,null,null,null,null,null];
+ SCELL[k][f][i]=Math.round((+v||0)*10)/10; draw()}
+function setSRsn(k,f,v){if(!SRSN[k])SRSN[k]={}; SRSN[k][f]=v; draw()}
+function lpSubmit(k){SSUB[k]=Math.round(lpDelta(k)*10)/10;draw()}
+function setCap(k,i,v){if(!CAPC[k])CAPC[k]=[null,null,null,null,null,null,null];
+ CAPC[k][i]=Math.max(0,Math.round(+v||0)); draw()}
+function capOf(k,i){return (CAPC[k]&&CAPC[k][i]!=null)?CAPC[k][i]:lpVol(k,i)}
+function lpCapSubmit(k){let t=0;for(let i=0;i<7;i++)t+=capOf(k,i)-lpVol(k,i);SSUB[k]=Math.round(t);draw()}
 
 function vPlanNet(){
- const B=netBench(), D=planDays(), N=netLabor(MKT);
- const rows=MKT.map(m=>({m,S:sheet(m.k),L:labor(m.k)}));
- const tv=rows.reduce((a,r)=>a+r.S.vol,0), th=rows.reduce((a,r)=>a+r.S.tot,0);
- const rank=rows.slice().sort((a,b)=>b.L.varH-a.L.varH);
- return '<div class="grid g6" style="margin-bottom:12px">'+
-  tile('Network UPH',f1(B.actual),'packages ÷ paid hours, six weeks')+
-  tile('Standard',f1(B.std),'engineered, from the workbook')+
-  tile('Hours run',fm(NETD.hours),'against '+fm(NETD.hours_std)+' standard')+
-  tile('Over standard',fm(N.wk)+' hrs','a week across '+MKT.length+' markets',N.wk>150?'r':'a')+
-  tile('Cost of it','$'+fm(N.cost),'a week at $'+RATE.toFixed(2)+'/hr','r')+
-  tile('Markets over',N.overN+' / '+MKT.length,'running above their standard',N.overN>4?'r':'a')+
+ const W=lpWeek(), rt=rateTotP(), ft=floorTotP(), uph=1000/rt;
+ let nv=0, nplan=0, nrun=0, back=0, dry=0;
+ MKT.forEach(m=>{const wk=lpWk(m.k); nv+=wk; nplan+=wk/1000*rt;
+  nrun+=wk/1000*(FNR[m.k].sort+FNR[m.k].launch+FNR[m.k].dock+FNR[m.k].ps);
+  if(SSUB[m.k]!==undefined){back++; if(!is3PL(m.k))dry+=SSUB[m.k]}});
+ const shown=LDRY?nplan+dry:nplan;
+ return '<div class="grid g4" style="margin-bottom:12px">'+
+  tile('Next week forecast',fm(nv),'packages across '+MKT.length+' markets')+
+  tile('Hours published',fm(Math.round(shown)),(LDRY?'includes '+(dry>=0?'+':'')+f1(dry)+' pending':'at '+f1(uph)+' UPH published'),LDRY?'a':'')+
+  tile('Network runs at',(nrun/nv*1000).toFixed(2),'hrs / 1,000 against '+rt.toFixed(2)+' published','r')+
+  tile('Plans back',back+' / '+MKT.length,LPUB?'due Wednesday '+W.pub:'not published yet',back===MKT.length?'g':LPUB?'a':'')+
  '</div>'+
- '<div class="card" style="margin-bottom:12px"><div style="display:flex;align-items:center;gap:9px;margin-bottom:2px">'+
-  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Labor against standard</div>'+
-  '<span class="tag meas">MEASURED</span>'+
-  '<span class="hdr" style="margin-left:auto">'+fm(NETD.hours)+' actual against '+fm(NETD.hours_std)+' standard over '+NETD.days+' days</span></div>'+
-  '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:9px">Both columns are workbook figures. No assumptions in this table.</div>'+
-  '<table class="sheet"><thead><tr><th>Market</th><th>Type</th><th>Actual hrs / day</th><th>Standard hrs / day</th><th>Variance</th><th>%</th><th>Hrs / week</th><th>Cost / week</th><th>UPH run</th><th>UPH at standard hrs</th></tr></thead><tbody>'+
-  rank.map(r=>'<tr style="cursor:pointer" onclick="pick(\''+r.m.k+'\');setPlanView(\'site\')"><td>'+r.m.n+'</td><td>'+facN(r.m.fac)+'</td>'+
-   '<td>'+f1(r.L.act)+'</td><td>'+f1(r.L.std)+'</td>'+
-   '<td class="'+(r.L.over?'neg':'pos')+'">'+(r.L.varH>=0?'+':'')+f1(r.L.varH)+'</td>'+
-   '<td class="'+(r.L.over?'neg':'pos')+'">'+(r.L.pct>=0?'+':'')+f1(r.L.pct)+'%</td>'+
-   '<td>'+(r.L.over?fm(r.L.wk):'—')+'</td>'+
-   '<td class="'+(r.L.cost>2000?'neg':'')+'">'+(r.L.over?'$'+fm(r.L.cost):'—')+'</td>'+
-   '<td>'+f1(r.L.uph)+'</td><td style="color:var(--ink3)">'+f1(r.L.uphStd)+'</td></tr>').join('')+
-  '<tr class="tot"><td>Network</td><td></td><td>'+f1(N.act)+'</td><td>'+f1(N.std)+'</td>'+
-   '<td class="neg">+'+f1(N.varH)+'</td><td class="neg">+'+f1(N.pct)+'%</td><td>'+fm(N.overWk)+'</td>'+
-   '<td>$'+fm(N.overCost)+'</td><td>'+f1(B.actual)+'</td><td>'+f1(B.std)+'</td></tr>'+
+ '<div class="card"><div class="act" style="margin-bottom:6px">'+
+  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">The rate Central Ops publishes</div>'+
+  '<span class="tag meas">BEST DEMONSTRATED</span>'+
+  '<span class="hdr" style="margin-left:auto">Editable. Every floor is a rate a real market already runs.</span></div>'+
+  '<table class="sheet"><thead><tr><th>Function</th><th>Proven floor</th><th>Proven by</th><th>Published rate</th><th>Markets already there</th></tr></thead><tbody>'+
+  FNL.map(f=>{const at=MKT.filter(m=>FNR[m.k][f[0]]<=PRATE[f[0]]+0.005).length;
+   return '<tr><td>'+f[1]+'</td><td style="color:var(--ink3)">'+FLOORR[f[0]].toFixed(2)+'</td>'+
+   '<td style="color:var(--ink3)">Market '+WHOF[f[0]]+'</td>'+
+   '<td><input type="number" step="0.01" class="cin'+(Math.abs(PRATE[f[0]]-FLOORR[f[0]])>0.005?' edt':'')+'" style="width:78px" value="'+PRATE[f[0]].toFixed(2)+'" onchange="setPRate(\''+f[0]+'\',this.value)"></td>'+
+   '<td class="'+(at>4?'pos':at>1?'':'neg')+'">'+at+' of '+MKT.length+'</td></tr>'}).join('')+
+  '<tr class="tot"><td>Total hrs / 1,000</td><td style="color:var(--ink3)">'+ft.toFixed(2)+'</td><td></td><td>'+rt.toFixed(2)+'</td><td>'+f1(uph)+' UPH</td></tr>'+
   '</tbody></table>'+
-  '<div class="warnbox">The '+N.overN+' markets above their standard carry <b>'+fm(N.overWk)+' hours a week</b>, about <b>$'+fm(N.overCost)+'</b>. '+
-  'That is <b>$'+N.perK.toFixed(2)+' per thousand packages</b>, which is the number to multiply by real network volume rather than scaling eight markets up by count.</div></div>'+
- '<div class="card" style="margin-bottom:12px"><div style="display:flex;align-items:center;gap:9px;margin-bottom:8px">'+
-  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Six weeks of UPH</div>'+
-  '<span class="tag meas">MEASURED</span></div>'+
-  '<table class="sheet"><thead><tr><th>Week</th>'+MKT.map(m=>'<th>'+m.n.split(' ')[0]+'</th>').join('')+'<th>Network</th><th>Standard</th></tr></thead><tbody>'+
-  B.wk.map((w,i)=>'<tr'+(i===B.wk.length-1?' class="tot"':'')+'><td>'+w.w+'</td>'+
-   MKT.map(m=>{const u=DS[m.k].wk_uph[i];
-    return '<td class="'+(u<B.std-6?'neg':u>=B.std?'pos':'')+'">'+f1(u)+'</td>'}).join('')+
-   '<td><b>'+f1(w.uph)+'</b></td><td style="color:var(--ink3)">'+f1(B.std)+'</td></tr>').join('')+
+  '<div class="legend"><b>Why best demonstrated and not an engineered standard.</b> Every number above is a rate a named market held across the six weeks, so no site can call it unreachable. The honest caveat: the best rate is partly the best building. Before this hardens into a target I would hold it inside a peer cohort by volume band, and commission engineered standards for sort and dock, the two largest buckets.</div></div>'+
+ '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
+  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Forecast and what each market gets</div>'+
+  '<span class="tag mod">FORECAST MODELLED</span>'+
+  '<div class="seg" style="margin-left:auto"><button class="'+(LDRY?'':'on')+'" onclick="setDry(false)">Published</button>'+
+  '<button class="'+(LDRY?'on':'')+'" onclick="setDry(true)">Dry run</button></div>'+
+  '<button class="bsub" onclick="lpPublish()"'+(LPUB?' disabled':'')+'>'+(LPUB?'Published Wed '+W.pub:'Publish '+W.span)+'</button></div>'+
+  '<div class="tscroll"><table class="wide"><thead><tr><th>Market</th><th>Type</th><th>Week forecast</th><th>What they receive</th>'+
+  '<th>Runs at</th><th>Owes most in</th><th>Back from site</th></tr></thead><tbody>'+
+  MKT.map(m=>{const k=m.k, wk=lpWk(k), o=owes(k), tpl=is3PL(k), pl=wk/1000*rt;
+   const got=tpl?fm(wk)+' pkgs committed':fm(Math.round(pl))+' hrs';
+   const st=SSUB[k]!==undefined?'<span class="f g">'+(SSUB[k]>=0?'+':'')+fm(SSUB[k])+(tpl?' pkgs':' hrs')+'</span>'
+     :LPUB?'<span class="f a">due Wed</span>':'<span style="color:var(--ink3)">&mdash;</span>';
+   return '<tr style="cursor:pointer" onclick="pick(\''+k+'\');setPlanView(\'site\')">'+
+    '<td>'+m.n+'</td><td class="tx2">'+facN(m.fac)+'</td>'+
+    '<td onclick="event.stopPropagation()"><input type="number" step="100" class="cin" style="width:86px" value="'+wk+'" onchange="setPFV(\''+k+'\',this.value)"></td>'+
+    '<td>'+got+'</td>'+
+    '<td>'+(FNR[k].sort+FNR[k].launch+FNR[k].dock+FNR[k].ps).toFixed(2)+'</td>'+
+    '<td>'+(o.gap<=0.05?'<span class="f g">at standard</span>':o.fn+' <span class="'+(o.gap>1?'neg':'')+'">+'+o.gap.toFixed(2)+'</span>')+'</td>'+
+    '<td>'+st+'</td></tr>'}).join('')+
+  '<tr class="tot"><td>Network</td><td></td><td>'+fm(nv)+'</td><td>'+fm(Math.round(shown))+' hrs</td>'+
+   '<td>'+(nrun/nv*1000).toFixed(2)+'</td><td></td><td></td></tr></tbody></table></div>'+
+  '<div class="legend"><b>Company run sites receive hours. 3PL sites receive committed volume and the rate as a cost expectation.</b> We do not publish headcount into a building whose people we do not employ. The rate still prices their bid and anchors the renewal, and what we enforce there is the outcome and the data feed. <b>Six markets owe most in sort, one owes problem solve, one owes nothing</b>, which is two different jobs: a sort standard for the network, a tiger team for Market D.</div></div>';
+}
+
+function vPlanSite(){ return is3PL(SEL)?vPlan3PL(SEL):vPlanCo(SEL) }
+
+function vPlanCo(k){
+ const W=lpWeek(), rt=rateTotP(), wk=lpWk(k), base=wk/1000*rt, lines=LPL();
+ let rateWk=0, allWk=0; const dayT=[0,0,0,0,0,0,0];
+ const body=lines.map(f=>{const isR=FNL.some(x=>x[0]===f[0]); let t=0;
+  const tds=W.days.map((d,i)=>{const v=lpCell(k,f[0],i); t+=v; dayT[i]+=v;
+   return '<td'+(d.we?' class="we"':'')+'><input class="cin cell'+(lpEd(k,f[0],i)?' edt':'')+'" type="number" step="0.5" value="'+f1(v)+'" onchange="setCell(\''+k+'\',\''+f[0]+'\','+i+',this.value)"></td>'}).join('');
+  if(isR)rateWk+=t; allWk+=t;
+  return '<tr><td>'+f[1]+'<i class="who">'+
+   (isR?PRATE[f[0]].toFixed(2)+' hrs / 1,000':(f[0]==='lead'?'fixed, outside the rate target':'event driven, not a rate'))+
+   '</i></td>'+tds+'<td><b>'+f1(t)+'</b></td></tr>'}).join('');
+ const uph=wk/rateWk, dl=rateWk-base;
+ return '<div class="grid g4" style="margin-bottom:12px">'+
+  tile('Next week forecast',fm(wk),MK[k].n+' &middot; '+facN(MK[k].fac))+
+  tile('Central Ops plan',fm(Math.round(base)),'rate lines at '+f1(1000/rt)+' UPH')+
+  tile('Your plan',fm(Math.round(rateWk)),(dl>=0?'+':'')+f1(dl)+' hours on rate lines',Math.abs(dl)>1?'a':'g')+
+  tile('Implied UPH',f1(uph),'rate lines only, lead excluded',uph<98?'r':uph<100?'a':'g')+
+ '</div>'+
+ '<div class="card"><div class="act" style="margin-bottom:4px">'+
+  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">'+W.span+', day by day</div>'+
+  '<span class="f '+(LPUB?'g':'a')+'">'+(LPUB?'Received Wed '+W.pub+' &middot; adjust today':'Central Ops has not published yet')+'</span></div>'+
+  '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:6px">Every hour cell is yours. Edited cells highlight and Central Ops sees the delta, never a replacement.</div>'+
+  '<div class="tscroll"><table class="sheet"><thead><tr><th>Line</th>'+
+   W.days.map(d=>'<th'+(d.we?' class="we"':'')+'>'+d.dow+' <i class="who">'+d.lbl+'</i></th>').join('')+'<th>Week</th></tr></thead><tbody>'+
+   '<tr><td>Forecast volume<i class="who">from Central Ops</i></td>'+
+    W.days.map((d,i)=>'<td'+(d.we?' class="we"':'')+' style="color:var(--ink3)">'+fm(lpVol(k,i))+'</td>').join('')+
+    '<td style="color:var(--ink3)"><b>'+fm(wk)+'</b></td></tr>'+
+   body+
+   '<tr class="tot"><td>Total hours</td>'+dayT.map((v,i)=>'<td'+(W.days[i].we?' class="we"':'')+'>'+f1(v)+'</td>').join('')+
+    '<td>'+f1(allWk)+'</td></tr></tbody></table></div></div>'+
+ lpDeltaCard(k,lines);
+}
+
+function vPlan3PL(k){
+ const W=lpWeek(), rt=rateTotP(), wk=lpWk(k); let cap=0;
+ for(let i=0;i<7;i++)cap+=capOf(k,i);
+ const shouldCost=wk/1000*rt, runsAt=FNR[k].sort+FNR[k].launch+FNR[k].dock+FNR[k].ps, theirs=wk/1000*runsAt;
+ return '<div class="grid g4" style="margin-bottom:12px">'+
+  tile('Volume committed',fm(wk),MK[k].n+' &middot; partner operated')+
+  tile('Capacity confirmed',fm(cap),(cap-wk>=0?'+':'')+fm(cap-wk)+' against the commit',Math.abs(cap-wk)<1?'g':cap<wk?'r':'a')+
+  tile('What it should cost',fm(Math.round(shouldCost))+' hrs','at the published '+rt.toFixed(2)+' rate')+
+  tile('What it costs them',fm(Math.round(theirs))+' hrs',(theirs-shouldCost>0?'+':'')+fm(Math.round(theirs-shouldCost))+' above standard',theirs-shouldCost>60?'r':'a')+
+ '</div>'+
+ '<div class="card"><div class="act" style="margin-bottom:4px">'+
+  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">'+W.span+' &middot; partner site</div>'+
+  '<span class="tag meas">CAPACITY, NOT HEADCOUNT</span>'+
+  '<span class="f '+(LPUB?'g':'a')+'" style="margin-left:auto">'+(LPUB?'Received Wed '+W.pub:'Not published yet')+'</span></div>'+
+  '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:6px">We commit volume and publish what the work should cost. How the partner staffs to it is theirs. Confirm the capacity you can take each day.</div>'+
+  '<div class="tscroll"><table class="sheet"><thead><tr><th>Line</th>'+
+   W.days.map(d=>'<th'+(d.we?' class="we"':'')+'>'+d.dow+' <i class="who">'+d.lbl+'</i></th>').join('')+'<th>Week</th></tr></thead><tbody>'+
+   '<tr><td>Volume committed<i class="who">from Central Ops</i></td>'+
+    W.days.map((d,i)=>'<td'+(d.we?' class="we"':'')+' style="color:var(--ink3)">'+fm(lpVol(k,i))+'</td>').join('')+
+    '<td style="color:var(--ink3)"><b>'+fm(wk)+'</b></td></tr>'+
+   '<tr><td>Capacity you confirm<i class="who">packages you can take</i></td>'+
+    W.days.map((d,i)=>'<td'+(d.we?' class="we"':'')+'><input class="cin cell'+((CAPC[k]&&CAPC[k][i]!=null)?' edt':'')+'" type="number" step="100" value="'+capOf(k,i)+'" onchange="setCap(\''+k+'\','+i+',this.value)"></td>').join('')+
+    '<td><b>'+fm(cap)+'</b></td></tr>'+
+   '<tr><td>What it should cost<i class="who">at '+rt.toFixed(2)+' hrs / 1,000</i></td>'+
+    W.days.map((d,i)=>'<td'+(d.we?' class="we"':'')+' style="color:var(--ink3)">'+f1(lpVol(k,i)/1000*rt)+'</td>').join('')+
+    '<td style="color:var(--ink3)"><b>'+f1(shouldCost)+'</b></td></tr>'+
+   '</tbody></table></div>'+
+  '<div class="legend"><b>No hour plan goes into this building.</b> Publishing headcount into a partner site is control over people we do not employ, and it buys joint employer exposure without buying a single point of on-time. What we hold the partner to is the outcome and the data feed. The rate is how we price their bid, anchor the renewal, and know which building to walk into before the outcome goes bad.</div></div>'+
+ '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
+  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">What the partner owes back</div>'+
+  '<button class="bsub" onclick="lpCapSubmit(\''+k+'\')"'+(LPUB?'':' disabled')+'>'+(SSUB[k]!==undefined?'Confirmed':'Confirm capacity')+'</button></div>'+
+  '<table class="sheet"><thead><tr><th>Commitment</th><th>Contracted</th><th>This week</th><th>Status</th></tr></thead><tbody>'+
+  '<tr><td>On-time delivery</td><td>95.0%</td><td class="'+(DS[k].otd<95?'neg':'pos')+'">'+f1(DS[k].otd)+'%</td>'+
+   '<td>'+(DS[k].otd<95?'<span class="f a">below</span>':'<span class="f g">met</span>')+'</td></tr>'+
+  '<tr><td>Capacity confirmed by Wednesday</td><td>100%</td><td>'+(SSUB[k]!==undefined?'confirmed':'outstanding')+'</td>'+
+   '<td>'+(SSUB[k]!==undefined?'<span class="f g">met</span>':'<span class="f a">open</span>')+'</td></tr>'+
+  '<tr><td>Hours by function, open book</td><td>'+rt.toFixed(2)+' hrs / 1,000</td><td>'+runsAt.toFixed(2)+'</td>'+
+   '<td>'+(runsAt-rt>1?'<span class="f a">'+(runsAt-rt).toFixed(2)+' over</span>':'<span class="f g">at rate</span>')+'</td></tr>'+
   '</tbody></table>'+
-  '<div class="warnbox" style="background:var(--panel2);border-color:var(--line);color:var(--ink)">The network moved <b>'+(B.drift>=0?'+':'')+f1(B.drift)+' UPH</b> in six weeks and sits <b>'+f1(B.cur.uph-B.std)+'</b> against the standard. It is flat. '+
-  'Nothing in the network is closing this on its own.</div>'+
-  '<div class="act" style="margin-top:11px"><button class="bsub" onclick="pushBar()">'+(PUSHED?'Standard published':'Publish the standard to all markets')+'</button>'+
-   (PUSHED?'<span style="font-size:11.5px;color:var(--mint-d);font-weight:700">Published '+hm(PUSHED)+' · '+f1(B.std)+' UPH</span>'
-          :'<span style="font-size:11.5px;color:var(--ink3)">'+f1(B.std)+' UPH and each market&rsquo;s own standard hours.</span>')+'</div></div>'+
- '<div class="card"><div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase;margin-bottom:2px">Seven day network plan</div>'+
-  '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:9px">Volume shaped by the workbook day of week curve. Hours are volume ÷ each market&rsquo;s own UPH.</div>'+
-  '<table class="sheet"><thead><tr><th>Market</th>'+D.map(d=>'<th>'+d.dow+'<br><span style="font-weight:400;color:var(--ink3)">'+d.lbl+'</span></th>').join('')+'<th>Volume</th><th>Hours</th></tr></thead><tbody>'+
-  rows.map(r=>'<tr style="cursor:pointer" onclick="pick(\''+r.m.k+'\');setPlanView(\'site\')"><td>'+r.m.n+'</td>'+
-   r.S.rows.map(x=>'<td>'+fm(x.v)+'</td>').join('')+'<td><b>'+fm(r.S.vol)+'</b></td><td>'+f1(r.S.tot)+'</td></tr>').join('')+
-  '<tr class="tot"><td>Network</td>'+D.map((d,i)=>'<td>'+fm(rows.reduce((a,r)=>a+r.S.rows[i].v,0))+'</td>').join('')+
-   '<td>'+fm(tv)+'</td><td>'+fm(th)+'</td></tr></tbody></table></div>';
+  '<div class="legend">Reporting is contractible where staffing is not. These three go in the statement of work, and only the middle one has to clear before Monday.</div></div>';
+}
+
+function lpDeltaCard(k,lines){
+ let rows='', any=false;
+ lines.forEach(f=>{let b=0,m=0; for(let i=0;i<7;i++){b+=lpBase(k,f[0],i);m+=lpCell(k,f[0],i)}
+  const d=m-b; if(Math.abs(d)<0.05)return; any=true;
+  const big=(b?Math.abs(d)/b*100:999)>5;
+  rows+='<tr><td>'+f[1]+'</td><td>'+f1(b)+'</td><td>'+f1(m)+'</td>'+
+   '<td class="'+(d>0?'neg':'pos')+'">'+(d>=0?'+':'')+f1(d)+'</td>'+
+   '<td><select class="pl" onchange="setSRsn(\''+k+'\',\''+f[0]+'\',this.value)">'+
+    LRSN.map(r=>'<option'+(((SRSN[k]||{})[f[0]]||'')===r?' selected':'')+'>'+(r||'&mdash;')+'</option>').join('')+'</select></td>'+
+   '<td>'+(big?'<span class="f a">Regional</span>':'<span class="f g">Auto</span>')+'</td></tr>'});
+ if(!any)rows='<tr><td colspan="6" style="text-align:center;color:var(--ink3);padding:14px">No changes yet. Edit any cell above and it appears here.</td></tr>';
+ return '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
+  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">What you changed, and why</div>'+
+  '<button class="bsub" onclick="lpSubmit(\''+k+'\')"'+(LPUB?'':' disabled')+'>'+(SSUB[k]!==undefined?'Submitted':'Submit final plan')+'</button></div>'+
+  '<table class="sheet"><thead><tr><th>Line</th><th>Central Ops</th><th>Your plan</th><th>Delta</th><th>Reason</th><th>Routing</th></tr></thead><tbody>'+
+  rows+'</tbody></table>'+
+  '<div class="legend">Adjustments under 5% of a line clear automatically. Anything larger routes to Regional with the reason attached. <b>Central Ops never blocks the site. It just never loses the record.</b></div></div>';
 }
 
 /* ================= RAISE A TICKET =================
