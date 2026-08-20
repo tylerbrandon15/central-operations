@@ -2066,6 +2066,15 @@ const SITEA={
 const LEADD=10;
 const PFV={}, SCELL={}, SRSN={}, SSUB={}, CAPC={};
 let LPUB=false, LDRY=false;
+/* rolls up by region so the view holds at a hundred sites, not eight */
+let LREG='all'; const REXP={};
+function setLReg(v){LREG=v;draw()}
+function togReg(r){REXP[r]=!REXP[r];draw()}
+function regions(){const o={}; MKT.forEach(m=>{const r=MK[m.k].region;(o[r]=o[r]||[]).push(m)}); return o}
+function regAgg(list){let v=0,h=0,run=0,back=0;
+ list.forEach(m=>{const wk=lpWk(m.k); v+=wk; h+=tgtHrs(wk); run+=wk/SITEA[m.k].uph;
+  if(SSUB[m.k]!==undefined)back++});
+ return {vol:v,hrs:h,run:run,uph:run?v/run:0,back:back,n:list.length}}
 const LRSN=['','New hire class','Problem solve backlog','Equipment down','Peak ramp','Oversize mix','Certification'];
 
 function lpWeek(){const n=new Date(); const d=new Date(n);
@@ -2192,25 +2201,40 @@ function ovRec(){
  return out.sort((a,b)=>b.hrs-a.hrs);
 }
 function vOvCard(){
- const R=ovRec(), A=planAcc(), top=R.slice(0,7), sites=new Set(R.map(x=>x.k)).size;
+ const R=ovRec(), A=planAcc();
+ const REG=regions(), names=Object.keys(REG).sort();
+ const show=LREG==='all'?names:names.filter(r=>r===LREG);
+ const byReg={}; R.forEach(r=>{const g=MK[r.k].region;(byReg[g]=byReg[g]||[]).push(r)});
+ let out='';
+ show.forEach(r=>{const rows=(byReg[r]||[]).slice().sort((a,b)=>b.hrs-a.hrs);
+  if(!rows.length){out+='<tr class="hd"><td>'+r+'</td><td colspan="5" style="color:var(--mint-d)">on plan, nothing to bridge</td></tr>';return}
+  let hrs=0; const sites=new Set(); rows.forEach(x=>{hrs+=x.hrs;sites.add(x.k)});
+  const worst=rows[0], open=REXP['ov'+r]||LREG===r;
+  out+='<tr class="hd" style="cursor:pointer" onclick="togReg(\'ov'+r+'\')">'+
+   '<td><span style="display:inline-block;width:11px">'+(open?'&#9662;':'&#9656;')+'</span> '+r+'</td>'+
+   '<td>'+sites.size+' of '+REG[r].length+'</td><td></td><td></td>'+
+   '<td class="'+(hrs>20?'neg':'')+'">'+f1(hrs)+'</td>'+
+   '<td class="tx2">mostly '+worst.fn.toLowerCase()+'</td></tr>';
+  if(open) rows.slice(0,6).forEach(x=>{
+   out+='<tr style="cursor:pointer" onclick="pick(\''+x.k+'\');setPlanView(\'site\')">'+
+    '<td style="padding-left:24px">'+x.n+'</td><td class="tx2">'+x.fn+'</td>'+
+    '<td class="'+(x.w>=5?'neg':'')+'">'+x.w+' of 6</td>'+
+    '<td>'+(x.pts>=0?'+':'')+f1(x.pts)+' pts</td><td>'+f1(x.hrs)+'</td>'+
+    '<td class="tx2">'+x.rsn+'</td></tr>'});
+ });
  return '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
-  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Six weeks of adjustments against the plan</div>'+
+  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Six weeks of adjustments, by region</div>'+
   '<span class="tag mod">SYSTEM RECORD</span>'+
   '<span class="hdr" style="margin-left:auto">This is the bridge for the WBR</span></div>'+
-  '<div class="tscroll"><table class="wide"><thead><tr><th>Market</th><th>Line</th><th>Weeks over plan</th>'+
-  '<th>Off allocation</th><th>Hours a day</th><th>Reason code given</th></tr></thead><tbody>'+
-  top.map(r=>'<tr style="cursor:pointer" onclick="pick(\''+r.k+'\');setPlanView(\'site\')">'+
-   '<td>'+r.n+'</td><td class="tx2">'+r.fn+'</td>'+
-   '<td class="'+(r.w>=5?'neg':'')+'">'+r.w+' of 6</td>'+
-   '<td>'+(r.pts>=0?'+':'')+f1(r.pts)+' pts</td><td>'+f1(r.hrs)+'</td>'+
-   '<td class="tx2">'+r.rsn+'</td></tr>').join('')+
+  '<div class="tscroll"><table class="wide"><thead><tr><th>Region and site</th><th>Sites over</th><th>Weeks over plan</th>'+
+  '<th>Off allocation</th><th>Hours a day added</th><th>Reason code given</th></tr></thead><tbody>'+out+
   '</tbody></table></div>'+
-  '<div class="legend">Every adjustment is recorded with the reason the site gave. '+
+  '<div class="legend">Click a region to open the sites inside it. Every adjustment is recorded with the reason the site gave. '+
   '<b>Sites planning under the target need no reason and no approval</b>, because a site finding a better way is the point. '+
   'Adjustments that add hours carry a reason code, and the ones that repeat week after week are what we bridge in the WBR. '+
-  sites+' of '+MKT.length+' markets are over on at least one line. The published plan currently lands within '+
-  f1(100-A.pct)+'% of the hours sites actually run.</div></div>';
+  'The published plan currently lands within '+f1(100-A.pct)+'% of the hours sites actually run.</div></div>';
 }
+
 function vModelCard(){
  const A=planAcc();
  return '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
@@ -2263,31 +2287,41 @@ function vPlanNet(){
   'get different hours from the same target, because hours are always their own volume divided by it. Problem solve is the one indirect line, '+
   'published at 13.0%, which is what Market E has held every week for six weeks. Everything above it is direct.</div></div>'+
  '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
-  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Forecast and what each market gets</div>'+
+  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Next week, by region</div>'+
   '<span class="tag mod">FORECAST MODELLED</span>'+
+  '<select class="pl" onchange="setLReg(this.value)"><option value="all"'+(LREG==='all'?' selected':'')+'>All regions</option>'+
+   Object.keys(regions()).sort().map(r=>'<option'+(LREG===r?' selected':'')+'>'+r+'</option>').join('')+'</select>'+
   '<div class="seg" style="margin-left:auto"><button class="'+(LDRY?'':'on')+'" onclick="setDry(false)">Published</button>'+
   '<button class="'+(LDRY?'on':'')+'" onclick="setDry(true)">Dry run</button></div>'+
   '<button class="bsub" onclick="lpPublish()"'+(LPUB?' disabled':'')+'>'+(LPUB?'Published Wed '+W.pub:'Publish '+W.span)+'</button></div>'+
-  '<div class="tscroll"><table class="wide"><thead><tr><th>Market</th><th>Type</th><th>Week forecast</th><th>What they receive</th>'+
-  '<th>Runs at</th><th>Hours over target</th><th>Furthest off allocation</th><th>Back from site</th></tr></thead><tbody>'+
-  MKT.map(m=>{const k=m.k, wk=lpWk(k), tpl=is3PL(k), pl=tgtHrs(wk), run=wk/SITEA[k].uph, mg=mixGap(k);
-   const got=tpl?fm(wk)+' pkgs committed':fm(Math.round(pl))+' hrs';
-   const st=SSUB[k]!==undefined?'<span class="f g">'+(SSUB[k]>=0?'+':'')+fm(SSUB[k])+(tpl?' pkgs':' hrs')+'</span>'
-     :LPUB?'<span class="f a">due Wed</span>':'<span style="color:var(--ink3)">&mdash;</span>';
-   return '<tr style="cursor:pointer" onclick="pick(\''+k+'\');setPlanView(\'site\')">'+
-    '<td>'+m.n+'</td><td class="tx2">'+facN(m.fac)+'</td>'+
-    '<td onclick="event.stopPropagation()"><input type="number" step="100" class="cin" style="width:86px" value="'+wk+'" onchange="setPFV(\''+k+'\',this.value)"></td>'+
-    '<td>'+got+'</td>'+
-    '<td class="'+(SITEA[k].uph<UPHT-5?'neg':SITEA[k].uph>=UPHT?'pos':'')+'">'+f1(SITEA[k].uph)+' UPH</td>'+
-    '<td class="'+(run-pl>120?'neg':'')+'">'+(run-pl>=0?'+':'')+fm(Math.round(run-pl))+'</td>'+
-    '<td>'+(mg.gap<=0.3?'<span class="f g">on allocation</span>':mg.fn+' <span class="'+(mg.gap>5?'neg':'')+'">+'+f1(mg.gap)+' pts</span>')+'</td>'+
-    '<td>'+st+'</td></tr>'}).join('')+
-  '<tr class="tot"><td>Network</td><td></td><td>'+fm(nv)+'</td><td>'+fm(Math.round(shown))+' hrs</td>'+
-   '<td>'+f1(nv/nrun)+' UPH</td><td>+'+fm(Math.round(nrun-nplan))+'</td><td></td><td></td></tr></tbody></table></div>'+
-  '<div class="legend"><b>Two different problems live in these two columns.</b> Most markets sit on the published allocation and simply run '+
-  'under the UPH target, which is a rate conversation. Market D is the only one badly off allocation, 14 points into problem solve, which is '+
-  'not a rate conversation at all. <b>Company run sites receive hours. Partner sites receive committed volume and what the work should cost</b>, '+
-  'because we do not publish headcount into a building whose people we do not employ.</div></div>'+
+  '<div class="tscroll"><table class="wide"><thead><tr><th>Region and site</th><th>Sites</th><th>Week forecast</th>'+
+  '<th>Hours at target</th><th>Runs at</th><th>Plan returned</th></tr></thead><tbody>'+
+  (function(){const REG=regions(), names=Object.keys(REG).sort();
+   const show=LREG==='all'?names:names.filter(r=>r===LREG);
+   let out='';
+   show.forEach(r=>{const list=REG[r], A=regAgg(list), open=REXP[r]||LREG===r;
+    out+='<tr class="hd" style="cursor:pointer" onclick="togReg(\''+r+'\')">'+
+     '<td><span style="display:inline-block;width:11px">'+(open?'&#9662;':'&#9656;')+'</span> '+r+'</td>'+
+     '<td>'+A.n+'</td><td>'+fm(A.vol)+'</td><td>'+fm(Math.round(A.hrs))+'</td>'+
+     '<td class="'+(A.uph<UPHT-5?'neg':A.uph>=UPHT?'pos':'')+'">'+f1(A.uph)+' UPH</td>'+
+     '<td>'+(LPUB?A.back+' of '+A.n:'&mdash;')+'</td></tr>';
+    if(open) list.forEach(m=>{const k=m.k, wk=lpWk(k), tpl=is3PL(k);
+     const st=SSUB[k]!==undefined?'<span class="f g">'+(SSUB[k]>=0?'+':'')+fm(SSUB[k])+(tpl?' pkgs':' hrs')+'</span>'
+       :LPUB?'<span class="f a">due Wed</span>':'<span style="color:var(--ink3)">&mdash;</span>';
+     out+='<tr style="cursor:pointer" onclick="pick(\''+k+'\');setPlanView(\'site\')">'+
+      '<td style="padding-left:24px">'+m.n+'</td><td class="tx2">'+facN(m.fac)+'</td>'+
+      '<td onclick="event.stopPropagation()"><input type="number" step="100" class="cin" style="width:82px" value="'+wk+'" onchange="setPFV(\''+k+'\',this.value)"></td>'+
+      '<td>'+fm(Math.round(tgtHrs(wk)))+'</td>'+
+      '<td class="'+(SITEA[k].uph<UPHT-5?'neg':SITEA[k].uph>=UPHT?'pos':'')+'">'+f1(SITEA[k].uph)+' UPH</td>'+
+      '<td>'+st+'</td></tr>'});
+   });
+   return out})()+
+  '<tr class="tot"><td>Network</td><td>'+MKT.length+'</td><td>'+fm(nv)+'</td><td>'+fm(Math.round(shown))+'</td>'+
+   '<td>'+f1(nv/nrun)+' UPH</td><td>'+(LPUB?back+' of '+MKT.length:'&mdash;')+'</td></tr></tbody></table></div>'+
+  '<div class="legend">Click a region to open its sites. <b>Hours at target is always that site\'s own forecast divided by the network target</b>, '+
+  'so a small market never carries a big market\'s hours. Company run sites receive those hours as their plan. Partner sites receive committed '+
+  'volume and the same figure as a cost expectation, because we do not publish headcount into a building whose people we do not employ. '+
+  '<b>Runs at</b> is the six week actual, which is how you pick the region to open.</div></div>'+
  vOvCard()+vModelCard()+vActLog(null);
 }
 
