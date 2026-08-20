@@ -561,6 +561,9 @@ select.pl:focus{border-color:var(--coral)}
 .slot.loading .stm{color:var(--mint-d)}
 .slot.blocked{background:repeating-linear-gradient(45deg,var(--panel2),var(--panel2) 5px,var(--line) 5px,var(--line) 6px);border-color:var(--line2)}
 .slot.held{background:#EFECE6;border-style:dashed;border-color:var(--ink3);opacity:.8}
+.slot.resv{background:var(--coral-t);border-color:var(--coral-l)}
+.slot.resv .sid{color:var(--coral-d)}
+.slot.resv .stm{color:var(--coral-d)}
 .slot.on{outline:2px solid var(--ink);outline-offset:1px}
 .slot.lgs{border-left:3px solid var(--amber)}
 .slot .hot{position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--coral)}
@@ -1133,6 +1136,9 @@ function slotAt(k,sid,t){
   if(r&&r.roll<=t&&t<r.scanOut) return {st:t<r.scanIn?'staged':'loading',r,s,pinned:(S.pins||{})[r.id]===sid}}
  for(const b of s.blocks) if(b.from<=t&&t<b.to) return {st:'blocked',by:b.by,s};
  if(s.held) return {st:'held',s};
+ /* assigned by hand and the cart has not rolled in yet: the slot is spoken for, not open */
+ const pr=pinnedTo(k,sid);
+ if(pr){const r=S.byId[pr]; if(r&&(r.roll===null||t<r.roll)) return {st:'reserved',r,s,pinned:true}}
  return {st:'empty',s};
 }
 /* what the floor is holding right now */
@@ -1766,13 +1772,15 @@ function vStage(){
     '<div class="lc" style="color:var(--ink3)">'+freeN+'/'+cells.length+' open</div></div>'+
     '<div class="lanes">'+cells.map(x=>{
      const held=(HOLD[k]||{})[x.id], pinned=!!pinnedTo(k,x.id);
-     const cl=held?'held':x.st==='staged'?'staged':x.st==='loading'?'loading':x.st==='blocked'?'blocked':'';
+     const cl=held?'held':x.st==='staged'?'staged':x.st==='loading'?'loading':x.st==='blocked'?'blocked':x.st==='reserved'?'resv':'';
      let body='';
      if(held) body='<div class="snm">held out</div>';
      else if(x.st==='staged') body='<div class="srt">'+x.r.id+'</div><div class="snm">cart waiting</div><div class="stm">'+Math.round(T-x.r.roll)+'m held</div>';
      else if(x.st==='loading') body='<div class="srt">'+x.r.id+'</div>'+carBot(x.r)+
        '<div class="stm">'+Math.round(T-x.r.scanIn)+'m / '+Math.round(x.r.scanOut-x.r.scanIn)+'m</div>';
      else if(x.st==='blocked') body='<div class="snm">blocked by</div><div class="srt">'+x.by+'</div>';
+     else if(x.st==='reserved') body='<div class="srt">'+x.r.id+'</div><div class="snm">'+x.r.nm+'</div>'+
+       '<div class="stm">'+(x.r.roll===null?'awaiting cart':'rolls '+hm(x.r.roll))+'</div>';
      else body='<div class="snm" style="color:var(--ink3)">open</div>';
      const hot=x.st==='staged'&&(T-x.r.roll)>18;
      return '<button class="slot '+cl+(x.cls==='lg'?' lgs':'')+(pinned?' pin':'')+(SLOTSEL===x.id?' on':'')+'" onclick="pickSlot(\''+x.id+'\')">'+
@@ -1782,6 +1790,7 @@ function vStage(){
    '<span><i style="background:var(--blue-t);border:1px solid var(--blue)"></i>cart staged</span>'+
    '<span><i style="background:var(--mint-t);border:1px solid var(--mint)"></i>driver loading</span>'+
    '<span><i style="background:var(--line)"></i>blocked by oversize</span>'+
+   '<span><i style="background:var(--coral-t);border:1px solid var(--coral-l)"></i>assigned, cart not rolled</span>'+
    '<span><i style="background:#EFECE6;border:1px dashed var(--ink3)"></i>held out</span>'+
    '<span><b style="color:var(--coral)">M</b> assigned by hand</span>'+
    '<span style="margin-left:auto"><i style="background:var(--amber)"></i>oversize position</span></div>'+
@@ -1790,6 +1799,7 @@ function vStage(){
    '<b style="font-family:var(--mono);font-size:13px">'+sel.id+'</b>'+
    '<span>'+(sel.st==='staged'?'Cart '+sel.r.id+' staged '+hm(sel.r.roll)+' · driver '+sel.r.nm+' due '+hm(sel.r.arr)
      :sel.st==='loading'?sel.r.nm+' scanned in '+hm(sel.r.scanIn)+' · route '+sel.r.id+' · scans out '+hm(sel.r.scanOut)
+     :sel.st==='reserved'?'Assigned to route '+sel.r.id+' · driver '+sel.r.nm+' due '+hm(sel.r.arr)+(sel.r.roll===null?' · engine has not found a cart for it yet':' · cart rolls '+hm(sel.r.roll))
      :sel.st==='blocked'?'Held by oversize route '+sel.by+' next to it'
      :(HOLD[k]||{})[sel.id]?'Out of the pool.':'Open. Next cart due rolls here.')+'</span>'+
    (pinRoute?'<span class="f r">ASSIGNED BY HAND · '+pinRoute+'</span>':'')+'</div>'+
