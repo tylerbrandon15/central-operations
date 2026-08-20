@@ -101,7 +101,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:13.
 .ovmf{display:flex;gap:9px;align-items:center;padding:13px 20px 16px;border-top:1px solid var(--line)}
 .ovmf .pl{flex:1}
 .alog td{font-size:11px}
-.alog .who{font-weight:700;color:var(--ink)}
+.alog td i.who{display:block;font-style:normal;font-size:9px;color:var(--ink3);font-weight:400}
 .sheet th.we,.sheet td.we{background:#FAF8F4}
 .sheet td i.who,.sheet th i.who{display:block;font-style:normal;font-size:9.5px;color:var(--ink3);font-weight:400}
 .kseg .kpi{display:flex;flex-direction:column}
@@ -2043,18 +2043,26 @@ function sheet(k){
 }
 
 /* ================= LABOR PLAN · weekly, two track =================
-   Central Ops publishes a rate per function on Wednesday for the following
-   Mon to Sun. Company run sites plan hours against it. 3PL sites get committed
-   capacity and the rate as a cost expectation, never a headcount, because
-   directing a partner's employees is control we do not want. */
-const FLOORR={sort:4.78,launch:1.71,dock:2.16,ps:1.34};
-const WHOF={sort:'B',launch:'B',dock:'B',ps:'E'};
+   One dial. Central Ops sets a network UPH target. A site's hours fall out of
+   its own forecast volume divided by that target, so nothing is ever a blanket
+   hour count. Those hours are then allocated across functions by percentage,
+   split direct and indirect. Company sites get the hour plan. Partner sites get
+   committed volume and what the work should cost, never a headcount. */
+let UPHT=100;
+const ALLOC={sort:47.9,launch:17.3,dock:21.8,ps:13.0};
+const ALLOC0={sort:47.9,launch:17.3,dock:21.8,ps:13.0};
 const FNL=[['sort','Sort'],['launch','Launch'],['dock','Dock'],['ps','Problem solve']];
-const FNR={A:{sort:5.38,launch:1.91,dock:2.49,ps:1.58},B:{sort:4.78,launch:1.71,dock:2.16,ps:1.37},
- C:{sort:5.55,launch:2.00,dock:2.52,ps:1.64},D:{sort:4.99,launch:1.76,dock:2.23,ps:3.33},
- E:{sort:4.91,launch:1.81,dock:2.23,ps:1.34},F:{sort:5.18,launch:1.91,dock:2.37,ps:1.64},
- G:{sort:5.50,launch:2.00,dock:2.47,ps:1.68},H:{sort:5.56,launch:2.02,dock:2.54,ps:1.57}};
-const PRATE={}; FNL.forEach(f=>PRATE[f[0]]=FLOORR[f[0]]);
+const DIRECT={sort:1,launch:1,dock:1};
+/* what each market actually ran across the six weeks: its UPH and how it split its hours */
+const SITEA={
+ A:{uph:88.1,al:{sort:47.4,launch:16.8,dock:21.9,ps:13.9}},
+ B:{uph:99.7,al:{sort:47.7,launch:17.1,dock:21.6,ps:13.7}},
+ C:{uph:85.4,al:{sort:47.4,launch:17.1,dock:21.6,ps:14.0}},
+ D:{uph:81.2,al:{sort:40.6,launch:14.3,dock:18.1,ps:27.0}},
+ E:{uph:97.2,al:{sort:47.7,launch:17.6,dock:21.7,ps:13.0}},
+ F:{uph:90.1,al:{sort:46.6,launch:17.2,dock:21.3,ps:14.8}},
+ G:{uph:85.9,al:{sort:47.2,launch:17.2,dock:21.2,ps:14.4}},
+ H:{uph:85.5,al:{sort:47.6,launch:17.3,dock:21.7,ps:13.5}}};
 const LEADD=10;
 const PFV={}, SCELL={}, SRSN={}, SSUB={}, CAPC={};
 let LPUB=false, LDRY=false;
@@ -2070,19 +2078,28 @@ function lpWeek(){const n=new Date(); const d=new Date(n);
 function lpVol(k,i){if(PFV[k]&&PFV[k][i]!=null)return PFV[k][i];
  const dv=DS[k].dv; return dv?dv[i]:Math.round(DS[k].vol)}
 function lpWk(k){let t=0;for(let i=0;i<7;i++)t+=lpVol(k,i);return t}
-function rateTotP(){let t=0;FNL.forEach(f=>t+=PRATE[f[0]]);return t}
-function floorTotP(){let t=0;FNL.forEach(f=>t+=FLOORR[f[0]]);return t}
+function tgtHrs(vol){return vol/UPHT}                    /* the whole framework, one line */
+function allocTot(){let t=0;FNL.forEach(f=>t+=ALLOC[f[0]]);return t}
+function directPct(){let t=0;FNL.forEach(f=>{if(DIRECT[f[0]])t+=ALLOC[f[0]]});return t}
 function LPL(){return FNL.concat([['train','Training'],['lead','Lead and supervision']])}
-function lpBase(k,f,i){return f==='lead'?LEADD:f==='train'?0:lpVol(k,i)/1000*PRATE[f]}
+function lpBase(k,f,i){return f==='lead'?LEADD:f==='train'?0:tgtHrs(lpVol(k,i))*ALLOC[f]/100}
 function lpCell(k,f,i){const c=SCELL[k]&&SCELL[k][f]; return (c&&c[i]!=null)?c[i]:lpBase(k,f,i)}
 function lpEd(k,f,i){const c=SCELL[k]&&SCELL[k][f]; return !!(c&&c[i]!=null)}
 function lpDelta(k){let b=0,m=0; LPL().forEach(f=>{for(let i=0;i<7;i++){b+=lpBase(k,f[0],i);m+=lpCell(k,f[0],i)}});
  return m-b}
-function owes(k){let g=-9,on=''; FNL.forEach(f=>{const d=FNR[k][f[0]]-PRATE[f[0]]; if(d>g){g=d;on=f[1]}});
- return {gap:g,fn:on}}
 function is3PL(k){return MK[k].fac==='3PL'}
+function siteHrs(k){return lpWk(k)*1/SITEA[k].uph}       /* what the market actually runs */
+function uphGap(k){return SITEA[k].uph-UPHT}
+function mixGap(k){let g=-99,on=''; FNL.forEach(f=>{const d=SITEA[k].al[f[0]]-ALLOC[f[0]];
+ if(d>g){g=d;on=f[1]}}); return {gap:g,fn:on}}
 
-function setPRate(f,v){PRATE[f]=Math.max(.05,+v||FLOORR[f]);draw()}
+function setUPHT(v){UPHT=Math.max(40,Math.min(200,+v||100));draw()}
+function setAlloc(f,v){const nv=Math.max(1,Math.min(90,+v||ALLOC0[f]));
+ const others=FNL.filter(x=>x[0]!==f), rest=100-nv;
+ let cur=0; others.forEach(x=>cur+=ALLOC[x[0]]);
+ others.forEach(x=>ALLOC[x[0]]=Math.round(ALLOC[x[0]]/cur*rest*10)/10);
+ ALLOC[f]=Math.round((100-others.reduce((a,x)=>a+ALLOC[x[0]],0))*10)/10;
+ draw()}
 function setPFV(k,v){const nw=+v||0, old=lpWk(k), dv=DS[k].dv||[];
  PFV[k]=dv.map(x=>Math.round(x*nw/(old||1))); delete SCELL[k]; draw()}
 function lpPublish(){LPUB=true;draw()}
@@ -2094,50 +2111,7 @@ function setCap(k,i,v){if(!CAPC[k])CAPC[k]=[null,null,null,null,null,null,null];
 function capOf(k,i){return (CAPC[k]&&CAPC[k][i]!=null)?CAPC[k][i]:lpVol(k,i)}
 function lpCapSubmit(k){let t=0;for(let i=0;i<7;i++)t+=capOf(k,i)-lpVol(k,i);SSUB[k]=Math.round(t);draw()}
 
-/* Six weeks of what sites actually did against the published rate. Derived from
-   each market's own function rates: a market running above the published rate is a
-   market that has been adding hours back every week. Facts, no interpretation. */
-function ovRec(){
- const out=[]; const RS={sort:'Dock and staging constraint',launch:'Inbound arrival profile',
-  dock:'Inbound arrival profile',ps:'Problem solve backlog'};
- MKT.forEach(m=>{const k=m.k;
-  FNL.forEach(f=>{const g=100*(FNR[k][f[0]]-PRATE[f[0]])/PRATE[f[0]];
-   if(g<2) return;
-   out.push({k:k,n:m.n,fn:f[1],g:g,w:Math.min(6,Math.max(1,Math.round(g/4))),
-     hrs:(FNR[k][f[0]]-PRATE[f[0]])*lpWk(k)/1000/6, rsn:RS[f[0]]})})});
- return out.sort((a,b)=>b.hrs-a.hrs);   /* hours a day is what a WBR argues about, not percent */
-}
-function planAcc(){
- let pub=0, act=0;
- MKT.forEach(m=>{const wk=lpWk(m.k);
-  pub+=wk/1000*rateTotP();
-  act+=wk/1000*(FNR[m.k].sort+FNR[m.k].launch+FNR[m.k].dock+FNR[m.k].ps)});
- return {pub:pub, act:act, pct:100-100*Math.abs(act-pub)/pub};
-}
-function vOvCard(){
- const R=ovRec(), A=planAcc(), top=R.slice(0,7);
- const sites=new Set(R.map(x=>x.k)).size;
- return '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
-  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Six weeks of adjustments against the plan</div>'+
-  '<span class="tag mod">SYSTEM RECORD</span>'+
-  '<span class="hdr" style="margin-left:auto">This is the bridge for the WBR</span></div>'+
-  '<div class="tscroll"><table class="wide"><thead><tr><th>Market</th><th>Line</th><th>Weeks over plan</th>'+
-  '<th>Average add</th><th>Hours a day</th><th>Reason code given</th></tr></thead><tbody>'+
-  top.map(r=>'<tr style="cursor:pointer" onclick="pick(\''+r.k+'\');setPlanView(\'site\')">'+
-   '<td>'+r.n+'</td><td class="tx2">'+r.fn+'</td>'+
-   '<td class="'+(r.w>=5?'neg':'')+'">'+r.w+' of 6</td>'+
-   '<td>+'+f1(r.g)+'%</td><td>'+f1(r.hrs)+'</td>'+
-   '<td class="tx2">'+r.rsn+'</td></tr>').join('')+
-  '</tbody></table></div>'+
-  '<div class="legend">Every adjustment a site makes is recorded with the reason it gave. '+
-  '<b>Sites planning under the rate need no reason and no approval</b>, because a site finding a better way is the point. '+
-  'Adjustments that add hours carry a reason code, and the ones that repeat week after week are what we bridge in the WBR. '+
-  ''+sites+' of '+MKT.length+' markets are adding hours against at least one line. The published baseline currently lands within '+
-  f1(100-A.pct)+'% of what sites finally plan.</div></div>';
-}
-
-/* An adjustment that adds hours has to be explained at the moment it is made,
-   not in a table underneath it. Everything lands in the activity log either way. */
+/* an adjustment that adds hours is explained at the moment it is made */
 let OVM=null;
 const ALOG=[];
 function nowStamp(){const d=new Date();
@@ -2159,18 +2133,15 @@ function setCell(k,f,i,v){
  else logOv(k,f,i,prev,nv,(SRSN[k]||{})[f]);
  draw();
 }
-function ovCancel(){ if(!OVM)return;
- const o=OVM; OVM=null;
+function ovCancel(){ if(!OVM)return; const o=OVM; OVM=null;
  SCELL[o.k][o.f][o.i]=Math.abs(o.prev-lpBase(o.k,o.f,o.i))<0.05?null:o.prev; draw() }
-function ovSave(r){ if(!OVM||!r)return;
- const o=OVM; OVM=null;
- if(!SRSN[o.k])SRSN[o.k]={}; SRSN[o.k][o.f]=r;
- logOv(o.k,o.f,o.i,o.prev,o.nv,r); draw() }
+function ovSave(r){ if(!OVM||!r)return; const o=OVM; OVM=null;
+ if(!SRSN[o.k])SRSN[o.k]={}; SRSN[o.k][o.f]=r; logOv(o.k,o.f,o.i,o.prev,o.nv,r); draw() }
 function vOvModal(){
  if(!OVM) return '';
- const o=OVM, L=lineTot(o.k,o.f), rt=rateTotP(), wk=lpWk(o.k);
+ const o=OVM, L=lineTot(o.k,o.f), wk=lpWk(o.k);
  let rateW=0; FNL.forEach(f=>{for(let i=0;i<7;i++)rateW+=lpCell(o.k,f[0],i)});
- const isRate=FNL.some(x=>x[0]===o.f), uphNew=wk/rateW, uphPlan=1000/rt;
+ const isRate=FNL.some(x=>x[0]===o.f), uphNew=wk/rateW;
  const nm=(LPL().find(x=>x[0]===o.f)||[o.f,o.f])[1], d=lpWeek().days[o.i];
  return '<div class="ovm"><div class="ovmc">'+
   '<div class="ovmh"><div class="ovmt">This adds hours to the plan</div>'+
@@ -2179,12 +2150,12 @@ function vOvModal(){
    '<div class="ovmr"><span>Central Ops planned</span><b>'+f1(o.prev)+' hrs</b></div>'+
    '<div class="ovmr"><span>You are planning</span><b>'+f1(o.nv)+' hrs</b></div>'+
    '<div class="ovmr"><span>This line, week</span><b>'+f1(L.b)+' &rarr; '+f1(L.m)+'</b></div>'+
-   (isRate?'<div class="ovmw">Implied UPH drops from '+f1(uphPlan)+' to '+f1(uphNew)+
+   (isRate?'<div class="ovmw">Your UPH for the week drops from '+f1(UPHT)+' to '+f1(uphNew)+
      '. Tell us why and it clears.</div>'
     :'<div class="ovmw">This line sits outside the UPH target. Tell us why and it clears.</div>')+
    '<div style="font-size:11px;color:var(--ink3)">Recorded against '+SEATS[SEAT].who+' at '+nowStamp()+'.</div>'+
   '</div>'+
-  '<div class="ovmf"><select class="pl" id="ovmr" onchange="ovSave(this.value)">'+
+  '<div class="ovmf"><select class="pl" onchange="ovSave(this.value)">'+
    LRSN.map(r=>'<option value="'+(r||'')+'">'+(r||'Pick a reason to continue')+'</option>').join('')+'</select>'+
    '<button class="abtn" onclick="ovCancel()">Cancel</button></div>'+
   '</div></div>';
@@ -2197,59 +2168,100 @@ function vActLog(k){
   '<div class="tscroll"><table class="wide alog"><thead><tr><th>When</th><th>Who</th><th>Market</th>'+
   '<th>Line</th><th>Day</th><th>From</th><th>To</th><th>Reason</th></tr></thead><tbody>'+
   (rows.length?rows.slice(0,12).map(x=>'<tr><td class="tx2">'+x.t+'</td>'+
-   '<td class="who">'+x.who+'<i class="who" style="display:block;font-style:normal;font-weight:400">'+x.seat+'</i></td>'+
+   '<td>'+x.who+'<i class="who">'+x.seat+'</i></td>'+
    '<td class="tx2">'+x.mk+'</td><td class="tx2">'+x.fn+'</td><td class="tx2">'+x.day+'</td>'+
    '<td>'+f1(x.from)+'</td><td class="'+(x.to>x.from?'neg':'pos')+'">'+f1(x.to)+'</td>'+
    '<td class="tx2">'+x.rsn+'</td></tr>').join('')
    :'<tr><td colspan="8" style="text-align:center;color:var(--ink3);padding:14px">Nothing changed yet. Edit an hour cell above.</td></tr>')+
   '</tbody></table></div>'+
-  '<div class="legend">Every edit is stamped with the person, the seat they hold, the line, the day and the reason. '+
-  'Nothing is overwritten and nothing is anonymous.</div></div>';
+  '<div class="legend">Every edit is stamped with the person, the seat they hold, the line, the day and the reason. Nothing is overwritten and nothing is anonymous.</div></div>';
+}
+function planAcc(){
+ let pub=0, act=0;
+ MKT.forEach(m=>{const wk=lpWk(m.k); pub+=tgtHrs(wk); act+=wk/SITEA[m.k].uph});
+ return {pub:pub, act:act, pct:100-100*Math.abs(act-pub)/pub};
+}
+function ovRec(){
+ const out=[]; const RS={sort:'Dock and staging constraint',launch:'Inbound arrival profile',
+  dock:'Inbound arrival profile',ps:'Problem solve backlog'};
+ MKT.forEach(m=>{const k=m.k, wk=lpWk(k), tot=wk/SITEA[k].uph;
+  FNL.forEach(f=>{const plan=tgtHrs(wk)*ALLOC[f[0]]/100, ran=tot*SITEA[k].al[f[0]]/100;
+   if(ran-plan<0.5) return;
+   out.push({k:k,n:m.n,fn:f[1],hrs:(ran-plan)/6,pts:SITEA[k].al[f[0]]-ALLOC[f[0]],
+    w:Math.min(6,Math.max(1,Math.round(100*(ran-plan)/plan/4))), rsn:RS[f[0]]})})});
+ return out.sort((a,b)=>b.hrs-a.hrs);
+}
+function vOvCard(){
+ const R=ovRec(), A=planAcc(), top=R.slice(0,7), sites=new Set(R.map(x=>x.k)).size;
+ return '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
+  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Six weeks of adjustments against the plan</div>'+
+  '<span class="tag mod">SYSTEM RECORD</span>'+
+  '<span class="hdr" style="margin-left:auto">This is the bridge for the WBR</span></div>'+
+  '<div class="tscroll"><table class="wide"><thead><tr><th>Market</th><th>Line</th><th>Weeks over plan</th>'+
+  '<th>Off allocation</th><th>Hours a day</th><th>Reason code given</th></tr></thead><tbody>'+
+  top.map(r=>'<tr style="cursor:pointer" onclick="pick(\''+r.k+'\');setPlanView(\'site\')">'+
+   '<td>'+r.n+'</td><td class="tx2">'+r.fn+'</td>'+
+   '<td class="'+(r.w>=5?'neg':'')+'">'+r.w+' of 6</td>'+
+   '<td>'+(r.pts>=0?'+':'')+f1(r.pts)+' pts</td><td>'+f1(r.hrs)+'</td>'+
+   '<td class="tx2">'+r.rsn+'</td></tr>').join('')+
+  '</tbody></table></div>'+
+  '<div class="legend">Every adjustment is recorded with the reason the site gave. '+
+  '<b>Sites planning under the target need no reason and no approval</b>, because a site finding a better way is the point. '+
+  'Adjustments that add hours carry a reason code, and the ones that repeat week after week are what we bridge in the WBR. '+
+  sites+' of '+MKT.length+' markets are over on at least one line. The published plan currently lands within '+
+  f1(100-A.pct)+'% of the hours sites actually run.</div></div>';
 }
 function vModelCard(){
  const A=planAcc();
  return '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
-  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">How the baseline is generated</div>'+
+  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">How the plan is generated</div>'+
   '<span class="tag mod">PLANNING MODEL</span>'+
   '<span class="hdr" style="margin-left:auto">Accuracy '+f1(A.pct)+'% and improving as overrides accumulate</span></div>'+
   '<div class="grid g4">'+
-   tile('Reads today','4 inputs','rate by function, market forecast, day of week curve, six weeks of overrides')+
-   tile('Generates','8 plans','one per market, seven days, six lines each')+
-   tile('Learns from','28 signals','override lines with a reason code attached')+
-   tile('Next','Intra week','re-forecast when volume or freight lands off plan')+
+   tile('The one input',f1(UPHT)+' UPH','the network target Central Ops owns')+
+   tile('Becomes hours','volume &divide; target','per site, per day, from that site\'s own forecast')+
+   tile('Then allocated',f1(directPct())+'% direct','the rest indirect, by published percentage')+
+   tile('Learns from',ovRec().length+' signals','override lines carrying a reason code')+
   '</div>'+
-  '<div class="legend">The baseline is generated, not typed. Today the model is deterministic: published rate times forecast, '+
-  'shaped by each market\'s own day of week curve. <b>The override record is the training set.</b> Every reason code a site '+
-  'gives is a labelled example of where the rate does not fit a building, and the accuracy number above is how the model is '+
-  'scored. Central Ops is measured on how rarely the field has to correct it.</div></div>';
+  '<div class="legend">Nothing here is a blanket hour count. <b>A site with half the volume gets half the hours</b>, because hours are '+
+  'that market\'s own forecast divided by one network target. The allocation then splits those hours across functions, direct and indirect. '+
+  'Central Ops owns two things and only two: the target and the allocation. <b>The override record is the training set</b>, and the accuracy '+
+  'figure above is how the model is scored. We are measured on how rarely the field has to correct us.</div></div>';
 }
 
 function vPlanNet(){
- const W=lpWeek(), rt=rateTotP(), ft=floorTotP(), uph=1000/rt;
+ const W=lpWeek();
  let nv=0, nplan=0, nrun=0, back=0, dry=0;
- MKT.forEach(m=>{const wk=lpWk(m.k); nv+=wk; nplan+=wk/1000*rt;
-  nrun+=wk/1000*(FNR[m.k].sort+FNR[m.k].launch+FNR[m.k].dock+FNR[m.k].ps);
+ MKT.forEach(m=>{const wk=lpWk(m.k); nv+=wk; nplan+=tgtHrs(wk); nrun+=wk/SITEA[m.k].uph;
   if(SSUB[m.k]!==undefined){back++; if(!is3PL(m.k))dry+=SSUB[m.k]}});
  const shown=LDRY?nplan+dry:nplan;
  return '<div class="grid g4" style="margin-bottom:12px">'+
   tile('Next week forecast',fm(nv),'packages across '+MKT.length+' markets')+
-  tile('Hours published',fm(Math.round(shown)),(LDRY?'includes '+(dry>=0?'+':'')+f1(dry)+' pending':'at '+f1(uph)+' UPH published'),LDRY?'a':'')+
-  tile('Network runs at',(nrun/nv*1000).toFixed(2),'hrs / 1,000 against '+rt.toFixed(2)+' published','r')+
-  tile('Plan accuracy',f1(planAcc().pct)+'%','published baseline against what sites plan',planAcc().pct<90?'a':'g')+
+  tile('Hours at target',fm(Math.round(shown)),(LDRY?'includes '+(dry>=0?'+':'')+f1(dry)+' pending':'forecast &divide; '+f1(UPHT)+' UPH'),LDRY?'a':'')+
+  tile('Network runs at',f1(nv/nrun),'UPH today, '+fm(Math.round(nrun-nplan))+' hours above target','r')+
+  tile('Plan accuracy',f1(planAcc().pct)+'%','plan against the hours sites run',planAcc().pct<90?'a':'g')+
  '</div>'+
  '<div class="card"><div class="act" style="margin-bottom:6px">'+
-  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">The rate Central Ops publishes</div>'+
-  '<span class="tag meas">BEST DEMONSTRATED</span>'+
-  '<span class="hdr" style="margin-left:auto">Editable. Every floor is a rate a real market already runs.</span></div>'+
-  '<table class="sheet"><thead><tr><th>Function</th><th>Proven floor</th><th>Proven by</th><th>Published rate</th><th>Markets already there</th></tr></thead><tbody>'+
-  FNL.map(f=>{const at=MKT.filter(m=>FNR[m.k][f[0]]<=PRATE[f[0]]+0.005).length;
-   return '<tr><td>'+f[1]+'</td><td style="color:var(--ink3)">'+FLOORR[f[0]].toFixed(2)+'</td>'+
-   '<td style="color:var(--ink3)">Market '+WHOF[f[0]]+'</td>'+
-   '<td><input type="number" step="0.01" class="cin'+(Math.abs(PRATE[f[0]]-FLOORR[f[0]])>0.005?' edt':'')+'" style="width:78px" value="'+PRATE[f[0]].toFixed(2)+'" onchange="setPRate(\''+f[0]+'\',this.value)"></td>'+
+  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">The target, and how the hours get allocated</div>'+
+  '<span class="tag mod">CENTRAL OPS OWNS THESE TWO</span>'+
+  '<span class="act" style="margin-left:auto"><span class="fl">Network UPH target</span>'+
+  '<input type="number" step="1" class="cin'+(UPHT!==100?' edt':'')+'" style="width:74px" value="'+f1(UPHT)+'" onchange="setUPHT(this.value)"></span></div>'+
+  '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:4px">Hours for any site are that site\'s forecast volume divided by this target. '+
+  'The allocation below then splits those hours across functions. Both are editable, and the percentages rebalance to 100.</div>'+
+  '<table class="sheet"><thead><tr><th>Function</th><th>Type</th><th>Allocation</th><th>Network hours</th>'+
+  '<th>Markets at or under</th></tr></thead><tbody>'+
+  FNL.map(f=>{const at=MKT.filter(m=>SITEA[m.k].al[f[0]]<=ALLOC[f[0]]+0.05).length;
+   let nh=0; MKT.forEach(m=>nh+=tgtHrs(lpWk(m.k))*ALLOC[f[0]]/100);
+   return '<tr><td>'+f[1]+'</td><td class="tx2">'+(DIRECT[f[0]]?'Direct':'Indirect')+'</td>'+
+   '<td><input type="number" step="0.1" class="cin'+(Math.abs(ALLOC[f[0]]-ALLOC0[f[0]])>0.05?' edt':'')+'" style="width:74px" value="'+f1(ALLOC[f[0]])+'" onchange="setAlloc(\''+f[0]+'\',this.value)"></td>'+
+   '<td>'+fm(Math.round(nh))+'</td>'+
    '<td class="'+(at>4?'pos':at>1?'':'neg')+'">'+at+' of '+MKT.length+'</td></tr>'}).join('')+
-  '<tr class="tot"><td>Total hrs / 1,000</td><td style="color:var(--ink3)">'+ft.toFixed(2)+'</td><td></td><td>'+rt.toFixed(2)+'</td><td>'+f1(uph)+' UPH</td></tr>'+
+  '<tr class="tot"><td>Total</td><td class="tx2">'+f1(directPct())+'% direct</td><td>'+f1(allocTot())+'%</td>'+
+  '<td>'+fm(Math.round(nplan))+'</td><td>'+f1(UPHT)+' UPH</td></tr>'+
   '</tbody></table>'+
-  '<div class="legend"><b>Why best demonstrated and not an engineered standard.</b> Every number above is a rate a named market held across the six weeks, so no site can call it unreachable. The honest caveat: the best rate is partly the best building. Before this hardens into a target I would hold it inside a peer cohort by volume band, and commission engineered standards for sort and dock, the two largest buckets.</div></div>'+
+  '<div class="legend"><b>There is no blanket hour count anywhere in this.</b> A market running 50,000 packages and a market running 118,000 '+
+  'get different hours from the same target, because hours are always their own volume divided by it. Problem solve is the one indirect line, '+
+  'published at 13.0%, which is what Market E has held every week for six weeks. Everything above it is direct.</div></div>'+
  '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Forecast and what each market gets</div>'+
   '<span class="tag mod">FORECAST MODELLED</span>'+
@@ -2257,8 +2269,8 @@ function vPlanNet(){
   '<button class="'+(LDRY?'on':'')+'" onclick="setDry(true)">Dry run</button></div>'+
   '<button class="bsub" onclick="lpPublish()"'+(LPUB?' disabled':'')+'>'+(LPUB?'Published Wed '+W.pub:'Publish '+W.span)+'</button></div>'+
   '<div class="tscroll"><table class="wide"><thead><tr><th>Market</th><th>Type</th><th>Week forecast</th><th>What they receive</th>'+
-  '<th>Runs at</th><th>Owes most in</th><th>Back from site</th></tr></thead><tbody>'+
-  MKT.map(m=>{const k=m.k, wk=lpWk(k), o=owes(k), tpl=is3PL(k), pl=wk/1000*rt;
+  '<th>Runs at</th><th>Hours over target</th><th>Furthest off allocation</th><th>Back from site</th></tr></thead><tbody>'+
+  MKT.map(m=>{const k=m.k, wk=lpWk(k), tpl=is3PL(k), pl=tgtHrs(wk), run=wk/SITEA[k].uph, mg=mixGap(k);
    const got=tpl?fm(wk)+' pkgs committed':fm(Math.round(pl))+' hrs';
    const st=SSUB[k]!==undefined?'<span class="f g">'+(SSUB[k]>=0?'+':'')+fm(SSUB[k])+(tpl?' pkgs':' hrs')+'</span>'
      :LPUB?'<span class="f a">due Wed</span>':'<span style="color:var(--ink3)">&mdash;</span>';
@@ -2266,64 +2278,77 @@ function vPlanNet(){
     '<td>'+m.n+'</td><td class="tx2">'+facN(m.fac)+'</td>'+
     '<td onclick="event.stopPropagation()"><input type="number" step="100" class="cin" style="width:86px" value="'+wk+'" onchange="setPFV(\''+k+'\',this.value)"></td>'+
     '<td>'+got+'</td>'+
-    '<td>'+(FNR[k].sort+FNR[k].launch+FNR[k].dock+FNR[k].ps).toFixed(2)+'</td>'+
-    '<td>'+(o.gap<=0.05?'<span class="f g">at standard</span>':o.fn+' <span class="'+(o.gap>1?'neg':'')+'">+'+o.gap.toFixed(2)+'</span>')+'</td>'+
+    '<td class="'+(SITEA[k].uph<UPHT-5?'neg':SITEA[k].uph>=UPHT?'pos':'')+'">'+f1(SITEA[k].uph)+' UPH</td>'+
+    '<td class="'+(run-pl>120?'neg':'')+'">'+(run-pl>=0?'+':'')+fm(Math.round(run-pl))+'</td>'+
+    '<td>'+(mg.gap<=0.3?'<span class="f g">on allocation</span>':mg.fn+' <span class="'+(mg.gap>5?'neg':'')+'">+'+f1(mg.gap)+' pts</span>')+'</td>'+
     '<td>'+st+'</td></tr>'}).join('')+
   '<tr class="tot"><td>Network</td><td></td><td>'+fm(nv)+'</td><td>'+fm(Math.round(shown))+' hrs</td>'+
-   '<td>'+(nrun/nv*1000).toFixed(2)+'</td><td></td><td></td></tr></tbody></table></div>'+
-  '<div class="legend"><b>Company run sites receive hours. 3PL sites receive committed volume and the rate as a cost expectation.</b> We do not publish headcount into a building whose people we do not employ. The rate still prices their bid and anchors the renewal, and what we enforce there is the outcome and the data feed. <b>Six markets owe most in sort, one owes problem solve, one owes nothing</b>, which is two different jobs: a sort standard for the network, a tiger team for Market D.</div></div>'+
+   '<td>'+f1(nv/nrun)+' UPH</td><td>+'+fm(Math.round(nrun-nplan))+'</td><td></td><td></td></tr></tbody></table></div>'+
+  '<div class="legend"><b>Two different problems live in these two columns.</b> Most markets sit on the published allocation and simply run '+
+  'under the UPH target, which is a rate conversation. Market D is the only one badly off allocation, 14 points into problem solve, which is '+
+  'not a rate conversation at all. <b>Company run sites receive hours. Partner sites receive committed volume and what the work should cost</b>, '+
+  'because we do not publish headcount into a building whose people we do not employ.</div></div>'+
  vOvCard()+vModelCard()+vActLog(null);
 }
 
 function vPlanSite(){ return is3PL(SEL)?vPlan3PL(SEL):vPlanCo(SEL) }
 
 function vPlanCo(k){
- const W=lpWeek(), rt=rateTotP(), wk=lpWk(k), base=wk/1000*rt, lines=LPL();
- let rateWk=0, allWk=0; const dayT=[0,0,0,0,0,0,0];
+ const W=lpWeek(), wk=lpWk(k), base=tgtHrs(wk), lines=LPL();
+ let rateWk=0, dirWk=0, indWk=0, allWk=0; const dayT=[0,0,0,0,0,0,0];
  const body=lines.map(f=>{const isR=FNL.some(x=>x[0]===f[0]); let t=0;
   const tds=W.days.map((d,i)=>{const v=lpCell(k,f[0],i); t+=v; dayT[i]+=v;
    return '<td'+(d.we?' class="we"':'')+'><input class="cin cell'+(lpEd(k,f[0],i)?' edt':'')+'" type="number" step="0.5" value="'+f1(v)+'" onchange="setCell(\''+k+'\',\''+f[0]+'\','+i+',this.value)"></td>'}).join('');
-  if(isR)rateWk+=t; allWk+=t;
+  if(isR){rateWk+=t; if(DIRECT[f[0]])dirWk+=t; else indWk+=t}
+  allWk+=t;
   return '<tr><td>'+f[1]+'<i class="who">'+
-   (isR?PRATE[f[0]].toFixed(2)+' hrs / 1,000':(f[0]==='lead'?'fixed, outside the rate target':'event driven, not a rate'))+
+   (isR?(DIRECT[f[0]]?'direct':'indirect')+' &middot; '+f1(ALLOC[f[0]])+'% of plan hours'
+      :(f[0]==='lead'?'fixed, outside the target':'event driven, outside the target'))+
    '</i></td>'+tds+'<td><b>'+f1(t)+'</b></td></tr>'}).join('');
  const uph=wk/rateWk, dl=rateWk-base;
  return '<div class="grid g4" style="margin-bottom:12px">'+
   tile('Next week forecast',fm(wk),MK[k].n+' &middot; '+facN(MK[k].fac))+
-  tile('Central Ops plan',fm(Math.round(base)),'rate lines at '+f1(1000/rt)+' UPH')+
-  tile('Your plan',fm(Math.round(rateWk)),(dl>=0?'+':'')+f1(dl)+' hours on rate lines',Math.abs(dl)>1?'a':'g')+
-  tile('Implied UPH',f1(uph),'rate lines only, lead excluded',uph<98?'r':uph<100?'a':'g')+
+  tile('Hours at target',fm(Math.round(base)),fm(wk)+' &divide; '+f1(UPHT)+' UPH')+
+  tile('Your plan',fm(Math.round(rateWk)),(dl>=0?'+':'')+f1(dl)+' against the target hours',Math.abs(dl)>1?'a':'g')+
+  tile('Your UPH',f1(uph),'plan hours only, lead and training excluded',uph<UPHT-2?'r':uph<UPHT?'a':'g')+
  '</div>'+
  '<div class="card"><div class="act" style="margin-bottom:4px">'+
   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">'+W.span+', day by day</div>'+
   '<span class="f '+(LPUB?'g':'a')+'">'+(LPUB?'Received Wed '+W.pub+' &middot; adjust today':'Central Ops has not published yet')+'</span></div>'+
-  '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:6px">Every hour cell is yours. Edited cells highlight and Central Ops sees the delta, never a replacement.</div>'+
+  '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:6px">Each day\'s hours are that day\'s forecast divided by '+f1(UPHT)+
+  ' UPH, then split by the published allocation. Every cell is yours to change.</div>'+
   '<div class="tscroll"><table class="sheet"><thead><tr><th>Line</th>'+
    W.days.map(d=>'<th'+(d.we?' class="we"':'')+'>'+d.dow+' <i class="who">'+d.lbl+'</i></th>').join('')+'<th>Week</th></tr></thead><tbody>'+
    '<tr><td>Forecast volume<i class="who">from Central Ops</i></td>'+
     W.days.map((d,i)=>'<td'+(d.we?' class="we"':'')+' style="color:var(--ink3)">'+fm(lpVol(k,i))+'</td>').join('')+
     '<td style="color:var(--ink3)"><b>'+fm(wk)+'</b></td></tr>'+
+   '<tr><td>Hours at target<i class="who">volume &divide; '+f1(UPHT)+'</i></td>'+
+    W.days.map((d,i)=>'<td'+(d.we?' class="we"':'')+' style="color:var(--ink3)">'+f1(tgtHrs(lpVol(k,i)))+'</td>').join('')+
+    '<td style="color:var(--ink3)"><b>'+f1(base)+'</b></td></tr>'+
    body+
    '<tr class="tot"><td>Total hours</td>'+dayT.map((v,i)=>'<td'+(W.days[i].we?' class="we"':'')+'>'+f1(v)+'</td>').join('')+
-    '<td>'+f1(allWk)+'</td></tr></tbody></table></div></div>'+
+    '<td>'+f1(allWk)+'</td></tr></tbody></table></div>'+
+  '<div class="legend">Direct <b>'+f1(dirWk)+'</b> hours, indirect <b>'+f1(indWk)+'</b>, a '+f1(100*dirWk/(rateWk||1))+
+  ' / '+f1(100*indWk/(rateWk||1))+' split against a published '+f1(directPct())+' / '+f1(100-directPct())+
+  '. Lead and training sit outside the target and do not count against your UPH.</div></div>'+
  lpDeltaCard(k,lines)+vActLog(k)+vOvModal();
 }
 
 function vPlan3PL(k){
- const W=lpWeek(), rt=rateTotP(), wk=lpWk(k); let cap=0;
+ const W=lpWeek(), wk=lpWk(k); let cap=0;
  for(let i=0;i<7;i++)cap+=capOf(k,i);
- const shouldCost=wk/1000*rt, runsAt=FNR[k].sort+FNR[k].launch+FNR[k].dock+FNR[k].ps, theirs=wk/1000*runsAt;
+ const should=tgtHrs(wk), theirs=wk/SITEA[k].uph;
  return '<div class="grid g4" style="margin-bottom:12px">'+
   tile('Volume committed',fm(wk),MK[k].n+' &middot; partner operated')+
   tile('Capacity confirmed',fm(cap),(cap-wk>=0?'+':'')+fm(cap-wk)+' against the commit',Math.abs(cap-wk)<1?'g':cap<wk?'r':'a')+
-  tile('What it should cost',fm(Math.round(shouldCost))+' hrs','at the published '+rt.toFixed(2)+' rate')+
-  tile('What it costs them',fm(Math.round(theirs))+' hrs',(theirs-shouldCost>0?'+':'')+fm(Math.round(theirs-shouldCost))+' above standard',theirs-shouldCost>60?'r':'a')+
+  tile('What it should cost',fm(Math.round(should))+' hrs','at the '+f1(UPHT)+' UPH network target')+
+  tile('What it costs them',fm(Math.round(theirs))+' hrs',f1(SITEA[k].uph)+' UPH, '+(theirs-should>0?'+':'')+fm(Math.round(theirs-should))+' above target',theirs-should>60?'r':'a')+
  '</div>'+
  '<div class="card"><div class="act" style="margin-bottom:4px">'+
   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">'+W.span+' &middot; partner site</div>'+
   '<span class="tag meas">CAPACITY, NOT HEADCOUNT</span>'+
   '<span class="f '+(LPUB?'g':'a')+'" style="margin-left:auto">'+(LPUB?'Received Wed '+W.pub:'Not published yet')+'</span></div>'+
-  '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:6px">We commit volume and publish what the work should cost. How the partner staffs to it is theirs. Confirm the capacity you can take each day.</div>'+
+  '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:6px">We commit volume and publish what the work should cost at the network target. How the partner staffs to it is theirs.</div>'+
   '<div class="tscroll"><table class="sheet"><thead><tr><th>Line</th>'+
    W.days.map(d=>'<th'+(d.we?' class="we"':'')+'>'+d.dow+' <i class="who">'+d.lbl+'</i></th>').join('')+'<th>Week</th></tr></thead><tbody>'+
    '<tr><td>Volume committed<i class="who">from Central Ops</i></td>'+
@@ -2332,11 +2357,13 @@ function vPlan3PL(k){
    '<tr><td>Capacity you confirm<i class="who">packages you can take</i></td>'+
     W.days.map((d,i)=>'<td'+(d.we?' class="we"':'')+'><input class="cin cell'+((CAPC[k]&&CAPC[k][i]!=null)?' edt':'')+'" type="number" step="100" value="'+capOf(k,i)+'" onchange="setCap(\''+k+'\','+i+',this.value)"></td>').join('')+
     '<td><b>'+fm(cap)+'</b></td></tr>'+
-   '<tr><td>What it should cost<i class="who">at '+rt.toFixed(2)+' hrs / 1,000</i></td>'+
-    W.days.map((d,i)=>'<td'+(d.we?' class="we"':'')+' style="color:var(--ink3)">'+f1(lpVol(k,i)/1000*rt)+'</td>').join('')+
-    '<td style="color:var(--ink3)"><b>'+f1(shouldCost)+'</b></td></tr>'+
+   '<tr><td>What it should cost<i class="who">volume &divide; '+f1(UPHT)+' UPH</i></td>'+
+    W.days.map((d,i)=>'<td'+(d.we?' class="we"':'')+' style="color:var(--ink3)">'+f1(tgtHrs(lpVol(k,i)))+'</td>').join('')+
+    '<td style="color:var(--ink3)"><b>'+f1(should)+'</b></td></tr>'+
    '</tbody></table></div>'+
-  '<div class="legend"><b>No hour plan goes into this building.</b> Publishing headcount into a partner site is control over people we do not employ, and it buys joint employer exposure without buying a single point of on-time. What we hold the partner to is the outcome and the data feed. The rate is how we price their bid, anchor the renewal, and know which building to walk into before the outcome goes bad.</div></div>'+
+  '<div class="legend"><b>No hour plan goes into this building.</b> Publishing headcount into a partner site is control over people we do not employ, '+
+  'and it buys joint employer exposure without buying a single point of on-time. The target is how we price their bid, anchor the renewal, and know '+
+  'which building to walk into before the outcome goes bad.</div></div>'+
  '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">What the partner owes back</div>'+
   '<button class="bsub" onclick="lpCapSubmit(\''+k+'\')"'+(LPUB?'':' disabled')+'>'+(SSUB[k]!==undefined?'Confirmed':'Confirm capacity')+'</button></div>'+
@@ -2345,8 +2372,8 @@ function vPlan3PL(k){
    '<td>'+(DS[k].otd<95?'<span class="f a">below</span>':'<span class="f g">met</span>')+'</td></tr>'+
   '<tr><td>Capacity confirmed by Wednesday</td><td>100%</td><td>'+(SSUB[k]!==undefined?'confirmed':'outstanding')+'</td>'+
    '<td>'+(SSUB[k]!==undefined?'<span class="f g">met</span>':'<span class="f a">open</span>')+'</td></tr>'+
-  '<tr><td>Hours by function, open book</td><td>'+rt.toFixed(2)+' hrs / 1,000</td><td>'+runsAt.toFixed(2)+'</td>'+
-   '<td>'+(runsAt-rt>1?'<span class="f a">'+(runsAt-rt).toFixed(2)+' over</span>':'<span class="f g">at rate</span>')+'</td></tr>'+
+  '<tr><td>Hours by function, open book</td><td>'+f1(UPHT)+' UPH</td><td>'+f1(SITEA[k].uph)+' UPH</td>'+
+   '<td>'+(SITEA[k].uph<UPHT-2?'<span class="f a">'+f1(UPHT-SITEA[k].uph)+' under</span>':'<span class="f g">at target</span>')+'</td></tr>'+
   '</tbody></table>'+
   '<div class="legend">Reporting is contractible where staffing is not. These three go in the statement of work, and only the middle one has to clear before Monday.</div></div>'+
  vActLog(k);
@@ -2367,9 +2394,11 @@ function lpDeltaCard(k,lines){
  return '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">What you changed, and why</div>'+
   '<button class="bsub" onclick="lpSubmit(\''+k+'\')"'+(LPUB?'':' disabled')+'>'+(SSUB[k]!==undefined?'Submitted':'Submit final plan')+'</button></div>'+
-  '<table class="sheet"><thead><tr><th>Line</th><th>Central Ops</th><th>Your plan</th><th>Delta</th><th>Reason</th><th>Routing</th></tr></thead><tbody>'+
+  '<table class="sheet"><thead><tr><th>Line</th><th>At target</th><th>Your plan</th><th>Delta</th><th>Reason</th><th>Routing</th></tr></thead><tbody>'+
   rows+'</tbody></table>'+
-  '<div class="legend"><b>Planning under the rate needs no reason and no approval.</b> A site that has found a better way should not have to ask. Adding hours carries a reason code, clears automatically under 5% of the line, and routes to Regional above it. Either way the record is kept, and the adjustments that repeat every week are what we bridge in the WBR. <b>Central Ops never blocks the site. It just never loses the record.</b></div></div>';
+  '<div class="legend"><b>Planning under the target needs no reason and no approval.</b> A site that has found a better way should not have to ask. '+
+  'Adding hours carries a reason code, clears automatically under 5% of the line, and routes to Regional above it. Either way the record is kept, '+
+  'and the adjustments that repeat every week are what we bridge in the WBR.</div></div>';
 }
 
 /* ================= RAISE A TICKET =================
