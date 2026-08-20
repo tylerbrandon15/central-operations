@@ -102,6 +102,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:13.
 .ovmf .pl{flex:1}
 .alog td{font-size:11px}
 .alog td i.who{display:block;font-style:normal;font-size:9px;color:var(--ink3);font-weight:400}
+.wide tr.rgr td{background:var(--blue-t);color:var(--blue-d);font-weight:700;border-bottom:1px solid var(--line)}
+.wide tr.rgr td:first-child{font-weight:800}
 .sheet th.we,.sheet td.we{background:#FAF8F4}
 .sheet td i.who,.sheet th i.who{display:block;font-style:normal;font-size:9.5px;color:var(--ink3);font-weight:400}
 .kseg .kpi{display:flex;flex-direction:column}
@@ -2207,10 +2209,10 @@ function vOvCard(){
  const byReg={}; R.forEach(r=>{const g=MK[r.k].region;(byReg[g]=byReg[g]||[]).push(r)});
  let out='';
  show.forEach(r=>{const rows=(byReg[r]||[]).slice().sort((a,b)=>b.hrs-a.hrs);
-  if(!rows.length){out+='<tr class="hd"><td>'+r+'</td><td colspan="5" style="color:var(--mint-d)">on plan, nothing to bridge</td></tr>';return}
+  if(!rows.length){out+='<tr class="rgr"><td>'+r+'</td><td colspan="5" style="color:var(--mint-d)">on plan, nothing to bridge</td></tr>';return}
   let hrs=0; const sites=new Set(); rows.forEach(x=>{hrs+=x.hrs;sites.add(x.k)});
   const worst=rows[0], open=REXP['ov'+r]||LREG===r;
-  out+='<tr class="hd" style="cursor:pointer" onclick="togReg(\'ov'+r+'\')">'+
+  out+='<tr class="rgr" style="cursor:pointer" onclick="togReg(\'ov'+r+'\')">'+
    '<td><span style="display:inline-block;width:11px">'+(open?'&#9662;':'&#9656;')+'</span> '+r+'</td>'+
    '<td>'+sites.size+' of '+REG[r].length+'</td><td></td><td></td>'+
    '<td class="'+(hrs>20?'neg':'')+'">'+f1(hrs)+'</td>'+
@@ -2300,7 +2302,7 @@ function vPlanNet(){
    const show=LREG==='all'?names:names.filter(r=>r===LREG);
    let out='';
    show.forEach(r=>{const list=REG[r], A=regAgg(list), open=REXP[r]||LREG===r;
-    out+='<tr class="hd" style="cursor:pointer" onclick="togReg(\''+r+'\')">'+
+    out+='<tr class="rgr" style="cursor:pointer" onclick="togReg(\''+r+'\')">'+
      '<td><span style="display:inline-block;width:11px">'+(open?'&#9662;':'&#9656;')+'</span> '+r+'</td>'+
      '<td>'+A.n+'</td><td>'+fm(A.vol)+'</td><td>'+fm(Math.round(A.hrs))+'</td>'+
      '<td class="'+(A.uph<UPHT-5?'neg':A.uph>=UPHT?'pos':'')+'">'+f1(A.uph)+' UPH</td>'+
