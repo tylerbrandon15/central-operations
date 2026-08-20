@@ -2864,7 +2864,7 @@ function netLook(list){const v=list.reduce((a,m)=>a+look(m.k).vol,0);
   hand:w('hand'),late:w('late'),raband:w('raband'),lnch:100*(sd-pu)/sd,pu:pu,sd:sd};
 }
 /* against the engineered standard from the workbook, not the mean of these same eight */
-function attain(k){const a=look(k).uph, p=NETD.uph_std, pct=100*a/p;
+function attain(k){const a=look(k).uph, p=UPHT, pct=100*a/p;   /* the published network target, not the workbook's engineered rate */
  return {a,p,pct,band:pct>=102?'over':pct>=98?'at':'under'}}
 
 /* ---- live weather, read against the network ---- */
@@ -2950,7 +2950,7 @@ function vHome(){
    '<span class="ksegs">launch and the building. The site runs it, Central Ops sets the standard.</span></div><div class="row">'+
    '<div class="kpi"><div class="kl">On-time delivery</div><div class="kv '+(K.otd<93?'r':K.otd<95?'a':'g')+'">'+f1(K.otd)+'%</div><div class="kd">'+lbl.toLowerCase()+', volume weighted</div></div>'+
    '<div class="kpi"><div class="kl">On-time launch</div><div class="kv '+(K.lnch<92?'r':K.lnch<97?'a':'g')+'">'+f1(K.lnch)+'%</div><div class="kd">'+fm(K.sd-K.pu)+' of '+fm(K.sd)+' site days left at plan</div></div>'+
-   '<div class="kpi"><div class="kl">Packages per hour</div><div class="kv">'+f1(K.uph)+'</div><div class="kd">standard '+f1(NETD.uph_std)+' &middot; '+(K.uph-NETD.uph_std>=0?'+':'')+f1(K.uph-NETD.uph_std)+' against it</div></div>'+
+   '<div class="kpi"><div class="kl">Packages per hour</div><div class="kv">'+f1(K.uph)+'</div><div class="kd">target '+f1(UPHT)+' &middot; '+(K.uph-UPHT>=0?'+':'')+f1(K.uph-UPHT)+' against it</div></div>'+
    '<div class="kpi"><div class="kl">Handling errors</div><div class="kv '+(K.hand>85?'r':K.hand>55?'a':'g')+'">'+fm(Math.round(K.hand/1e4*K.vol))+'</div><div class="kd">a day &middot; mis-stow, late stow, wrong driver</div></div>'+
    '<div class="kpi"><div class="kl">Hours on rework</div><div class="kv '+(K.rework>20?'r':K.rework>15?'a':'g')+'">'+f1(K.rework)+'%</div><div class="kd">share of paid hours spent twice</div></div>'+
   '</div></div>'+
@@ -2973,8 +2973,8 @@ function vHome(){
  '<div class="card mt12"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:4px">'+
   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Against the standard</div><span class="tag meas">MEASURED</span>'+
   '<div class="planlg"><span><b>'+over+'</b> exceeding</span><span><b>'+at+'</b> at plan</span><span><b>'+under+'</b> under</span></div>'+
-  '<span class="hdr" style="margin-left:auto">UPH run against the '+f1(NETD.uph_std)+' network standard</span></div>'+
-  '<div class="vchart"><div class="vplanline"><span>standard '+f1(NETD.uph_std)+'</span></div><div class="vgrid">'+
+  '<span class="hdr" style="margin-left:auto">UPH run against the '+f1(UPHT)+' network target Central Ops publishes</span></div>'+
+  '<div class="vchart"><div class="vplanline"><span>target '+f1(UPHT)+'</span></div><div class="vgrid">'+
   sorted.map(r=>{
    const off=Math.max(-span,Math.min(span,r.A.pct-100)), h=Math.abs(off)/span*88;
    const cl=r.A.band==='over'?'over':r.A.band==='under'?'under':'at';
