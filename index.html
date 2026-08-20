@@ -85,6 +85,23 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:13.
 .cin.cell:hover{border-color:var(--line2)}
 .cin.cell:focus{border-color:var(--coral);background:#fff}
 .cin.edt{background:var(--coral-t);border-color:var(--coral-l);font-weight:700}
+.ovm{position:fixed;inset:0;z-index:5000;display:grid;place-items:center;padding:22px;
+ background:rgba(28,27,25,.44);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.ovmc{width:min(480px,100%);background:var(--panel);border-radius:16px;overflow:hidden;
+ box-shadow:0 26px 70px rgba(28,27,25,.3)}
+.ovmh{padding:16px 20px 12px;border-bottom:1px solid var(--line)}
+.ovmt{font-size:16px;font-weight:800;letter-spacing:-.02em}
+.ovms{font-size:11.5px;color:var(--ink3);margin-top:2px}
+.ovmb{padding:15px 20px}
+.ovmr{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;font-size:12.5px}
+.ovmr span:first-child{color:var(--ink2)}
+.ovmr b{font-family:var(--mono);font-size:13px}
+.ovmw{background:var(--coral-t);color:var(--coral-d);border-radius:9px;padding:9px 12px;
+ font-size:12px;font-weight:700;margin:9px 0 12px}
+.ovmf{display:flex;gap:9px;align-items:center;padding:13px 20px 16px;border-top:1px solid var(--line)}
+.ovmf .pl{flex:1}
+.alog td{font-size:11px}
+.alog .who{font-weight:700;color:var(--ink)}
 .sheet th.we,.sheet td.we{background:#FAF8F4}
 .sheet td i.who,.sheet th i.who{display:block;font-style:normal;font-size:9.5px;color:var(--ink3);font-weight:400}
 .kseg .kpi{display:flex;flex-direction:column}
@@ -2005,10 +2022,10 @@ function vPlan(){
  const sel='<select class="pl" style="min-width:250px;font-weight:700" onchange="pick(this.value)"'+(lock?' disabled':'')+'>'+
   MKT.map(m=>'<option value="'+m.k+'"'+(m.k===SEL?' selected':'')+'>'+m.n+' · '+m.rt+' routes · '+facN(m.fac)+'</option>').join('')+'</select>';
  const tabs = canNet ? '<div class="seg" style="margin-left:auto">'+
-   '<button class="'+(PLANVIEW==='site'?'on':'')+'" onclick="setPlanView(\'site\')">Site sheet</button>'+
-   '<button class="'+(PLANVIEW==='net'?'on':'')+'" onclick="setPlanView(\'net\')">Network master</button></div>' : '';
+   '<button class="'+(PLANVIEW==='site'?'on':'')+'" onclick="setPlanView(\'site\')">Site</button>'+
+   '<button class="'+(PLANVIEW==='net'?'on':'')+'" onclick="setPlanView(\'net\')">Central Ops</button></div>' : '';
  const showNet = canNet && PLANVIEW==='net';
- return hdr('Labor plan',(showNet?'The network plan, and the bar it sets for every site':'Seven days forward against the network baseline'),true)+
+ return hdr('Labor plan',(showNet?'Published Wednesday for the week ahead &middot; company sites get hours, partner sites get capacity':'The week Central Ops published, and what you change before Monday'),true)+
   '<div class="act" style="margin-bottom:12px">'+(showNet?'<span class="devlbl" style="margin:0">All markets</span>':sel)+tabs+'</div>'+
   (showNet?vPlanNet():vPlanSite());
 }
@@ -2070,14 +2087,142 @@ function setPFV(k,v){const nw=+v||0, old=lpWk(k), dv=DS[k].dv||[];
  PFV[k]=dv.map(x=>Math.round(x*nw/(old||1))); delete SCELL[k]; draw()}
 function lpPublish(){LPUB=true;draw()}
 function setDry(v){LDRY=v;draw()}
-function setCell(k,f,i,v){if(!SCELL[k])SCELL[k]={}; if(!SCELL[k][f])SCELL[k][f]=[null,null,null,null,null,null,null];
- SCELL[k][f][i]=Math.round((+v||0)*10)/10; draw()}
 function setSRsn(k,f,v){if(!SRSN[k])SRSN[k]={}; SRSN[k][f]=v; draw()}
 function lpSubmit(k){SSUB[k]=Math.round(lpDelta(k)*10)/10;draw()}
 function setCap(k,i,v){if(!CAPC[k])CAPC[k]=[null,null,null,null,null,null,null];
  CAPC[k][i]=Math.max(0,Math.round(+v||0)); draw()}
 function capOf(k,i){return (CAPC[k]&&CAPC[k][i]!=null)?CAPC[k][i]:lpVol(k,i)}
 function lpCapSubmit(k){let t=0;for(let i=0;i<7;i++)t+=capOf(k,i)-lpVol(k,i);SSUB[k]=Math.round(t);draw()}
+
+/* Six weeks of what sites actually did against the published rate. Derived from
+   each market's own function rates: a market running above the published rate is a
+   market that has been adding hours back every week. Facts, no interpretation. */
+function ovRec(){
+ const out=[]; const RS={sort:'Dock and staging constraint',launch:'Inbound arrival profile',
+  dock:'Inbound arrival profile',ps:'Problem solve backlog'};
+ MKT.forEach(m=>{const k=m.k;
+  FNL.forEach(f=>{const g=100*(FNR[k][f[0]]-PRATE[f[0]])/PRATE[f[0]];
+   if(g<2) return;
+   out.push({k:k,n:m.n,fn:f[1],g:g,w:Math.min(6,Math.max(1,Math.round(g/4))),
+     hrs:(FNR[k][f[0]]-PRATE[f[0]])*lpWk(k)/1000/6, rsn:RS[f[0]]})})});
+ return out.sort((a,b)=>b.hrs-a.hrs);   /* hours a day is what a WBR argues about, not percent */
+}
+function planAcc(){
+ let pub=0, act=0;
+ MKT.forEach(m=>{const wk=lpWk(m.k);
+  pub+=wk/1000*rateTotP();
+  act+=wk/1000*(FNR[m.k].sort+FNR[m.k].launch+FNR[m.k].dock+FNR[m.k].ps)});
+ return {pub:pub, act:act, pct:100-100*Math.abs(act-pub)/pub};
+}
+function vOvCard(){
+ const R=ovRec(), A=planAcc(), top=R.slice(0,7);
+ const sites=new Set(R.map(x=>x.k)).size;
+ return '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
+  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Six weeks of adjustments against the plan</div>'+
+  '<span class="tag mod">SYSTEM RECORD</span>'+
+  '<span class="hdr" style="margin-left:auto">This is the bridge for the WBR</span></div>'+
+  '<div class="tscroll"><table class="wide"><thead><tr><th>Market</th><th>Line</th><th>Weeks over plan</th>'+
+  '<th>Average add</th><th>Hours a day</th><th>Reason code given</th></tr></thead><tbody>'+
+  top.map(r=>'<tr style="cursor:pointer" onclick="pick(\''+r.k+'\');setPlanView(\'site\')">'+
+   '<td>'+r.n+'</td><td class="tx2">'+r.fn+'</td>'+
+   '<td class="'+(r.w>=5?'neg':'')+'">'+r.w+' of 6</td>'+
+   '<td>+'+f1(r.g)+'%</td><td>'+f1(r.hrs)+'</td>'+
+   '<td class="tx2">'+r.rsn+'</td></tr>').join('')+
+  '</tbody></table></div>'+
+  '<div class="legend">Every adjustment a site makes is recorded with the reason it gave. '+
+  '<b>Sites planning under the rate need no reason and no approval</b>, because a site finding a better way is the point. '+
+  'Adjustments that add hours carry a reason code, and the ones that repeat week after week are what we bridge in the WBR. '+
+  ''+sites+' of '+MKT.length+' markets are adding hours against at least one line. The published baseline currently lands within '+
+  f1(100-A.pct)+'% of what sites finally plan.</div></div>';
+}
+
+/* An adjustment that adds hours has to be explained at the moment it is made,
+   not in a table underneath it. Everything lands in the activity log either way. */
+let OVM=null;
+const ALOG=[];
+function nowStamp(){const d=new Date();
+ return (d.getMonth()+1)+'/'+d.getDate()+' '+((d.getHours()%12)||12)+':'+String(d.getMinutes()).padStart(2,'0')+(d.getHours()<12?'am':'pm')}
+function lineTot(k,f){let b=0,m=0;for(let i=0;i<7;i++){b+=lpBase(k,f,i);m+=lpCell(k,f,i)}return {b:b,m:m,d:m-b}}
+function logOv(k,f,i,from,to,rsn){
+ ALOG.unshift({t:nowStamp(),who:SEATS[SEAT].who,seat:SEATS[SEAT].n,mk:MK[k].n,
+  fn:(LPL().find(x=>x[0]===f)||[f,f])[1],day:lpWeek().days[i].dow+' '+lpWeek().days[i].lbl,
+  from:Math.round(from*10)/10,to:Math.round(to*10)/10,rsn:rsn||'none required'});
+ if(ALOG.length>40)ALOG.pop();
+}
+function setCell(k,f,i,v){
+ const prev=lpCell(k,f,i), nv=Math.round((+v||0)*10)/10;
+ if(!SCELL[k])SCELL[k]={};
+ if(!SCELL[k][f])SCELL[k][f]=[null,null,null,null,null,null,null];
+ SCELL[k][f][i]=nv;
+ const L=lineTot(k,f);
+ if(L.d>0.05 && !((SRSN[k]||{})[f])) OVM={k:k,f:f,i:i,prev:prev,nv:nv};
+ else logOv(k,f,i,prev,nv,(SRSN[k]||{})[f]);
+ draw();
+}
+function ovCancel(){ if(!OVM)return;
+ const o=OVM; OVM=null;
+ SCELL[o.k][o.f][o.i]=Math.abs(o.prev-lpBase(o.k,o.f,o.i))<0.05?null:o.prev; draw() }
+function ovSave(r){ if(!OVM||!r)return;
+ const o=OVM; OVM=null;
+ if(!SRSN[o.k])SRSN[o.k]={}; SRSN[o.k][o.f]=r;
+ logOv(o.k,o.f,o.i,o.prev,o.nv,r); draw() }
+function vOvModal(){
+ if(!OVM) return '';
+ const o=OVM, L=lineTot(o.k,o.f), rt=rateTotP(), wk=lpWk(o.k);
+ let rateW=0; FNL.forEach(f=>{for(let i=0;i<7;i++)rateW+=lpCell(o.k,f[0],i)});
+ const isRate=FNL.some(x=>x[0]===o.f), uphNew=wk/rateW, uphPlan=1000/rt;
+ const nm=(LPL().find(x=>x[0]===o.f)||[o.f,o.f])[1], d=lpWeek().days[o.i];
+ return '<div class="ovm"><div class="ovmc">'+
+  '<div class="ovmh"><div class="ovmt">This adds hours to the plan</div>'+
+  '<div class="ovms">'+MK[o.k].n+' &middot; '+nm+' &middot; '+d.dow+' '+d.lbl+'</div></div>'+
+  '<div class="ovmb">'+
+   '<div class="ovmr"><span>Central Ops planned</span><b>'+f1(o.prev)+' hrs</b></div>'+
+   '<div class="ovmr"><span>You are planning</span><b>'+f1(o.nv)+' hrs</b></div>'+
+   '<div class="ovmr"><span>This line, week</span><b>'+f1(L.b)+' &rarr; '+f1(L.m)+'</b></div>'+
+   (isRate?'<div class="ovmw">Implied UPH drops from '+f1(uphPlan)+' to '+f1(uphNew)+
+     '. Tell us why and it clears.</div>'
+    :'<div class="ovmw">This line sits outside the UPH target. Tell us why and it clears.</div>')+
+   '<div style="font-size:11px;color:var(--ink3)">Recorded against '+SEATS[SEAT].who+' at '+nowStamp()+'.</div>'+
+  '</div>'+
+  '<div class="ovmf"><select class="pl" id="ovmr" onchange="ovSave(this.value)">'+
+   LRSN.map(r=>'<option value="'+(r||'')+'">'+(r||'Pick a reason to continue')+'</option>').join('')+'</select>'+
+   '<button class="abtn" onclick="ovCancel()">Cancel</button></div>'+
+  '</div></div>';
+}
+function vActLog(k){
+ const rows=ALOG.filter(x=>!k||x.mk===MK[k].n);
+ return '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
+  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Activity log</div>'+
+  '<span class="tag mod">EVERY CHANGE, WHO AND WHEN</span></div>'+
+  '<div class="tscroll"><table class="wide alog"><thead><tr><th>When</th><th>Who</th><th>Market</th>'+
+  '<th>Line</th><th>Day</th><th>From</th><th>To</th><th>Reason</th></tr></thead><tbody>'+
+  (rows.length?rows.slice(0,12).map(x=>'<tr><td class="tx2">'+x.t+'</td>'+
+   '<td class="who">'+x.who+'<i class="who" style="display:block;font-style:normal;font-weight:400">'+x.seat+'</i></td>'+
+   '<td class="tx2">'+x.mk+'</td><td class="tx2">'+x.fn+'</td><td class="tx2">'+x.day+'</td>'+
+   '<td>'+f1(x.from)+'</td><td class="'+(x.to>x.from?'neg':'pos')+'">'+f1(x.to)+'</td>'+
+   '<td class="tx2">'+x.rsn+'</td></tr>').join('')
+   :'<tr><td colspan="8" style="text-align:center;color:var(--ink3);padding:14px">Nothing changed yet. Edit an hour cell above.</td></tr>')+
+  '</tbody></table></div>'+
+  '<div class="legend">Every edit is stamped with the person, the seat they hold, the line, the day and the reason. '+
+  'Nothing is overwritten and nothing is anonymous.</div></div>';
+}
+function vModelCard(){
+ const A=planAcc();
+ return '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
+  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">How the baseline is generated</div>'+
+  '<span class="tag mod">PLANNING MODEL</span>'+
+  '<span class="hdr" style="margin-left:auto">Accuracy '+f1(A.pct)+'% and improving as overrides accumulate</span></div>'+
+  '<div class="grid g4">'+
+   tile('Reads today','4 inputs','rate by function, market forecast, day of week curve, six weeks of overrides')+
+   tile('Generates','8 plans','one per market, seven days, six lines each')+
+   tile('Learns from','28 signals','override lines with a reason code attached')+
+   tile('Next','Intra week','re-forecast when volume or freight lands off plan')+
+  '</div>'+
+  '<div class="legend">The baseline is generated, not typed. Today the model is deterministic: published rate times forecast, '+
+  'shaped by each market\'s own day of week curve. <b>The override record is the training set.</b> Every reason code a site '+
+  'gives is a labelled example of where the rate does not fit a building, and the accuracy number above is how the model is '+
+  'scored. Central Ops is measured on how rarely the field has to correct it.</div></div>';
+}
 
 function vPlanNet(){
  const W=lpWeek(), rt=rateTotP(), ft=floorTotP(), uph=1000/rt;
@@ -2090,7 +2235,7 @@ function vPlanNet(){
   tile('Next week forecast',fm(nv),'packages across '+MKT.length+' markets')+
   tile('Hours published',fm(Math.round(shown)),(LDRY?'includes '+(dry>=0?'+':'')+f1(dry)+' pending':'at '+f1(uph)+' UPH published'),LDRY?'a':'')+
   tile('Network runs at',(nrun/nv*1000).toFixed(2),'hrs / 1,000 against '+rt.toFixed(2)+' published','r')+
-  tile('Plans back',back+' / '+MKT.length,LPUB?'due Wednesday '+W.pub:'not published yet',back===MKT.length?'g':LPUB?'a':'')+
+  tile('Plan accuracy',f1(planAcc().pct)+'%','published baseline against what sites plan',planAcc().pct<90?'a':'g')+
  '</div>'+
  '<div class="card"><div class="act" style="margin-bottom:6px">'+
   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">The rate Central Ops publishes</div>'+
@@ -2126,7 +2271,8 @@ function vPlanNet(){
     '<td>'+st+'</td></tr>'}).join('')+
   '<tr class="tot"><td>Network</td><td></td><td>'+fm(nv)+'</td><td>'+fm(Math.round(shown))+' hrs</td>'+
    '<td>'+(nrun/nv*1000).toFixed(2)+'</td><td></td><td></td></tr></tbody></table></div>'+
-  '<div class="legend"><b>Company run sites receive hours. 3PL sites receive committed volume and the rate as a cost expectation.</b> We do not publish headcount into a building whose people we do not employ. The rate still prices their bid and anchors the renewal, and what we enforce there is the outcome and the data feed. <b>Six markets owe most in sort, one owes problem solve, one owes nothing</b>, which is two different jobs: a sort standard for the network, a tiger team for Market D.</div></div>';
+  '<div class="legend"><b>Company run sites receive hours. 3PL sites receive committed volume and the rate as a cost expectation.</b> We do not publish headcount into a building whose people we do not employ. The rate still prices their bid and anchors the renewal, and what we enforce there is the outcome and the data feed. <b>Six markets owe most in sort, one owes problem solve, one owes nothing</b>, which is two different jobs: a sort standard for the network, a tiger team for Market D.</div></div>'+
+ vOvCard()+vModelCard()+vActLog(null);
 }
 
 function vPlanSite(){ return is3PL(SEL)?vPlan3PL(SEL):vPlanCo(SEL) }
@@ -2160,7 +2306,7 @@ function vPlanCo(k){
    body+
    '<tr class="tot"><td>Total hours</td>'+dayT.map((v,i)=>'<td'+(W.days[i].we?' class="we"':'')+'>'+f1(v)+'</td>').join('')+
     '<td>'+f1(allWk)+'</td></tr></tbody></table></div></div>'+
- lpDeltaCard(k,lines);
+ lpDeltaCard(k,lines)+vActLog(k)+vOvModal();
 }
 
 function vPlan3PL(k){
@@ -2202,26 +2348,28 @@ function vPlan3PL(k){
   '<tr><td>Hours by function, open book</td><td>'+rt.toFixed(2)+' hrs / 1,000</td><td>'+runsAt.toFixed(2)+'</td>'+
    '<td>'+(runsAt-rt>1?'<span class="f a">'+(runsAt-rt).toFixed(2)+' over</span>':'<span class="f g">at rate</span>')+'</td></tr>'+
   '</tbody></table>'+
-  '<div class="legend">Reporting is contractible where staffing is not. These three go in the statement of work, and only the middle one has to clear before Monday.</div></div>';
+  '<div class="legend">Reporting is contractible where staffing is not. These three go in the statement of work, and only the middle one has to clear before Monday.</div></div>'+
+ vActLog(k);
 }
 
 function lpDeltaCard(k,lines){
  let rows='', any=false;
  lines.forEach(f=>{let b=0,m=0; for(let i=0;i<7;i++){b+=lpBase(k,f[0],i);m+=lpCell(k,f[0],i)}
   const d=m-b; if(Math.abs(d)<0.05)return; any=true;
-  const big=(b?Math.abs(d)/b*100:999)>5;
+  const up=d>0, big=up&&(b?d/b*100:999)>5;
   rows+='<tr><td>'+f[1]+'</td><td>'+f1(b)+'</td><td>'+f1(m)+'</td>'+
-   '<td class="'+(d>0?'neg':'pos')+'">'+(d>=0?'+':'')+f1(d)+'</td>'+
-   '<td><select class="pl" onchange="setSRsn(\''+k+'\',\''+f[0]+'\',this.value)">'+
-    LRSN.map(r=>'<option'+(((SRSN[k]||{})[f[0]]||'')===r?' selected':'')+'>'+(r||'&mdash;')+'</option>').join('')+'</select></td>'+
-   '<td>'+(big?'<span class="f a">Regional</span>':'<span class="f g">Auto</span>')+'</td></tr>'});
+   '<td class="'+(up?'neg':'pos')+'">'+(d>=0?'+':'')+f1(d)+'</td>'+
+   '<td>'+(up?'<select class="pl" onchange="setSRsn(\''+k+'\',\''+f[0]+'\',this.value)">'+
+    LRSN.map(r=>'<option'+(((SRSN[k]||{})[f[0]]||'')===r?' selected':'')+'>'+(r||'&mdash;')+'</option>').join('')+'</select>'
+    :'<span style="color:var(--ink3)">none needed</span>')+'</td>'+
+   '<td>'+(big?'<span class="f a">Regional</span>':up?'<span class="f g">Auto</span>':'<span class="f g">No approval</span>')+'</td></tr>'});
  if(!any)rows='<tr><td colspan="6" style="text-align:center;color:var(--ink3);padding:14px">No changes yet. Edit any cell above and it appears here.</td></tr>';
  return '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">What you changed, and why</div>'+
   '<button class="bsub" onclick="lpSubmit(\''+k+'\')"'+(LPUB?'':' disabled')+'>'+(SSUB[k]!==undefined?'Submitted':'Submit final plan')+'</button></div>'+
   '<table class="sheet"><thead><tr><th>Line</th><th>Central Ops</th><th>Your plan</th><th>Delta</th><th>Reason</th><th>Routing</th></tr></thead><tbody>'+
   rows+'</tbody></table>'+
-  '<div class="legend">Adjustments under 5% of a line clear automatically. Anything larger routes to Regional with the reason attached. <b>Central Ops never blocks the site. It just never loses the record.</b></div></div>';
+  '<div class="legend"><b>Planning under the rate needs no reason and no approval.</b> A site that has found a better way should not have to ask. Adding hours carries a reason code, clears automatically under 5% of the line, and routes to Regional above it. Either way the record is kept, and the adjustments that repeat every week are what we bridge in the WBR. <b>Central Ops never blocks the site. It just never loses the record.</b></div></div>';
 }
 
 /* ================= RAISE A TICKET =================
