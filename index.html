@@ -562,6 +562,46 @@ select.pl:focus{border-color:var(--coral)}
 .slot.blocked{background:repeating-linear-gradient(45deg,var(--panel2),var(--panel2) 5px,var(--line) 5px,var(--line) 6px);border-color:var(--line2)}
 .slot.held{background:#EFECE6;border-style:dashed;border-color:var(--ink3);opacity:.8}
 .slot.resv{background:var(--coral-t);border-color:var(--coral-l)}
+.bstrip{display:flex;gap:7px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);
+ border-radius:9px;padding:9px 12px;margin-bottom:12px}
+.bchip{display:flex;align-items:center;gap:6px;border:1px solid var(--line2);border-radius:999px;padding:4px 10px;
+ font-size:11px;cursor:pointer;background:#fff;white-space:nowrap}
+.bchip:hover{border-color:var(--ink)}
+.bchip b{font-family:var(--mono);font-size:11px}
+.bchip.r{background:var(--coral-t);border-color:var(--coral-l);color:var(--coral-d)}
+.bchip.a{background:var(--amber-t);border-color:#EADFBE;color:var(--amber-d)}
+.own{display:inline-grid;place-items:center;width:19px;height:19px;border-radius:999px;background:var(--ink);color:#fff;
+ font-size:8.5px;font-weight:800;font-family:var(--sans);letter-spacing:.02em}
+.own.none{background:var(--panel2);color:var(--ink3);border:1px dashed var(--line2)}
+.tku{font-size:10px;color:var(--ink3);font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.incban{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--coral-t);border:1px solid var(--coral-l);
+ border-radius:9px;padding:10px 13px;margin-bottom:11px;font-size:12.5px;color:var(--coral-d)}
+.incchip{font-size:8.5px;font-weight:800;letter-spacing:.05em;background:var(--coral);color:#fff;padding:2px 6px;border-radius:4px}
+.upd{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}
+.upd:last-child{border-bottom:0}
+.updb{flex:1;min-width:0}
+.updw{font-size:11px;font-weight:700}
+.updw i{font-style:normal;font-weight:400;color:var(--ink3);font-size:10px}
+.updt{font-size:11.5px;color:var(--ink2);line-height:1.45;margin-top:1px}
+.upd.sys .updt{color:var(--ink3);font-style:italic}
+.cmp{display:flex;gap:7px;margin-top:8px}
+.cmp input{flex:1;font-family:var(--sans);font-size:12px;border:1px solid var(--line2);border-radius:7px;padding:6px 9px;background:#fff;color:var(--ink)}
+.cmp input:focus{outline:none;border-color:var(--coral)}
+.kbd{font-family:var(--mono);font-size:9.5px;background:var(--panel2);border:1px solid var(--line2);border-radius:4px;padding:1px 4px;color:var(--ink3)}
+.agw{border:1px solid var(--coral-l);border-radius:10px;background:var(--coral-t);padding:11px 13px;margin-bottom:12px}
+.agh{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:8px}
+.agi{width:19px;height:19px;border-radius:6px;background:var(--coral);color:#fff;display:grid;place-items:center;font-size:11px}
+.agt{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--coral-d)}
+.agc{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);
+ border-radius:9px;padding:10px 12px;margin-bottom:7px}
+.agc:last-child{margin-bottom:0}
+.agc.r{border-left:3px solid var(--coral)} .agc.a{border-left:3px solid var(--amber)}
+.agcb{flex:1;min-width:0}
+.agct{font-size:12.5px;font-weight:800;line-height:1.3}
+.agcw{font-size:11.5px;color:var(--ink2);line-height:1.5;margin-top:3px}
+.agca{display:flex;gap:7px;flex-shrink:0;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:230px}
+.nb{display:inline-grid;place-items:center;min-width:15px;height:15px;border-radius:999px;background:var(--coral);
+ color:#fff;font-size:8.5px;font-weight:800;padding:0 4px;margin-left:5px}
 .slot.resv .sid{color:var(--coral-d)}
 .slot.resv .stm{color:var(--coral-d)}
 .slot.on{outline:2px solid var(--ink);outline-offset:1px}
@@ -1253,6 +1293,67 @@ function tset(id,f,v){TOVR[id]=TOVR[id]||{};TOVR[id][f]=v;draw()}
 function tack(id){TOVR[id]=TOVR[id]||{};TOVR[id].ack=T;draw()}
 function tres(id){TOVR[id]=TOVR[id]||{};if(!TOVR[id].ack)TOVR[id].ack=T;TOVR[id].res=T;draw()}
 function treopen(id){if(TOVR[id])delete TOVR[id].res;draw()}
+/* ---- ownership, updates and incidents: the three things Slack does that a queue usually does not ---- */
+const TOWN={}, TUPD={}, INC={}; const TDRAFT={}; let INCSEQ=1;
+function tinit(id){return TUPD[id]=TUPD[id]||[]}
+function tpost(id,txt,sys){ if(!txt||!txt.trim())return;
+ tinit(id).unshift({t:T,who:sys?'System':SEATS[SEAT].who,seat:sys?'':SEATS[SEAT].n,txt:txt.trim(),sys:!!sys});
+ TDRAFT[id]=''; draw()}
+function tclaim(id){ TOWN[id]=SEATS[SEAT].who;
+ if(!TOVR[id]||TOVR[id].ack===undefined){TOVR[id]=TOVR[id]||{};TOVR[id].ack=T}
+ tpost(id,SEATS[SEAT].who+' took this ticket',true)}
+function trelease(id){ const w=TOWN[id]; delete TOWN[id]; tpost(id,(w||'Owner')+' released it back to the queue',true)}
+function setDraft(id,v){TDRAFT[id]=v}
+function lastUpd(id){const u=TUPD[id]; return u&&u.length?u[0]:null}
+function minsLeft(x,t){const v=tx(x), st=tstate(x,t), n=nocT(x);
+ if(st==='resolved'||st==='future')return null;
+ if(st!=='new')return null;
+ return Math.round(v.sla-(t-n))}
+/* the same fault class open in two or more markets right now is one incident, not N tickets */
+function incCand(t){
+ const open=allTix().filter(x=>inNoc(x,t)&&tstate(x,t)!=='resolved');
+ const by={}; open.forEach(x=>{(by[x.kind]=by[x.kind]||[]).push(x)});
+ return Object.keys(by).filter(k=>{
+  const g=by[k]; if(g.length<2)return false;
+  if(new Set(g.map(x=>x.mk)).size<2)return false;
+  return !INC[k]}).map(k=>({kind:k,list:by[k]}));
+}
+function groupInc(kind){
+ const t=T, g=allTix().filter(x=>x.kind===kind&&inNoc(x,t)&&tstate(x,t)!=='resolved');
+ INC[kind]={id:'INC-'+(2600+INCSEQ++), ids:g.map(x=>x.id), t:t,
+  mks:[...new Set(g.map(x=>x.mk))]};
+ g.forEach(x=>tpost(x.id,'Grouped into '+INC[kind].id+' with '+(g.length-1)+' other market'+(g.length>2?'s':''),true));
+ draw()}
+function incOf(x){const i=INC[x.kind]; return (i&&i.ids.indexOf(x.id)>=0)?i:null}
+function incAckAll(kind){const i=INC[kind]; if(!i)return;
+ i.ids.forEach(id=>{TOVR[id]=TOVR[id]||{}; if(TOVR[id].ack===undefined)TOVR[id].ack=T});
+ draw()}
+function incResAll(kind){const i=INC[kind]; if(!i)return;
+ i.ids.forEach(id=>{TOVR[id]=TOVR[id]||{}; if(TOVR[id].ack===undefined)TOVR[id].ack=T; TOVR[id].res=T});
+ draw()}
+function copyTix(id){ const u=location.origin+location.pathname+'#'+id;
+ try{navigator.clipboard.writeText(u)}catch(e){}
+ tpost(id,'Link copied for Slack',true)}
+function initials(n){return (n||'').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()}
+/* an NOC lead lives on the keyboard, so the queue moves without the mouse */
+document.addEventListener('keydown',e=>{
+ if(SCR!=='noc'||NOCVIEW!=='noc')return;
+ const tag=(e.target&&e.target.tagName)||''; if(/INPUT|SELECT|TEXTAREA/.test(tag))return;
+ if(e.metaKey||e.ctrlKey||e.altKey)return;
+ const q=tqueue(); if(!q.length)return;
+ const i=TSEL?q.findIndex(z=>z.id===TSEL):-1;
+ if(e.key==='j'||e.key==='ArrowDown'){e.preventDefault();TSEL=q[Math.min(q.length-1,i+1)].id;draw()}
+ else if(e.key==='k'||e.key==='ArrowUp'){e.preventDefault();TSEL=q[Math.max(0,i<0?0:i-1)].id;draw()}
+ else if(e.key==='Escape'){TSEL=null;draw()}
+ else if(TSEL){
+  if(e.key==='c'){e.preventDefault(); TOWN[TSEL]?trelease(TSEL):tclaim(TSEL)}
+  else if(e.key==='a'){e.preventDefault(); tack(TSEL)}
+  else if(e.key==='r'){e.preventDefault(); tres(TSEL)}}
+});
+/* a ticket id in the url opens straight to it, so a link pasted in Slack lands somewhere */
+function tixFromHash(){const h=(location.hash||'').replace('#','');
+ if(!h)return; const x=allTix().find(z=>z.id===h);
+ if(x){SCR='noc';NOCVIEW='noc';TFS='all';TSEL=h;if(x.own==='site'&&!inNoc(x,T))NOCVIEW='sop';}}
 function sopFix(id){TOVR[id]=TOVR[id]||{};TOVR[id].sop='resolved';TOVR[id].sopT=T;draw()}
 function sopEsc(id){TOVR[id]=TOVR[id]||{};TOVR[id].sop='escalated';TOVR[id].sopT=T;draw()}
 function sopUndo(id){if(TOVR[id]){delete TOVR[id].sop;delete TOVR[id].sopT}draw()}
@@ -1747,6 +1848,7 @@ function vStage(){
  const cand=B.queue.slice(0,14);
 
  return hdr('Staging · '+MK[SEL].n,'Sort finishes a route, the cart is rolled to an open slot, the driver is sent to it')+
+ vAgent('sort')+
  strip()+
  (TOUR>=0?tourBar():simBar('Slot assignment','AUTO'))+
  '<div class="grid g6" style="margin-bottom:12px">'+
@@ -2039,7 +2141,7 @@ function vPlan(){
  const showNet = canNet && PLANVIEW==='net';
  return hdr('Labor plan',(showNet?'Published Wednesday for the week ahead &middot; company sites get hours, partner sites get capacity':'The week Central Ops published, and what you change before Monday'),true)+
   '<div class="act" style="margin-bottom:12px">'+(showNet?'<span class="devlbl" style="margin:0">All markets</span>':sel)+tabs+'</div>'+
-  (showNet?vPlanNet():vPlanSite());
+  vAgent('plan')+(showNet?vPlanNet():vPlanSite());
 }
 
 function sheet(k){
@@ -2596,6 +2698,7 @@ function vNoc(){
  const working=site.filter(x=>sstate(x,T)==='open').length;
  const defl=site.length?Math.round(100*onSite/Math.max(1,onSite+esc)):0;
  return hdr('NOC','Only what leaves the building. Everything fixable before the next wave goes to the SOP hub')+
+ vAgent('noc')+
  vNew()+
  '<div class="act" style="margin-bottom:12px">'+
   '<button class="abtn p" onclick="openNew()">Raise a ticket</button>'+
@@ -2612,18 +2715,40 @@ function vNocQ(defl,onSite,working){
  const inq=allTix().filter(x=>inNoc(x,T));
  const open=inq.filter(x=>tstate(x,T)!=='resolved');
  const p1=open.filter(x=>tx(x).p===1).length, br=open.filter(x=>tbreach(x,T)).length;
- const nw=inq.filter(x=>tstate(x,T)==='new').length, rs=inq.filter(x=>tstate(x,T)==='resolved').length;
- const wrong=open.filter(x=>!x.ok).length;
+ const unowned=open.filter(x=>!TOWN[x.id]).length;
  const q=tqueue(), sel=TSEL?allTix().find(x=>x.id===TSEL):null;
  const byTeam={}; TEAMS.forEach(t=>byTeam[t]=open.filter(x=>tx(x).team===t).length);
- return '<div class="grid g6" style="margin-bottom:12px">'+
+ /* what runs out of runway next, which is the only thing an operator can act on */
+ const soon=open.map(x=>({x,m:minsLeft(x,T)})).filter(o=>o.m!==null)
+   .sort((a,b)=>a.m-b.m).slice(0,6);
+ const cand=incCand(T), live=Object.keys(INC).filter(k=>INC[k]);
+ return '<div class="grid g3" style="margin-bottom:12px">'+
   tile('Open',open.length,'that Central Ops owns')+
-  tile('P1 open',p1,'building stopped or launch blocked',p1?'r':'g')+
-  tile('Breaching SLA',br,'past first response',br>3?'r':br?'a':'g')+
-  tile('Awaiting first touch',nw,'nobody has picked them up',nw>4?'r':nw?'a':'g')+
+  tile('Unowned',unowned,'nobody has taken them',unowned>3?'r':unowned?'a':'g')+
   tile('Deflected to SOP',onSite,defl+'% of site issues closed on site','g')+
-  tile('Wrong team on the form',wrong,'rerouted on arrival',wrong>3?'r':wrong?'a':'g')+
  '</div>'+
+ '<div class="bstrip"><span class="fl">Runs out next</span>'+
+  (soon.length?soon.map(o=>{const v=tx(o.x), cl=o.m<=0?'r':o.m<=15?'a':'';
+   return '<span class="bchip '+cl+'" onclick="tpick(\''+o.x.id+'\')">'+pchip(v.p)+
+    '<b>'+o.x.id+'</b> '+MK[o.x.mk].n+' <b>'+(o.m<=0?'breached':o.m+'m')+'</b></span>'}).join('')
+   :'<span style="font-size:11.5px;color:var(--ink3)">Nothing awaiting first touch. Everything open has been picked up.</span>')+
+  '<span class="hdr" style="margin-left:auto">'+br+' breaching &middot; '+p1+' P1</span></div>'+
+ (cand.length?cand.map(c=>'<div class="incban"><span class="incchip">PATTERN</span>'+
+   '<span><b>'+[...new Set(c.list.map(z=>z.mk))].length+' markets</b> are reporting &ldquo;'+KD[c.kind].t+
+   '&rdquo; right now. That is one fault, not '+c.list.length+' tickets.</span>'+
+   '<button class="abtn" style="margin-left:auto" onclick="groupInc(\''+c.kind+'\')">Group as one incident</button></div>').join('')
+  :'')+
+ (live.length?live.map(k=>{const i=INC[k];
+   const g=i.ids.map(id=>allTix().find(z=>z.id===id)).filter(Boolean);
+   const openN=g.filter(z=>tstate(z,T)!=='resolved').length;
+   return '<div class="incban" style="background:var(--panel);border-color:var(--line);color:var(--ink)">'+
+    '<span class="incchip">'+i.id+'</span>'+
+    '<span>'+KD[k].t+' &middot; <b>'+i.mks.map(m=>MK[m].n).join(', ')+'</b> &middot; opened '+hm(i.t)+
+    ' &middot; '+openN+' of '+g.length+' still open</span>'+
+    '<span class="act" style="margin-left:auto">'+
+     '<button class="abtn" onclick="incAckAll(\''+k+'\')">Acknowledge all</button>'+
+     '<button class="abtn" onclick="incResAll(\''+k+'\')">Resolve all</button></span></div>'}).join('')
+  :'')+
  '<div class="filt">'+
   '<span class="fl">Status</span><div class="seg">'+[['open','Open'],['new','New'],['breach','Breaching'],['resolved','Resolved'],['all','All']]
    .map(x=>'<button class="'+(TFS===x[0]?'on':'')+'" onclick="tfilt(\'s\',\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div>'+
@@ -2634,33 +2759,39 @@ function vNocQ(defl,onSite,working){
   '<span class="fl">Site</span><select class="pl" onchange="tfilt(\'m\',this.value)"><option value="all">All sites</option>'+
    MKT.map(m=>'<option value="'+m.k+'"'+(TFM===m.k?' selected':'')+'>'+m.n+'</option>').join('')+'</select>'+
   '<button class="abtn" onclick="tclear()">Reset</button>'+
-  '<span class="fl" style="margin-left:auto">'+q.length+' in view</span></div>'+
+  '<span class="fl" style="margin-left:auto">'+q.length+' in view &middot; '+
+   '<span class="kbd">j</span> <span class="kbd">k</span> move &middot; <span class="kbd">c</span> claim &middot; '+
+   '<span class="kbd">a</span> ack &middot; <span class="kbd">r</span> resolve</span></div>'+
  '<div class="dwrap">'+
   '<div class="card" style="padding:0;overflow:hidden">'+
-   '<div class="tkh"><span>Priority</span><span>Ticket</span><span>Team</span><span>Site</span><span>Age</span><span>SLA</span></div>'+
+   '<div class="tkh" style="grid-template-columns:52px 1fr 100px 96px 46px 84px"><span>Priority</span><span>Ticket</span><span>Team</span><span>Site</span><span>Owner</span><span>SLA</span></div>'+
    '<div style="max-height:520px;overflow:auto">'+(q.length?q.map(x=>{
     const v=tx(x), st=tstate(x,T), b=tbreach(x,T), n=nocT(x), age=x.mine?0:Math.max(0,Math.round(T-n));
-    const left=v.sla-(st==='new'?age:v.ack-n);
-    return '<div class="tkl'+(TSEL===x.id?' on':'')+(b?' br':'')+'" onclick="tpick(\''+x.id+'\')">'+
+    const left=v.sla-(st==='new'?age:v.ack-n), u=lastUpd(x.id), ic=incOf(x), ow=TOWN[x.id];
+    return '<div class="tkl'+(TSEL===x.id?' on':'')+(b?' br':'')+'" style="grid-template-columns:52px 1fr 100px 96px 46px 84px" onclick="tpick(\''+x.id+'\')">'+
      '<span>'+pchip(v.p)+'</span>'+
-     '<span><span class="tkt2">'+x.title+'</span><span class="tks">'+x.id+' · '+x.by+
+     '<span><span class="tkt2">'+x.title+(ic?' <span class="incchip">'+ic.id+'</span>':'')+'</span>'+
+      '<span class="tks">'+x.id+' · '+x.by+
       (x.own==='site'?' · <b style="color:var(--amber-d)">escalated after '+KD[x.kind].sopId+'</b>':'')+
-      (x.ok?'':' · <b style="color:var(--coral)">rerouted from '+x.raisedTeam+'</b>')+'</span></span>'+
-     '<span class="tkm">'+v.team+'</span><span class="tkm">'+MK[x.mk].n+'</span><span class="tkm">'+age+'m</span>'+
+      (x.ok?'':' · <b style="color:var(--coral)">rerouted from '+x.raisedTeam+'</b>')+'</span>'+
+      (u?'<span class="tku">'+(u.sys?'':u.who.split(' ')[0]+': ')+esc(u.txt)+'</span>':'')+'</span>'+
+     '<span class="tkm">'+v.team+'</span><span class="tkm">'+MK[x.mk].n+'</span>'+
+     '<span>'+(ow?'<span class="own" title="'+ow+'">'+initials(ow)+'</span>':'<span class="own none">·</span>')+'</span>'+
      '<span>'+(st==='resolved'?'<span class="f a" style="background:var(--mint-t);color:var(--mint-d)">CLOSED</span>'
        :b?'<span class="f r">BREACHED</span>':st==='new'?'<span class="f a">'+left+'m left</span>'
        :'<span class="f a" style="background:var(--mint-t);color:var(--mint-d)">MET</span>')+'</span></div>'}).join('')
     :'<div style="padding:26px;text-align:center;color:var(--ink3);font-size:12px">Nothing in this queue.</div>')+'</div></div>'+
   '<div class="drw" style="position:static">'+(sel?vTicket(sel):
-   '<div class="drwh"><div style="font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase">Queue by team</div></div>'+
-   '<div class="drwb">'+TEAMS.map(t=>'<div class="drv" style="cursor:pointer" onclick="tfilt(\'t\',\''+t+'\')"><span>'+t+'</span>'+
+   '<div class="drwh"><div style="font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase">Why this is not a Slack channel</div></div>'+
+   '<div class="drwb"><div style="font-size:11.5px;color:var(--ink2);line-height:1.5">A channel has no clock, no owner, no record of what was already tried, '+
+   'and no way to see the same fault in six markets at once. <b>It also cannot deflect.</b> Everything a site can clear before the next wave never '+
+   'reaches this queue at all, which is why the number that matters here is how few tickets arrive.</div>'+
+   '<div class="sect">Queue by team</div>'+TEAMS.map(t=>'<div class="drv" style="cursor:pointer" onclick="tfilt(\'t\',\''+t+'\')"><span>'+t+'</span>'+
     '<span class="drvbar"><i style="width:'+Math.min(100,byTeam[t]*16)+'%"></i></span>'+
     '<span style="font-family:var(--mono);font-size:11px">'+byTeam[t]+'</span></div>').join('')+
    '<div class="sect">What reaches this queue</div>'+
-   '<div style="font-size:11.5px;color:var(--ink2);line-height:1.5">Five fault classes leave the building by definition. Everything else is worked through an SOP on site first and only arrives here if the SOP does not clear it.</div>'+
    TKIND.filter(k=>k.own==='central').map(k=>'<div class="drv" style="align-items:flex-start"><span style="font-size:11.5px">'+k.t+'</span><span></span>'+
-    '<span class="f a" style="background:var(--coral-t);color:var(--coral-d)">'+k.team+'</span></div>').join('')+
-   '<div class="sect">Raise a ticket</div><div style="font-size:11.5px;color:var(--ink2);line-height:1.5">Use the button at the top. The form asks two questions and decides for you whether this becomes a ticket or an SOP.</div>'+'</div>')+'</div></div>';
+    '<span class="f a" style="background:var(--coral-t);color:var(--coral-d)">'+k.team+'</span></div>').join('')+'</div>')+'</div></div>';
 }
 
 function vSopHub(defl,onSite,esc,working){
@@ -2689,7 +2820,10 @@ function vSopHub(defl,onSite,esc,working){
      '<span class="tkm">'+kd.team+'</span><span class="tkm">'+MK[x.mk].n+'</span>'+
      '<span>'+(st==='open'?'<span class="f a">ON THE SOP</span>'
        :st==='resolved'?'<span class="f a" style="background:var(--mint-t);color:var(--mint-d)">CLOSED ON SITE</span>'
-       :'<span class="f r">ESCALATED</span>')+'</span></div>'}).join('')
+       :(function(){const ow=TOWN[x.id], u=lastUpd(x.id);
+         return '<span class="f r">ESCALATED</span>'+
+          (ow?'<span class="tku">'+initials(ow)+' has it'+(u&&!u.sys?' · '+esc(u.txt):'')+'</span>'
+             :'<span class="tku">waiting for the NOC to pick it up</span>')})())+'</span></div>'}).join('')
     :'<div style="padding:26px;text-align:center;color:var(--ink3);font-size:12px">Nothing on the SOP hub.</div>')+'</div></div>'+
   '<div class="drw" style="position:static">'+(sel?vSop(sel):
    '<div class="drwh"><div style="font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase">The library</div>'+
@@ -2750,14 +2884,32 @@ function vIntake(){
 }
 function vTicket(x){
  const v=tx(x), st=tstate(x,T), b=tbreach(x,T), age=x.mine?0:Math.max(0,Math.round(T-x.t)), kd=TKIND.find(z=>z.k===x.kind);
- return '<div class="drwh"><div style="display:flex;align-items:center;gap:8px">'+pchip(v.p)+
+ const ow=TOWN[x.id], ups=TUPD[x.id]||[], ic=incOf(x);
+ return '<div class="drwh"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+pchip(v.p)+
   '<span style="font-family:var(--mono);font-size:12px;font-weight:700">'+x.id+'</span>'+
   '<span class="f '+(st==='resolved'?'a':st==='new'?'r':'a')+'"'+(st==='resolved'?' style="background:var(--mint-t);color:var(--mint-d)"':'')+'>'+
    (st==='new'?'AWAITING FIRST TOUCH':st==='open'?'IN PROGRESS':'RESOLVED')+'</span>'+
-  '<button class="abtn" style="margin-left:auto;padding:3px 9px" onclick="tpick(\''+x.id+'\')">×</button></div>'+
+  (ic?'<span class="incchip">'+ic.id+'</span>':'')+
+  '<button class="abtn" style="margin-left:auto;padding:3px 9px" onclick="copyTix(\''+x.id+'\')">Copy link</button>'+
+  '<button class="abtn" style="padding:3px 9px" onclick="tpick(\''+x.id+'\')">×</button></div>'+
   '<div style="font-size:13.5px;font-weight:800;margin-top:6px;line-height:1.3">'+x.title+'</div>'+
-  '<div style="font-size:11px;color:var(--ink3);margin-top:3px">'+MK[x.mk].n+' · raised '+hm(x.t)+' by '+x.by+', '+x.role+'</div></div>'+
+  '<div style="font-size:11px;color:var(--ink3);margin-top:3px">'+MK[x.mk].n+' · raised '+hm(x.t)+' by '+x.by+', '+x.role+'</div>'+
+  '<div class="act" style="margin-top:8px">'+
+   (ow?'<span class="own">'+initials(ow)+'</span><span style="font-size:11.5px;font-weight:700">'+ow+' has it</span>'+
+       '<button class="abtn" onclick="trelease(\''+x.id+'\')">Release</button>'
+     :'<button class="abtn p" onclick="tclaim(\''+x.id+'\')">Take it</button>'+
+       '<span style="font-size:11.5px;color:var(--coral-d);font-weight:700">Nobody owns this yet</span>')+
+  '</div></div>'+
  '<div class="drwb">'+
+  '<div class="sect">Updates</div>'+
+  '<div class="cmp"><input placeholder="Post an update the site can see…" value="'+esc(TDRAFT[x.id]||'')+
+   '" oninput="setDraft(\''+x.id+'\',this.value)" onkeydown="if(event.key===\'Enter\'){tpost(\''+x.id+'\',this.value)}">'+
+   '<button class="abtn p" onclick="tpost(\''+x.id+'\',TDRAFT[\''+x.id+'\']||\'\')">Post</button></div>'+
+  (ups.length?'<div style="margin-top:8px">'+ups.slice(0,8).map(u=>
+    '<div class="upd'+(u.sys?' sys':'')+'"><span class="own'+(u.sys?' none':'')+'">'+(u.sys?'·':initials(u.who))+'</span>'+
+    '<span class="updb"><span class="updw">'+u.who+' <i>'+hm(u.t)+(u.seat?' · '+u.seat:'')+'</i></span>'+
+    '<span class="updt">'+esc(u.txt)+'</span></span></div>').join('')+'</div>'
+   :'<div style="font-size:11.5px;color:var(--ink3);margin-top:7px">No updates yet. This is the field asking in Slack.</div>')+
   '<div class="sect">What the field entered</div>'+
   '<div class="drv"><span>Routes affected</span><span></span><span style="font-family:var(--mono);font-size:11.5px">'+x.routes+' of '+MK[x.mk].rt+'</span></div>'+
   '<div class="drv"><span>Workaround available</span><span></span><span style="font-family:var(--mono);font-size:11.5px">'+(x.wa?'Yes':'No')+'</span></div>'+
@@ -2782,15 +2934,9 @@ function vTicket(x){
    (st==='new'?'<button class="abtn p" onclick="tack(\''+x.id+'\')">Acknowledge</button>':'')+
    (st!=='resolved'?'<button class="abtn" onclick="tres(\''+x.id+'\')">Resolve</button>':'<button class="abtn" onclick="treopen(\''+x.id+'\')">Reopen</button>')+
   '</div>'+
-  '<div class="act" style="margin-top:7px">'+
-   '<select class="pl" style="flex:1" onchange="tset(\''+x.id+'\',\'team\',this.value)">'+
-    TEAMS.map(t=>'<option'+(v.team===t?' selected':'')+'>'+t+'</option>').join('')+'</select>'+
-   '<select class="pl" onchange="tset(\''+x.id+'\',\'p\',+this.value)">'+
-    PRIOS.map(p=>'<option value="'+p.p+'"'+(v.p===p.p?' selected':'')+'>'+p.n+'</option>').join('')+'</select>'+
-  '</div>'+
-  (TOVR[x.id]?'<div style="font-size:10.5px;color:var(--ink3);margin-top:7px">Edited on this shift.</div>':'')+
  '</div>';
 }
+
 
 /* ================= NETWORK KPIs =================
    OTD is not an input. It falls out of how launch and sort actually ran. */
@@ -2935,6 +3081,7 @@ function vHome(){
   ? 'Yesterday &middot; '+ydayName()+' &middot; '+F.length+' market'+(F.length===1?'':'s')
   : lbl+' &middot; '+NETD.start+' to '+NETD.end+' &middot; '+F.length+' market'+(F.length===1?'':'s');
  return hdr('Network',sub,true,(FSITE==='all'?'All sites':MK[FSITE].n)+' &middot; '+(FTYPE==='all'?'Company and 3PL':facN(FTYPE)))+
+ vAgent('home')+
  '<div class="filt">'+
   (LOOK==='yday'?'<div class="ybanner">Volume is each market\'s <b>measured</b> volume for '+DOWL[ydayIdx()]+'. Rate, on-time, driver wait and freight sit at the six week figure: the source workbook is weekly, it has no daily grain.</div>':'')+
   '<span class="fl">Window</span><div class="seg">'+LOOKS.map(x=>
@@ -3023,6 +3170,108 @@ function drawAsk(){
 }
 function askGo(i){HQ=i;drawAsk();if(SCR==='home')draw()}
 
+/* ================= THE AGENT =================
+   Not a chat box. It reads the same data every tab reads, on a schedule, and
+   produces things to do: a finding, the evidence behind it, and a button that
+   changes something. Deterministic today. Every rule below is a place a model
+   goes in production, and each one is labelled so nobody has to guess which. */
+const AGENT={ran:null, f:[], done:{}};
+const AGTAB={home:'Home',sort:'Staging',plan:'Labor Plan',noc:'NOC'};
+function agentFind(tab){return AGENT.f.filter(x=>x.tab===tab&&!AGENT.done[x.id])}
+function agentCount(tab){return agentFind(tab).length}
+function agentDo(id){const f=AGENT.f.find(x=>x.id===id); if(!f)return;
+ AGENT.done[id]=1; try{f.run()}catch(e){} draw()}
+function agentSkip(id){AGENT.done[id]=1;draw()}
+function agentRun(){
+ AGENT.ran=T; AGENT.done={}; AGENT.f=[];
+ let n=0; const nid=()=>'AG'+(++n);
+
+ /* --- 1. a market losing on-time to something upstream of its own roof --- */
+ MKT.forEach(m=>{const k=m.k, on=100-DS[k].arr_late;
+  if(on>=88) return;
+  AGENT.f.push({id:nid(),tab:'home',sev:'r',
+   t:MK[k].n+' is losing on-time to freight it does not control',
+   w:'Inbound freight lands on time '+f1(on)+'% of the time against 92.6% for the network. Inside the building '+MK[k].n+
+     ' is unremarkable: driver wait '+f1(DS[k].ci_med)+' minutes, handling '+f1(DS[k].hand)+' per 10,000. '+
+     'The fault sits at the origin hubs, so a site playbook will not touch it.',
+   a:'Show what is open there', run:()=>{pick(k);go('noc');tfilt('m',k)}})});
+
+ /* --- 2. markets furthest under the published target --- */
+ MKT.map(m=>({m,g:UPHT-SITEA[m.k].uph})).filter(o=>o.g>12).sort((a,b)=>b.g-a.g).slice(0,2)
+  .forEach(o=>{const k=o.m.k, mg=mixGap(k);
+   AGENT.f.push({id:nid(),tab:'home',sev:'a',
+    t:MK[k].n+' runs '+f1(o.g)+' UPH under the published target',
+    w:mg.gap>5
+      ? 'And it is one line, not the whole building. '+mg.fn+' is '+f1(mg.gap)+
+        ' points above the published allocation, which is roughly '+fm(Math.round((mg.gap/100)*lpWk(k)/SITEA[k].uph/6))+
+        ' hours a day. Everything else sits on plan. That is an operating problem, not a rate problem.'
+      : 'The allocation is on plan across every function, so nothing is hiding inside the mix. This is a rate conversation, and it is the same one for most of the network.',
+    a:'Open its plan', run:()=>{pick(k);go('plan');setPlanView('site')}})});
+
+ /* --- 3. the week has not gone out --- */
+ if(!LPUB) AGENT.f.push({id:nid(),tab:'plan',sev:'a',
+  t:'Next week has not been published',
+  w:'Sites cannot adjust what they have not received, and adjustments are due the same day it goes out. '+
+    fm(Math.round(MKT.reduce((a,m)=>a+tgtHrs(lpWk(m.k)),0)))+' hours across '+MKT.length+
+    ' markets are sitting in draft at a '+f1(UPHT)+' UPH target.',
+  a:'Publish the week', run:()=>{go('plan');setPlanView('net');lpPublish()}});
+
+ /* --- 4. an override that keeps repeating is the plan being wrong, not the site --- */
+ const R=ovRec().filter(r=>r.w>=4&&r.hrs>3).slice(0,2);
+ R.forEach(r=>AGENT.f.push({id:nid(),tab:'plan',sev:r.hrs>15?'r':'a',
+  t:MK[r.k].n+' has been over on '+r.fn.toLowerCase()+' '+r.w+' of the last 6 weeks',
+  w:'It is '+f1(r.hrs)+' hours a day and the reason code has been the same every week: '+r.rsn.toLowerCase()+
+    '. An override that repeats is the published plan being wrong for that building, or an operating failure nobody has gone to look at. Either way it does not belong in a weekly variance report forever.',
+  a:'Open that site', run:()=>{pick(r.k);go('plan');setPlanView('site')}}));
+
+ /* --- 5. a driver on site with nowhere to go while a slot sits open --- */
+ MKT.forEach(m=>{const k=m.k, B=board(k,T);
+  const free=B.slots.filter(x=>x.st==='empty'&&x.cls!=='lg');
+  if(!B.waiting.length||!free.length) return;
+  const d=B.waiting.slice().sort((a,b)=>a.arr-b.arr)[0], sl=free[0];
+  const wait=Math.max(0,Math.round(T-d.arr));
+  if(wait<8) return;
+  AGENT.f.push({id:nid(),tab:'sort',sev:wait>20?'r':'a',
+   t:d.nm+' has been waiting '+wait+' minutes at '+MK[k].n+' with '+free.length+' slot'+(free.length>1?'s':'')+' open',
+   w:'Route '+d.id+' checked in at '+hm(d.arr)+' and the engine has not rolled a cart for it yet. '+
+     sl.id+' is empty and in the standard class. Assigning it by hand puts the driver in a slot now and the engine plans around it.',
+   a:'Assign '+d.id+' to '+sl.id, run:()=>{pick(k);go('sort');assignTo(k,d.id,sl.id);pickSlot(sl.id)}})});
+
+ /* --- 6. the same fault in more than one market is one incident --- */
+ incCand(T).slice(0,2).forEach(c=>{const mks=[...new Set(c.list.map(z=>z.mk))];
+  AGENT.f.push({id:nid(),tab:'noc',sev:'r',
+   t:mks.length+' markets are reporting the same fault right now',
+   w:'&ldquo;'+KD[c.kind].t+'&rdquo; is open at '+mks.map(z=>MK[z].n).join(', ')+
+     '. Worked as '+c.list.length+' separate tickets it looks like '+c.list.length+
+     ' site problems. Grouped it is one platform incident with one owner and one comms line.',
+   a:'Group as one incident', run:()=>{go('noc');setNocView('noc');groupInc(c.kind)}})});
+
+ /* --- 7. nobody has picked up the ticket that runs out first --- */
+ const un=allTix().filter(x=>inNoc(x,T)&&tstate(x,T)!=='resolved'&&!TOWN[x.id])
+  .map(x=>({x,m:minsLeft(x,T)})).filter(o=>o.m!==null).sort((a,b)=>a.m-b.m)[0];
+ if(un) AGENT.f.push({id:nid(),tab:'noc',sev:un.m<=15?'r':'a',
+  t:un.x.id+' runs out of runway in '+un.m+' minutes and nobody owns it',
+  w:PRIOS[tx(un.x).p-1].n+' at '+MK[un.x.mk].n+', raised '+hm(un.x.t)+' by '+un.x.by+
+    '. Unowned is the state a Slack channel leaves everything in. Taking it starts the clock against a name.',
+  a:'Take it', run:()=>{go('noc');setNocView('noc');TSEL=un.x.id;tclaim(un.x.id)}});
+
+ draw();
+}
+function vAgent(tab){
+ const f=agentFind(tab); if(!f.length) return '';
+ return '<div class="agw">'+
+  '<div class="agh"><span class="agi">◈</span>'+
+   '<span class="agt">Agent found '+f.length+' thing'+(f.length>1?'s':'')+' on this tab</span>'+
+   '<span class="tag mod">RULES TODAY, MODEL IN PRODUCTION</span>'+
+   '<span class="hdr" style="margin-left:auto">last run '+(AGENT.ran!==null?hm(AGENT.ran):'never')+
+   ' &middot; <a href="javascript:void(0)" onclick="agentRun()" style="color:var(--coral);font-weight:700">run again</a></span></div>'+
+  f.map(x=>'<div class="agc '+x.sev+'"><div class="agcb">'+
+   '<div class="agct">'+x.t+'</div><div class="agcw">'+x.w+'</div></div>'+
+   '<div class="agca"><button class="abtn p" onclick="agentDo(\''+x.id+'\')">'+x.a+'</button>'+
+   '<button class="abtn" onclick="agentSkip(\''+x.id+'\')">Dismiss</button></div></div>').join('')+
+ '</div>';
+}
+
 /* ================= router ================= */
 function draw(){
  const S_=SEATS[SEAT], s=summ(SEL,T);
@@ -3030,7 +3279,7 @@ function draw(){
  setHt('viewpick','<div class="vh">VIEW AS</div>'+Object.keys(SEATS).map(x=>
   '<button class="'+(x===SEAT?'on':'')+'" onclick="setSeat(\''+x+'\');document.getElementById(\'viewpick\').classList.remove(\'open\')">'+
   SEATS[x].n+'<i>'+SEATS[x].dept+'</i></button>').join(''));
- const bdg={home:0,sort:s.board.due,plan:0,noc:allTix().filter(x=>inNoc(x,T)&&tstate(x,T)!=='resolved').length};
+ const bdg={home:agentCount('home'),sort:s.board.due+agentCount('sort'),plan:agentCount('plan'),noc:allTix().filter(x=>inNoc(x,T)&&tstate(x,T)!=='resolved').length+agentCount('noc')};
  if(!S_.tabs.includes(SCR))SCR=S_.tabs[0];
  setHt('nav1',NAV.filter(n=>S_.tabs.includes(n[0])).map(n=>
   '<a href="javascript:void(0)" class="'+(SCR===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')">'+
@@ -3050,6 +3299,8 @@ function draw(){
  }
  if(ASK)drawAsk();
 }
+try{tixFromHash()}catch(e){}
 boot();
+try{agentRun()}catch(e){}
 
 </script></body></html>
