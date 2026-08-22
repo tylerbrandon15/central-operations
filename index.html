@@ -588,18 +588,29 @@ select.pl:focus{border-color:var(--coral)}
 .cmp input{flex:1;font-family:var(--sans);font-size:12px;border:1px solid var(--line2);border-radius:7px;padding:6px 9px;background:#fff;color:var(--ink)}
 .cmp input:focus{outline:none;border-color:var(--coral)}
 .kbd{font-family:var(--mono);font-size:9.5px;background:var(--panel2);border:1px solid var(--line2);border-radius:4px;padding:1px 4px;color:var(--ink3)}
-.agw{border:1px solid var(--coral-l);border-radius:10px;background:var(--coral-t);padding:11px 13px;margin-bottom:12px}
-.agh{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:8px}
-.agi{width:19px;height:19px;border-radius:6px;background:var(--coral);color:#fff;display:grid;place-items:center;font-size:11px}
-.agt{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--coral-d)}
-.agc{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);
- border-radius:9px;padding:10px 12px;margin-bottom:7px}
-.agc:last-child{margin-bottom:0}
+.agdock{position:fixed;right:20px;bottom:18px;z-index:1500;display:flex;align-items:center;gap:8px;
+ background:var(--ink);color:#fff;border:none;border-radius:999px;padding:10px 16px;
+ font-family:var(--sans);font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:0 6px 18px rgba(27,26,24,.25)}
+.agdock:hover{background:#000}
+.agdock .di{color:#F0997B;font-size:13px}
+.agdock .ct{background:var(--coral);border-radius:999px;font-size:10px;font-weight:800;padding:1px 7px;min-width:16px;text-align:center}
+.agpanel{position:fixed;top:0;right:0;bottom:0;width:344px;max-width:92vw;background:var(--panel);
+ border-left:1px solid var(--line);box-shadow:-10px 0 28px rgba(27,26,24,.1);z-index:1600;display:flex;flex-direction:column}
+.agph{display:flex;align-items:center;gap:8px;padding:13px 14px;border-bottom:1px solid var(--line);flex:0 0 auto}
+.agpb{flex:1;overflow-y:auto;padding-bottom:8px}
+.agsec{font-size:9px;font-weight:800;letter-spacing:.09em;color:var(--ink3);text-transform:uppercase;padding:11px 14px 5px}
+.agc{margin:0 10px 8px;background:var(--panel2);border:1px solid var(--line);padding:10px 11px}
 .agc.r{border-left:3px solid var(--coral)} .agc.a{border-left:3px solid var(--amber)}
-.agcb{flex:1;min-width:0}
-.agct{font-size:12.5px;font-weight:800;line-height:1.3}
-.agcw{font-size:11.5px;color:var(--ink2);line-height:1.5;margin-top:3px}
-.agca{display:flex;gap:7px;flex-shrink:0;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:230px}
+.agc.focus{outline:2px solid var(--coral)}
+.agct{font-size:12px;font-weight:800;line-height:1.35}
+.agcw{font-size:11px;color:var(--ink2);line-height:1.5;margin-top:3px}
+.agca{margin-top:8px;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.agfoot{margin:6px 10px 10px;padding:9px 11px;background:var(--panel2);border-radius:8px;font-size:10.5px;color:var(--ink3);line-height:1.5;flex:0 0 auto}
+.agmk{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:5px;background:var(--coral-t);
+ color:var(--coral);font-size:9.5px;cursor:pointer;border:1px solid var(--coral-l);vertical-align:-2px;margin-left:5px}
+.agmk:hover{background:var(--coral);color:#fff}
+.agx{margin-left:auto;background:none;border:none;color:var(--ink3);font-size:16px;cursor:pointer;padding:2px 5px;font-family:var(--sans)}
+.agx:hover{color:var(--ink)}
 .nb{display:inline-grid;place-items:center;min-width:15px;height:15px;border-radius:999px;background:var(--coral);
  color:#fff;font-size:8.5px;font-weight:800;padding:0 4px;margin-left:5px}
 .slot.resv .sid{color:var(--coral-d)}
@@ -764,6 +775,11 @@ table.sheet tr.tot td:first-child{font-weight:800}
 .tkt2{font-size:12.5px;font-weight:700;line-height:1.3;display:block}
 .tks{font-size:10.5px;color:var(--ink3);display:block;margin-top:1px}
 .tkm{font-size:11.5px;color:var(--ink2);font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dch{display:inline-block;font-size:10px;font-weight:800;border-radius:4px;padding:3px 7px;white-space:nowrap}
+.dch.blue{background:var(--blue-t);color:var(--blue-d)}
+.dch.amber{background:var(--amber-t);color:var(--amber-d)}
+.dch.coral{background:var(--coral-t);color:var(--coral-d)}
+.dch.mint{background:var(--mint-t);color:var(--mint-d)}
 .slabar{position:relative;height:7px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:4px 0 9px}
 .slabar i{display:block;height:100%;border-radius:99px}
 .slabar b{position:absolute;top:-2px;width:1.5px;height:11px;background:var(--ink);opacity:.5}
@@ -1272,6 +1288,91 @@ const TKIND=[
        'Raise a facilities work order','Do not stage oversize in a dark lane'],
   escIf:'the lane cannot be lit before the next wave', escTeam:'Facilities'}];
 const KD={}; TKIND.forEach(k=>KD[k.k]=k);
+/* ---- disposition: what the ticket actually needs, decided at intake ----
+   Four buckets. Fix the record, change a setting, hand it to engineering, or send it
+   back to the site with the SOP. Team says who picks it up. Disposition says what kind
+   of fix it is, and that is the field that tells you whether it will be back tomorrow. */
+const DISP={outage:'Engineering',slot:'Engineering',geo:'Config',lpn:'Data fix',drop:'Data fix'};
+TKIND.forEach(k=>{if(!DISP[k.k])DISP[k.k]='Site fix'});
+const DISPC={'Data fix':'blue','Config':'amber','Engineering':'coral','Site fix':'mint'};
+function dchip(kind){return '<span class="dch '+DISPC[DISP[kind]]+'">'+DISP[kind]+'</span>'}
+
+/* ================= REPEAT FAULTS =================
+   One shift is an anecdote. The same fault across the network for two weeks is a defect.
+   Which fault lands where is not random. An operating fault lands where the building is
+   already weak, so it is weighted by the measure that building is actually bad at. A
+   platform fault lands everywhere at the same rate, because every market runs the same
+   build. That difference is the entire point of the spread column. */
+const RFWIN=14; const RFRAISED={}; let RFSEQ=1, RFC=null;
+/* only where the real workbook supports it. A route nobody will take tracks driver
+   abandonment. A missort tracks handling errors. A late trailer tracks late inbound.
+   A printer ribbon and a dock door do not track anything about how good the building
+   is, so those land flat, and so does everything on the platform side. */
+const RFDRV={trailer:'arr_late', missort:'hand', scanner:'hand',
+             unclaim:'aband', vehicle:'aband'};
+const RFWT={};
+MKT.forEach(m=>{const w=TKIND.map(kd=>{const f=RFDRV[kd.k];
+  if(!f) return 1;                                    /* platform side: flat everywhere */
+  const avg=MKT.reduce((a,x)=>a+DS[x.k][f],0)/MKT.length;
+  return Math.max(.15, DS[m.k][f]/avg)});
+ RFWT[m.k]={w:w, tot:w.reduce((a,x)=>a+x,0)}});
+function rfPick(k,r){const q=RFWT[k]; let c=0, x=r*q.tot;
+ for(let i=0;i<TKIND.length;i++){c+=q.w[i]; if(x<c) return TKIND[i]}
+ return TKIND[TKIND.length-1]}
+function rfRoll(){
+ if(RFC) return RFC;
+ const acc={}; TKIND.forEach(k=>acc[k.k]={kind:k.k,hits:0,rt:0,by:{}});
+ for(let d=1; d<=RFWIN; d++) MKT.forEach(m=>{
+  const R=rng(m.seed*137+d*7919), n=7+Math.floor(R()*6);
+  for(let i=0;i<n;i++){
+   const kd=rfPick(m.k,R());
+   const routes=1+Math.floor(R()*Math.max(2,Math.round(m.rt*.24)));
+   const a=acc[kd.k]; a.hits++; a.rt+=routes; a.by[m.k]=(a.by[m.k]||0)+1;
+  }});
+ RFC=Object.keys(acc).map(k=>{const a=acc[k];
+   let top='', best=0; Object.keys(a.by).forEach(x=>{if(a.by[x]>best){best=a.by[x];top=x}});
+   a.top=top; a.share=a.hits?100*best/a.hits:0; a.mult=a.share/(100/MKT.length);
+   a.flat=!RFDRV[k];                                  /* nothing about the building drives it */
+   a.own=KD[k].own; a.wa=KD[k].wa; a.t=KD[k].t; return a})
+  .filter(a=>a.hits).sort((x,y)=>y.rt-x.rt);
+ return RFC;
+}
+function rfRaise(kind){RFRAISED[kind]='ENG-'+(4100+RFSEQ++); draw()}
+function rfSite(k){pick(k); go('sort')}
+function vRepeat(){
+ const L=rfRoll().slice(0,8), flat=L.filter(x=>x.flat).length;
+ return '<div class="card mt12" style="padding:0;overflow:hidden">'+
+  '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 13px 10px">'+
+   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Repeat faults</div>'+
+   '<span class="tag sim">LAST '+RFWIN+' DAYS</span>'+
+   '<span class="hdr" style="margin-left:auto">'+flat+' of the top '+L.length+
+   ' land evenly, which makes them ours</span></div>'+
+  '<div class="tkh" style="grid-template-columns:46px 1fr 132px 84px 152px">'+
+   '<span>Hits</span><span>Fault</span><span>Where it lands</span><span>Routes hit</span><span></span></div>'+
+  L.map(x=>{const r=RFRAISED[x.kind];
+   return '<div class="tkl" style="grid-template-columns:46px 1fr 132px 84px 152px;cursor:default'+
+    (x.flat?';box-shadow:inset 3px 0 0 var(--coral)':'')+'">'+
+    '<span style="font-family:var(--mono);font-size:15px;font-weight:800">'+x.hits+'</span>'+
+    '<span><span class="tkt2">'+x.t+'</span><span class="tks">'+
+      (x.flat?(x.own==='central'
+                 ?(x.wa?'The workaround is manual every single time'
+                       :'No workaround. Every hit stops the wave')
+                 :'Every market sees this at the same rate, so it is not the building')
+             :MK[x.top].n+' raises it '+f1(x.mult)+' times as often as the average market')+'</span></span>'+
+    '<span>'+(x.flat
+      ?'<span class="f a" style="background:var(--coral-t);color:var(--coral-d)">EVENLY, ALL '+MKT.length+'</span>'
+      :'<span class="f a">'+MK[x.top].n+' '+Math.round(x.share)+'%</span>')+'</span>'+
+    '<span class="tkm">'+fm(x.rt)+'</span>'+
+    '<span>'+(x.flat
+      ? (r?'<span class="f a" style="background:var(--mint-t);color:var(--mint-d)">RAISED '+r+'</span>'
+          :'<button class="abtn p" onclick="rfRaise(\''+x.kind+'\')">Send it to engineering</button>')
+      : '<button class="abtn" onclick="rfSite(\''+x.top+'\')">Open '+MK[x.top].n+'</button>')+'</span></div>'}).join('')+
+  '<div class="legend" style="margin:0;border-radius:0">Ranked by how many routes the fault touched across the '+
+  'network over '+RFWIN+' days, not by how loud any one site was about it. <b>The column that decides what happens '+
+  'next is where it lands.</b> A fault that concentrates in one building is that building, and it goes back with '+
+  'the SOP. A fault that lands evenly in every market is not a site problem at all, it is the platform, and it '+
+  'belongs in front of engineering with a number attached instead of being worked again tomorrow morning.</div></div>';
+}
 const ROLES=['Launch Supervisor','Sort Lead','Site Manager','Staging Lead','Dispatcher'];
 function calcPrio(routes,total,wa,kd){
  const share=100*routes/total;
@@ -1848,8 +1949,7 @@ function vStage(){
  const cand=B.queue.slice(0,14);
 
  return hdr('Staging · '+MK[SEL].n,'Sort finishes a route, the cart is rolled to an open slot, the driver is sent to it')+
- vAgent('sort')+
- strip()+
+  strip()+
  (TOUR>=0?tourBar():simBar('Slot assignment','AUTO'))+
  '<div class="grid g6" style="margin-bottom:12px">'+
   tile('Slots open',B.empty+' / '+B.total,'ready to take a cart',B.empty===0?'a':'')+
@@ -2141,7 +2241,7 @@ function vPlan(){
  const showNet = canNet && PLANVIEW==='net';
  return hdr('Labor plan',(showNet?'Published Wednesday for the week ahead &middot; company sites get hours, partner sites get capacity':'The week Central Ops published, and what you change before Monday'),true)+
   '<div class="act" style="margin-bottom:12px">'+(showNet?'<span class="devlbl" style="margin:0">All markets</span>':sel)+tabs+'</div>'+
-  vAgent('plan')+(showNet?vPlanNet():vPlanSite());
+  (showNet?vPlanNet():vPlanSite());
 }
 
 function sheet(k){
@@ -2331,7 +2431,7 @@ function vOvCard(){
    '<td class="tx2">mostly '+worst.fn.toLowerCase()+'</td></tr>';
   if(open) rows.slice(0,6).forEach(x=>{
    out+='<tr style="cursor:pointer" onclick="pick(\''+x.k+'\');setPlanView(\'site\')">'+
-    '<td style="padding-left:24px">'+x.n+'</td><td class="tx2">'+x.fn+'</td>'+
+    '<td style="padding-left:24px">'+x.n+agMark('plan',x.k)+'</td><td class="tx2">'+x.fn+'</td>'+
     '<td class="'+(x.w>=5?'neg':'')+'">'+x.w+' of 6</td>'+
     '<td>'+(x.pts>=0?'+':'')+f1(x.pts)+' pts</td><td>'+f1(x.hrs)+'</td>'+
     '<td class="tx2">'+x.rsn+'</td></tr>'});
@@ -2423,7 +2523,7 @@ function vPlanNet(){
      const st=SSUB[k]!==undefined?'<span class="f g">'+(SSUB[k]>=0?'+':'')+fm(SSUB[k])+(tpl?' pkgs':' hrs')+'</span>'
        :LPUB?'<span class="f a">due Wed</span>':'<span style="color:var(--ink3)">&mdash;</span>';
      out+='<tr style="cursor:pointer" onclick="pick(\''+k+'\');setPlanView(\'site\')">'+
-      '<td style="padding-left:24px">'+m.n+'</td><td class="tx2">'+facN(m.fac)+'</td>'+
+      '<td style="padding-left:24px">'+m.n+agMark('plan',k)+agMark('home',k)+'</td><td class="tx2">'+facN(m.fac)+'</td>'+
       '<td onclick="event.stopPropagation()"><input type="number" step="100" class="cin" style="width:82px" value="'+wk+'" onchange="setPFV(\''+k+'\',this.value)"></td>'+
       '<td>'+fm(Math.round(tgtHrs(wk)))+'</td>'+
       '<td class="'+(SITEA[k].uph<UPHT-5?'neg':SITEA[k].uph>=UPHT?'pos':'')+'">'+f1(SITEA[k].uph)+' UPH</td>'+
@@ -2698,8 +2798,7 @@ function vNoc(){
  const working=site.filter(x=>sstate(x,T)==='open').length;
  const defl=site.length?Math.round(100*onSite/Math.max(1,onSite+esc)):0;
  return hdr('NOC','Only what leaves the building. Everything fixable before the next wave goes to the SOP hub')+
- vAgent('noc')+
- vNew()+
+  vNew()+
  '<div class="act" style="margin-bottom:12px">'+
   '<button class="abtn p" onclick="openNew()">Raise a ticket</button>'+
   '<div class="seg"><button class="'+(NOCVIEW==='noc'?'on':'')+'" onclick="setNocView(\'noc\')">NOC queue</button>'+
@@ -2764,17 +2863,18 @@ function vNocQ(defl,onSite,working){
    '<span class="kbd">a</span> ack &middot; <span class="kbd">r</span> resolve</span></div>'+
  '<div class="dwrap">'+
   '<div class="card" style="padding:0;overflow:hidden">'+
-   '<div class="tkh" style="grid-template-columns:52px 1fr 100px 96px 46px 84px"><span>Priority</span><span>Ticket</span><span>Team</span><span>Site</span><span>Owner</span><span>SLA</span></div>'+
+   '<div class="tkh" style="grid-template-columns:46px 1fr 86px 84px 84px 40px 76px"><span>Priority</span><span>Ticket</span><span>Disposition</span><span>Team</span><span>Site</span><span>Owner</span><span>SLA</span></div>'+
    '<div style="max-height:520px;overflow:auto">'+(q.length?q.map(x=>{
     const v=tx(x), st=tstate(x,T), b=tbreach(x,T), n=nocT(x), age=x.mine?0:Math.max(0,Math.round(T-n));
     const left=v.sla-(st==='new'?age:v.ack-n), u=lastUpd(x.id), ic=incOf(x), ow=TOWN[x.id];
-    return '<div class="tkl'+(TSEL===x.id?' on':'')+(b?' br':'')+'" style="grid-template-columns:52px 1fr 100px 96px 46px 84px" onclick="tpick(\''+x.id+'\')">'+
+    return '<div class="tkl'+(TSEL===x.id?' on':'')+(b?' br':'')+'" style="grid-template-columns:46px 1fr 86px 84px 84px 40px 76px" onclick="tpick(\''+x.id+'\')">'+
      '<span>'+pchip(v.p)+'</span>'+
      '<span><span class="tkt2">'+x.title+(ic?' <span class="incchip">'+ic.id+'</span>':'')+'</span>'+
       '<span class="tks">'+x.id+' · '+x.by+
       (x.own==='site'?' · <b style="color:var(--amber-d)">escalated after '+KD[x.kind].sopId+'</b>':'')+
       (x.ok?'':' · <b style="color:var(--coral)">rerouted from '+x.raisedTeam+'</b>')+'</span>'+
       (u?'<span class="tku">'+(u.sys?'':u.who.split(' ')[0]+': ')+esc(u.txt)+'</span>':'')+'</span>'+
+     '<span>'+dchip(x.kind)+'</span>'+
      '<span class="tkm">'+v.team+'</span><span class="tkm">'+MK[x.mk].n+'</span>'+
      '<span>'+(ow?'<span class="own" title="'+ow+'">'+initials(ow)+'</span>':'<span class="own none">·</span>')+'</span>'+
      '<span>'+(st==='resolved'?'<span class="f a" style="background:var(--mint-t);color:var(--mint-d)">CLOSED</span>'
@@ -2791,7 +2891,7 @@ function vNocQ(defl,onSite,working){
     '<span style="font-family:var(--mono);font-size:11px">'+byTeam[t]+'</span></div>').join('')+
    '<div class="sect">What reaches this queue</div>'+
    TKIND.filter(k=>k.own==='central').map(k=>'<div class="drv" style="align-items:flex-start"><span style="font-size:11.5px">'+k.t+'</span><span></span>'+
-    '<span class="f a" style="background:var(--coral-t);color:var(--coral-d)">'+k.team+'</span></div>').join('')+'</div>')+'</div></div>';
+    '<span class="f a" style="background:var(--coral-t);color:var(--coral-d)">'+k.team+'</span></div>').join('')+'</div>')+'</div></div>'+vRepeat();
 }
 
 function vSopHub(defl,onSite,esc,working){
@@ -3081,8 +3181,7 @@ function vHome(){
   ? 'Yesterday &middot; '+ydayName()+' &middot; '+F.length+' market'+(F.length===1?'':'s')
   : lbl+' &middot; '+NETD.start+' to '+NETD.end+' &middot; '+F.length+' market'+(F.length===1?'':'s');
  return hdr('Network',sub,true,(FSITE==='all'?'All sites':MK[FSITE].n)+' &middot; '+(FTYPE==='all'?'Company and 3PL':facN(FTYPE)))+
- vAgent('home')+
- '<div class="filt">'+
+  '<div class="filt">'+
   (LOOK==='yday'?'<div class="ybanner">Volume is each market\'s <b>measured</b> volume for '+DOWL[ydayIdx()]+'. Rate, on-time, driver wait and freight sit at the six week figure: the source workbook is weekly, it has no daily grain.</div>':'')+
   '<span class="fl">Window</span><div class="seg">'+LOOKS.map(x=>
    '<button class="'+(LOOK===x[0]?'on':'')+'" onclick="setLook(\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div>'+
@@ -3140,7 +3239,7 @@ function vHome(){
   '<th>Missed to quits</th><th>Routes abandoned</th><th>Handling defects</th><th>Freight late</th></tr></thead><tbody>'+
  rows.sort((x,y)=>x.L.otd-y.L.otd).map(r=>
   '<tr style="cursor:pointer" onclick="pick(\''+r.m.k+'\');go(\'plan\')">'+
-  '<td>'+r.m.n+' <span style="color:var(--ink3);font-weight:400">'+r.m.k+'</span></td>'+
+  '<td>'+r.m.n+' <span style="color:var(--ink3);font-weight:400">'+r.m.k+'</span>'+agMark('home',r.m.k)+'</td>'+
   '<td class="tx2">'+r.m.region+'</td><td class="tx2">'+facN(r.m.fac)+'</td><td>'+fm(r.L.vol)+'</td>'+
   '<td class="'+(r.L.otd<92?'neg':r.L.otd>=96?'pos':'')+'">'+f1(r.L.otd)+'%</td>'+
   '<td>'+spark(r.L.wk,54,15)+'</td>'+
@@ -3180,7 +3279,7 @@ const AGTAB={home:'Home',sort:'Staging',plan:'Labor Plan',noc:'NOC'};
 function agentFind(tab){return AGENT.f.filter(x=>x.tab===tab&&!AGENT.done[x.id])}
 function agentCount(tab){return agentFind(tab).length}
 function agentDo(id){const f=AGENT.f.find(x=>x.id===id); if(!f)return;
- AGENT.done[id]=1; try{f.run()}catch(e){} draw()}
+ AGENT.done[id]=1; AGOPEN=false; AGFOCUS=null; try{f.run()}catch(e){} draw()}
 function agentSkip(id){AGENT.done[id]=1;draw()}
 function agentRun(){
  AGENT.ran=T; AGENT.done={}; AGENT.f=[];
@@ -3189,7 +3288,7 @@ function agentRun(){
  /* --- 1. a market losing on-time to something upstream of its own roof --- */
  MKT.forEach(m=>{const k=m.k, on=100-DS[k].arr_late;
   if(on>=88) return;
-  AGENT.f.push({id:nid(),tab:'home',sev:'r',
+  AGENT.f.push({id:nid(),tab:'home',mk:k,sev:'r',
    t:MK[k].n+' is losing on-time to freight it does not control',
    w:'Inbound freight lands on time '+f1(on)+'% of the time against 92.6% for the network. Inside the building '+MK[k].n+
      ' is unremarkable: driver wait '+f1(DS[k].ci_med)+' minutes, handling '+f1(DS[k].hand)+' per 10,000. '+
@@ -3199,7 +3298,7 @@ function agentRun(){
  /* --- 2. markets furthest under the published target --- */
  MKT.map(m=>({m,g:UPHT-SITEA[m.k].uph})).filter(o=>o.g>12).sort((a,b)=>b.g-a.g).slice(0,2)
   .forEach(o=>{const k=o.m.k, mg=mixGap(k);
-   AGENT.f.push({id:nid(),tab:'home',sev:'a',
+   AGENT.f.push({id:nid(),tab:'home',mk:k,sev:'a',
     t:MK[k].n+' runs '+f1(o.g)+' UPH under the published target',
     w:mg.gap>5
       ? 'And it is one line, not the whole building. '+mg.fn+' is '+f1(mg.gap)+
@@ -3218,7 +3317,7 @@ function agentRun(){
 
  /* --- 4. an override that keeps repeating is the plan being wrong, not the site --- */
  const R=ovRec().filter(r=>r.w>=4&&r.hrs>3).slice(0,2);
- R.forEach(r=>AGENT.f.push({id:nid(),tab:'plan',sev:r.hrs>15?'r':'a',
+ R.forEach(r=>AGENT.f.push({id:nid(),tab:'plan',mk:r.k,sev:r.hrs>15?'r':'a',
   t:MK[r.k].n+' has been over on '+r.fn.toLowerCase()+' '+r.w+' of the last 6 weeks',
   w:'It is '+f1(r.hrs)+' hours a day and the reason code has been the same every week: '+r.rsn.toLowerCase()+
     '. An override that repeats is the published plan being wrong for that building, or an operating failure nobody has gone to look at. Either way it does not belong in a weekly variance report forever.',
@@ -3231,7 +3330,7 @@ function agentRun(){
   const d=B.waiting.slice().sort((a,b)=>a.arr-b.arr)[0], sl=free[0];
   const wait=Math.max(0,Math.round(T-d.arr));
   if(wait<8) return;
-  AGENT.f.push({id:nid(),tab:'sort',sev:wait>20?'r':'a',
+  AGENT.f.push({id:nid(),tab:'sort',mk:k,sev:wait>20?'r':'a',
    t:d.nm+' has been waiting '+wait+' minutes at '+MK[k].n+' with '+free.length+' slot'+(free.length>1?'s':'')+' open',
    w:'Route '+d.id+' checked in at '+hm(d.arr)+' and the engine has not rolled a cart for it yet. '+
      sl.id+' is empty and in the standard class. Assigning it by hand puts the driver in a slot now and the engine plans around it.',
@@ -3257,20 +3356,42 @@ function agentRun(){
 
  draw();
 }
-function vAgent(tab){
- const f=agentFind(tab); if(!f.length) return '';
- return '<div class="agw">'+
-  '<div class="agh"><span class="agi">◈</span>'+
-   '<span class="agt">Agent found '+f.length+' thing'+(f.length>1?'s':'')+' on this tab</span>'+
-   '<span class="tag mod">RULES TODAY, MODEL IN PRODUCTION</span>'+
-   '<span class="hdr" style="margin-left:auto">last run '+(AGENT.ran!==null?hm(AGENT.ran):'never')+
-   ' &middot; <a href="javascript:void(0)" onclick="agentRun()" style="color:var(--coral);font-weight:700">run again</a></span></div>'+
-  f.map(x=>'<div class="agc '+x.sev+'"><div class="agcb">'+
-   '<div class="agct">'+x.t+'</div><div class="agcw">'+x.w+'</div></div>'+
-   '<div class="agca"><button class="abtn p" onclick="agentDo(\''+x.id+'\')">'+x.a+'</button>'+
-   '<button class="abtn" onclick="agentSkip(\''+x.id+'\')">Dismiss</button></div></div>').join('')+
- '</div>';
+/* The agent does not get a banner. It gets a dock. One pill, bottom right, a count,
+   and a panel that slides over when you ask for it. Findings sit grouped with the tab
+   you are on first, and the rows they are about carry a marker of their own. */
+let AGOPEN=false, AGFOCUS=null;
+function agTog(){AGOPEN=!AGOPEN; if(!AGOPEN)AGFOCUS=null; draw()}
+function agJump(id){AGOPEN=true; AGFOCUS=id; draw();
+ setTimeout(()=>{const e=document.getElementById('agf'+id);
+  if(e&&e.scrollIntoView)e.scrollIntoView({block:'center'})},30)}
+function agMark(tab,mk){
+ const f=AGENT.f.find(x=>x.tab===tab&&x.mk===mk&&!AGENT.done[x.id]);
+ return f?'<span class="agmk" title="'+f.t.replace(/"/g,'')+'" onclick="event.stopPropagation();agJump(\''+f.id+'\')">&#9672;</span>':''}
+function vAgentDock(){
+ const all=AGENT.f.filter(x=>!AGENT.done[x.id]), n=all.length;
+ let h='<button class="agdock" onclick="agTog()" aria-label="Agent findings"><span class="di">&#9672;</span>Agent'+
+  (n?'<span class="ct">'+n+'</span>':'')+'</button>';
+ if(!AGOPEN) return h;
+ const tabs=[SCR].concat(Object.keys(AGTAB).filter(t=>t!==SCR));
+ return h+'<div class="agpanel">'+
+  '<div class="agph"><span style="color:var(--coral);font-size:13px">&#9672;</span>'+
+   '<span style="font-size:12.5px;font-weight:800">'+(n?n+' finding'+(n>1?'s':''):'Nothing needs a decision')+'</span>'+
+   '<span class="hdr">ran '+(AGENT.ran!==null?hm(AGENT.ran):'never')+
+   ' &middot; <a href="javascript:void(0)" onclick="agentRun()" style="color:var(--coral);font-weight:700">run again</a></span>'+
+   '<button class="agx" onclick="agTog()" aria-label="Close">&#215;</button></div>'+
+  '<div class="agpb">'+
+  tabs.map(t=>{const f=agentFind(t); if(!f.length)return '';
+   return '<div class="agsec">'+(t===SCR?'This tab':AGTAB[t])+' &middot; '+f.length+'</div>'+
+    f.map(x=>'<div class="agc '+x.sev+(AGFOCUS===x.id?' focus':'')+'" id="agf'+x.id+'">'+
+     '<div class="agct">'+x.t+'</div><div class="agcw">'+x.w+'</div>'+
+     '<div class="agca"><button class="abtn p" onclick="agentDo(\''+x.id+'\')">'+x.a+'</button>'+
+     '<button class="abtn" onclick="agentSkip(\''+x.id+'\')">Dismiss</button></div></div>').join('')}).join('')+
+  (n?'':'<div class="agsec">All clear</div><div class="agc"><div class="agcw">Every rule ran and nothing came back. '+
+   'A quiet dock is the network telling you it is fine.</div></div>')+'</div>'+
+  '<div class="agfoot">Rules today, a model in production. Every finding carries its evidence and a button that changes something.</div></div>';
 }
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&AGOPEN){AGOPEN=false;AGFOCUS=null;draw()}});
 
 /* ================= router ================= */
 function draw(){
@@ -3279,7 +3400,7 @@ function draw(){
  setHt('viewpick','<div class="vh">VIEW AS</div>'+Object.keys(SEATS).map(x=>
   '<button class="'+(x===SEAT?'on':'')+'" onclick="setSeat(\''+x+'\');document.getElementById(\'viewpick\').classList.remove(\'open\')">'+
   SEATS[x].n+'<i>'+SEATS[x].dept+'</i></button>').join(''));
- const bdg={home:agentCount('home'),sort:s.board.due+agentCount('sort'),plan:agentCount('plan'),noc:allTix().filter(x=>inNoc(x,T)&&tstate(x,T)!=='resolved').length+agentCount('noc')};
+ const bdg={home:0,sort:s.board.due,plan:0,noc:allTix().filter(x=>inNoc(x,T)&&tstate(x,T)!=='resolved').length};
  if(!S_.tabs.includes(SCR))SCR=S_.tabs[0];
  setHt('nav1',NAV.filter(n=>S_.tabs.includes(n[0])).map(n=>
   '<a href="javascript:void(0)" class="'+(SCR===n[0]?'on':'')+'" onclick="go(\''+n[0]+'\')">'+
@@ -3290,7 +3411,7 @@ function draw(){
  else if(SCR==='sort')h=vStage()+vPhones();
  else if(SCR==='plan')h=vPlan();
  else if(SCR==='noc')h=vNoc();
- setHt('body',h);
+ setHt('body',h+vAgentDock());
  if(SCR==='home'){
   const host=mapHost();
   let live=false; try{live=!!(MAP&&host&&MAP.getContainer()===host&&host.isConnected)}catch(e){live=false}
