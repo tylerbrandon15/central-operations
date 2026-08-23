@@ -547,6 +547,25 @@ select.pl:focus{border-color:var(--coral)}
 .lanel.lg{background:var(--amber-t);border-color:var(--amber)}
 .lanel.lg .lc{color:var(--amber-d)}
 .lanes{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+.lphero{display:flex;gap:26px;align-items:flex-start;flex-wrap:wrap}
+.lplbl{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.lpbig{font-size:31px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.lpunit{font-size:13px;font-weight:700;color:var(--ink3);margin-left:3px}
+.lprng{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:99px;background:#E4E0D7;outline:none;margin:0}
+.lprng::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;
+ border:3px solid var(--coral);cursor:grab;box-shadow:0 2px 6px rgba(28,27,25,.18)}
+.lprng::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid var(--coral);cursor:grab}
+.lppill{display:inline-block;font-size:10.5px;font-weight:800;border-radius:99px;padding:4px 11px;margin-top:4px}
+.lppill.g{background:var(--mint-t);color:var(--mint-d)}
+.lppill.a{background:var(--amber-t);color:var(--amber-d)}
+.lppill.n{background:var(--panel2);color:var(--ink2)}
+.lpbar{display:flex;height:32px;border-radius:8px;overflow:hidden}
+.lpbar span{display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;color:#fff}
+.lpghost{display:flex;height:5px;border-radius:99px;overflow:hidden;margin-top:5px;opacity:.5}
+.lpghost span{display:block}
+.lpkey{display:flex;gap:16px;margin-top:9px;font-size:10.5px;color:var(--ink3);flex-wrap:wrap}
+.lpkey i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
+.lpout{background:var(--panel2)}
 .aud{font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
  background:var(--ink);color:#fff;border-radius:999px;padding:3px 9px;white-space:nowrap}
 .aud.floor{background:var(--blue-d)}
@@ -1611,8 +1630,8 @@ const SEATS={
    tabs:['home','sort','plan','noc'], pv:'net',  lock:null},
  noc: {n:'NOC Lead',              who:'Marcus Ellis',  dept:'Network Operations Center', av:'ME',
    tabs:['home','noc'],               pv:'net',  lock:null},
- site:{n:'Site Manager',          who:'Jazmine O.',    dept:'Field Operations · Newark', av:'JO',
-   tabs:['home','sort','plan','noc'],  pv:'site', lock:'C'}};
+ site:{n:'Site Manager',          who:'Jazmine O.',    dept:'Field Operations · Atlanta', av:'JO',
+   tabs:['home','sort','plan','noc'],  pv:'site', lock:'A'}};
 let SEAT='head';
 const NAV=[['home','Home','⌂'],['sort','Staging','▦'],['plan','Labor Plan','▤'],['noc','NOC','⚡']];
 
@@ -2371,6 +2390,43 @@ function lpPublish(){LPUB=true;draw()}
 function setDry(v){LDRY=v;draw()}
 function setSRsn(k,f,v){if(!SRSN[k])SRSN[k]={}; SRSN[k][f]=v; draw()}
 function lpSubmit(k){SSUB[k]=Math.round(lpDelta(k)*10)/10;draw()}
+/* A site planning at a better rate than the network target is the whole point, so it gets
+   a one-click way to do it. This only fills the grid: the baseline every adjustment is
+   measured against stays the hours Central Ops published. */
+const STGT={};
+function setSTGT(k,v){STGT[k]=Math.max(50,Math.min(200,+v||UPHT))}
+function siteTarget(k){return STGT[k]===undefined?UPHT:STGT[k]}
+function applySiteTarget(k){
+ const u=siteTarget(k); if(!SCELL[k])SCELL[k]={};
+ FNL.forEach(f=>{ if(!SCELL[k][f[0]])SCELL[k][f[0]]=[null,null,null,null,null,null,null];
+  for(let i=0;i<7;i++) SCELL[k][f[0]][i]=Math.round(lpVol(k,i)/u*ALLOC[f[0]]/100*10)/10; });
+ ALOG.unshift({t:nowStamp(),who:SEATS[SEAT].who,seat:SEATS[SEAT].n,mk:MK[k].n,
+  fn:'Whole week', day:'rebuilt at '+f1(u)+' UPH',
+  from:Math.round(tgtHrs(lpWk(k))*10)/10, to:Math.round(lpWk(k)/u*10)/10,
+  rsn:u>UPHT?'better rate than target, fewer hours':u<UPHT?'lower rate than target, more hours':'matched to target'});
+ if(ALOG.length>40)ALOG.pop();
+ draw();
+}
+function resetPlan(k){delete SCELL[k];delete SRSN[k];delete STGT[k];delete SSUB[k];draw()}
+/* the slider updates the numbers in place; letting go is what commits and redraws,
+   so the handle never loses focus mid-drag */
+function lpPrev(k,v){
+ const u=Math.max(50,Math.min(200,+v||UPHT)), wk=lpWk(k);
+ const tot=wk/u, sent=tgtHrs(wk), diff=Math.round(tot)-Math.round(sent);
+ const set=(id,t)=>{const e=document.getElementById(id); if(e)e.textContent=t};
+ set('lpR',f1(u)); set('lpH',fm(Math.round(tot)));
+ set('lpD',(diff>0?'+':diff<0?'\u2212':'')+fm(Math.abs(diff)));
+ const d=document.getElementById('lpD');
+ if(d)d.style.color=diff>0?'var(--coral-d)':diff<0?'var(--mint-d)':'var(--ink3)';
+ const pl=document.getElementById('lpP');
+ if(pl){ if(diff<0){pl.textContent='No approval needed';pl.className='lppill g'}
+   else if(diff===0){pl.textContent='Matched to plan';pl.className='lppill n'}
+   else {pl.textContent='Reason code \u00b7 Regional';pl.className='lppill a'} }
+ const bar=document.getElementById('lpBar');
+ if(bar) FNL.forEach(f=>{const e=document.getElementById('lpb_'+f[0]);
+   if(e)e.textContent=Math.round(tot*ALLOC[f[0]]/100)});
+}
+const FCOL={sort:'#E84931',launch:'#F0997B',dock:'#2C5F8A',ps:'#B4B0A6'};
 function setCap(k,i,v){if(!CAPC[k])CAPC[k]=[null,null,null,null,null,null,null];
  CAPC[k][i]=Math.max(0,Math.round(+v||0)); draw()}
 function capOf(k,i){return (CAPC[k]&&CAPC[k][i]!=null)?CAPC[k][i]:lpVol(k,i)}
@@ -2382,6 +2438,8 @@ const ALOG=[];
 function nowStamp(){const d=new Date();
  return (d.getMonth()+1)+'/'+d.getDate()+' '+((d.getHours()%12)||12)+':'+String(d.getMinutes()).padStart(2,'0')+(d.getHours()<12?'am':'pm')}
 function lineTot(k,f){let b=0,m=0;for(let i=0;i<7;i++){b+=lpBase(k,f,i);m+=lpCell(k,f,i)}return {b:b,m:m,d:m-b}}
+function rateWkOf(k){let t=0;FNL.forEach(f=>{for(let i=0;i<7;i++)t+=lpCell(k,f[0],i)});return t}
+function allWk0(k){return rateWkOf(k)>0}
 function logOv(k,f,i,from,to,rsn){
  ALOG.unshift({t:nowStamp(),who:SEATS[SEAT].who,seat:SEATS[SEAT].n,mk:MK[k].n,
   fn:(LPL().find(x=>x[0]===f)||[f,f])[1],day:lpWeek().days[i].dow+' '+lpWeek().days[i].lbl,
@@ -2584,43 +2642,75 @@ function vPlanNet(){
 function vPlanSite(){ return is3PL(SEL)?vPlan3PL(SEL):vPlanCo(SEL) }
 
 function vPlanCo(k){
- const W=lpWeek(), wk=lpWk(k), base=tgtHrs(wk), lines=LPL();
- let rateWk=0, dirWk=0, indWk=0, allWk=0; const dayT=[0,0,0,0,0,0,0];
+ const W=lpWeek(), wk=lpWk(k), base=tgtHrs(wk), lines=LPL(), u=siteTarget(k);
+ let rateWk=0, dirWk=0, indWk=0, outWk=0; const dayT=[0,0,0,0,0,0,0];
+ lines.forEach(f=>{const isR=FNL.some(x=>x[0]===f[0]); let t=0;
+  for(let i=0;i<7;i++){const v=lpCell(k,f[0],i); t+=v; dayT[i]+=v}
+  if(isR){rateWk+=t; if(DIRECT[f[0]])dirWk+=t; else indWk+=t} else outWk+=t});
+ const diff=Math.round(rateWk)-Math.round(base);
+ const pillC=diff<0?'g':diff===0?'n':'a';
+ const pillT=diff<0?'No approval needed':diff===0?'Matched to plan':'Reason code &middot; Regional';
  const body=lines.map(f=>{const isR=FNL.some(x=>x[0]===f[0]); let t=0;
-  const tds=W.days.map((d,i)=>{const v=lpCell(k,f[0],i); t+=v; dayT[i]+=v;
-   return '<td'+(d.we?' class="we"':'')+'><input class="cin cell'+(lpEd(k,f[0],i)?' edt':'')+'" type="number" step="0.5" value="'+f1(v)+'" onchange="setCell(\''+k+'\',\''+f[0]+'\','+i+',this.value)"></td>'}).join('');
-  if(isR){rateWk+=t; if(DIRECT[f[0]])dirWk+=t; else indWk+=t}
-  allWk+=t;
-  return '<tr><td>'+f[1]+'<i class="who">'+
-   (isR?(DIRECT[f[0]]?'direct':'indirect')+' &middot; '+f1(ALLOC[f[0]])+'% of plan hours'
-      :(f[0]==='lead'?'fixed, outside the target':'event driven, outside the target'))+
+  const tds=W.days.map((d,i)=>{const v=lpCell(k,f[0],i); t+=v;
+   return '<td'+(d.we?' class="we"':'')+'><input class="cin cell'+(lpEd(k,f[0],i)?' edt':'')+
+    '" type="number" step="0.5" value="'+f1(v)+'" onchange="setCell(\''+k+'\',\''+f[0]+'\','+i+',this.value)"></td>'}).join('');
+  return '<tr'+(isR?'':' class="lpout"')+'><td>'+f[1]+'<i class="who">'+
+   (isR?(DIRECT[f[0]]?'direct':'indirect')+' &middot; '+f1(ALLOC[f[0]])+'% of the rate plan'
+      :'outside the rate target &middot; yours to set')+
    '</i></td>'+tds+'<td><b>'+f1(t)+'</b></td></tr>'}).join('');
- const uph=wk/rateWk, dl=rateWk-base;
- return '<div class="grid g4" style="margin-bottom:12px">'+
-  tile('Next week forecast',fm(wk),MK[k].n+' &middot; '+facN(MK[k].fac))+
-  tile('Hours at target',fm(Math.round(base)),fm(wk)+' &divide; '+f1(UPHT)+' UPH')+
-  tile('Your plan',fm(Math.round(rateWk)),(dl>=0?'+':'')+f1(dl)+' against the target hours',Math.abs(dl)>1?'a':'g')+
-  tile('Your UPH',f1(uph),'plan hours only, lead and training excluded',uph<UPHT-2?'r':uph<UPHT?'a':'g')+
- '</div>'+
- '<div class="card"><div class="act" style="margin-bottom:4px">'+
+ return '<div class="card"><div class="lphero">'+
+  '<div style="flex:1 1 300px;min-width:260px">'+
+   '<div class="lplbl">Plan my week at</div>'+
+   '<div style="display:flex;align-items:baseline;margin:2px 0 10px">'+
+    '<span class="lpbig" id="lpR">'+f1(u)+'</span><span class="lpunit">UPH</span>'+
+    '<span style="margin-left:auto;font-size:10.5px;color:var(--ink3)">Central Ops sent <b style="color:var(--ink2)">'+f1(UPHT)+'</b></span></div>'+
+   '<input class="lprng" type="range" min="70" max="140" step="1" value="'+f1(u)+'" '+
+    'oninput="lpPrev(\''+k+'\',this.value)" onchange="setSTGT(\''+k+'\',this.value);applySiteTarget(\''+k+'\')">'+
+   '<div style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--ink3);margin-top:4px">'+
+    '<span>70</span><span>target '+f1(UPHT)+'</span><span>140</span></div>'+
+   '<div style="margin-top:10px"><button class="abtn" onclick="resetPlan(\''+k+'\')">Reset to the published plan</button></div>'+
+  '</div>'+
+  '<div style="flex:0 0 auto;display:flex;gap:22px;flex-wrap:wrap">'+
+   '<div><div class="lplbl">Your plan</div><div class="lpbig" id="lpH">'+fm(Math.round(rateWk))+'</div>'+
+    '<div style="font-size:10.5px;color:var(--ink3)">rate hours</div></div>'+
+   '<div><div class="lplbl">Sent</div><div class="lpbig" style="color:var(--ink3)">'+fm(Math.round(base))+'</div>'+
+    '<div style="font-size:10.5px;color:var(--ink3)">rate hours</div></div>'+
+   '<div><div class="lplbl">Difference</div>'+
+    '<div class="lpbig" id="lpD" style="color:'+(diff>0?'var(--coral-d)':diff<0?'var(--mint-d)':'var(--ink3)')+'">'+
+     (diff>0?'+':diff<0?'&minus;':'')+fm(Math.abs(diff))+'</div>'+
+    '<div class="lppill '+pillC+'" id="lpP">'+pillT+'</div></div>'+
+  '</div></div>'+
+  '<div class="legend">Hours are volume divided by your rate, then split by the published mix. '+
+  '<b>Planning above '+f1(UPHT)+' UPH means fewer hours than Central Ops sent, and that clears with no approval</b> &mdash; '+
+  'a site finding a better way is the point. Adding hours carries a reason code. '+
+  'Training and lead sit outside the rate and never count against your UPH.</div></div>'+
+
+ '<div class="card mt12"><div class="act" style="margin-bottom:8px">'+
+  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Where those hours go</div>'+
+  '<span class="hdr" style="margin-left:auto">thin bar is the mix Central Ops published</span></div>'+
+  '<div class="lpbar" id="lpBar">'+FNL.map(f=>{const h=rateWk*ALLOC[f[0]]/100;
+   return '<span style="width:'+f1(ALLOC[f[0]])+'%;background:'+FCOL[f[0]]+'" id="lpb_'+f[0]+'">'+Math.round(h)+'</span>'}).join('')+'</div>'+
+  '<div class="lpghost">'+FNL.map(f=>'<span style="width:'+f1(ALLOC[f[0]])+'%;background:'+FCOL[f[0]]+'"></span>').join('')+'</div>'+
+  '<div class="lpkey">'+FNL.map(f=>'<span><i style="background:'+FCOL[f[0]]+'"></i>'+f[1]+
+   ' <b style="color:var(--ink2)">'+f1(ALLOC[f[0]])+'%</b></span>').join('')+
+   '<span style="margin-left:auto">Direct <b style="color:var(--ink2)">'+f1(dirWk)+'</b> &middot; indirect <b style="color:var(--ink2)">'+f1(indWk)+
+   '</b> &middot; outside the rate <b style="color:var(--ink2)">'+f1(outWk)+'</b></span></div></div>'+
+
+ '<div class="card mt12"><div class="act" style="margin-bottom:4px">'+
   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">'+W.span+', day by day</div>'+
-  '<span class="f '+(LPUB?'g':'a')+'">'+(LPUB?'Received Wed '+W.pub+' &middot; adjust today':'Central Ops has not published yet')+'</span></div>'+
-  '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:6px">Each day\'s hours are that day\'s forecast divided by '+f1(UPHT)+
-  ' UPH, then split by the published allocation. Every cell is yours to change.</div>'+
+  '<span class="f '+(LPUB?'g':'a')+'">'+(LPUB?'Received Wed '+W.pub+' &middot; adjust today':'Central Ops has not published yet')+'</span>'+
+  '<span class="hdr" style="margin-left:auto">every cell is yours to change</span></div>'+
   '<div class="tscroll"><table class="sheet"><thead><tr><th>Line</th>'+
    W.days.map(d=>'<th'+(d.we?' class="we"':'')+'>'+d.dow+' <i class="who">'+d.lbl+'</i></th>').join('')+'<th>Week</th></tr></thead><tbody>'+
    '<tr><td>Forecast volume<i class="who">from Central Ops</i></td>'+
     W.days.map((d,i)=>'<td'+(d.we?' class="we"':'')+' style="color:var(--ink3)">'+fm(lpVol(k,i))+'</td>').join('')+
     '<td style="color:var(--ink3)"><b>'+fm(wk)+'</b></td></tr>'+
-   '<tr><td>Hours at target<i class="who">volume &divide; '+f1(UPHT)+'</i></td>'+
-    W.days.map((d,i)=>'<td'+(d.we?' class="we"':'')+' style="color:var(--ink3)">'+f1(tgtHrs(lpVol(k,i)))+'</td>').join('')+
-    '<td style="color:var(--ink3)"><b>'+f1(base)+'</b></td></tr>'+
    body+
    '<tr class="tot"><td>Total hours</td>'+dayT.map((v,i)=>'<td'+(W.days[i].we?' class="we"':'')+'>'+f1(v)+'</td>').join('')+
-    '<td>'+f1(allWk)+'</td></tr></tbody></table></div>'+
-  '<div class="legend">Direct <b>'+f1(dirWk)+'</b> hours, indirect <b>'+f1(indWk)+'</b>, a '+f1(100*dirWk/(rateWk||1))+
-  ' / '+f1(100*indWk/(rateWk||1))+' split against a published '+f1(directPct())+' / '+f1(100-directPct())+
-  '. Lead and training sit outside the target and do not count against your UPH.</div></div>'+
+    '<td>'+f1(rateWk+outWk)+'</td></tr></tbody></table></div>'+
+  '<div class="legend">Move one cell for one day, or the slider above for the whole week. '+
+  '<b>Training and lead start at what Central Ops assumed and are yours to raise</b> for a new hire class or a certification push, '+
+  'without it counting against your rate.</div></div>'+
  lpDeltaCard(k,lines)+vActLog(k)+vOvModal();
 }
 
@@ -2637,6 +2727,7 @@ function vPlan3PL(k){
  '<div class="card"><div class="act" style="margin-bottom:4px">'+
   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">'+W.span+' &middot; partner site</div>'+
   '<span class="tag meas">CAPACITY, NOT HEADCOUNT</span>'+
+  '<span class="hdr" style="margin-left:0">No hours grid here on purpose &middot; we do not publish headcount into a building whose people we do not employ</span>'+
   '<span class="f '+(LPUB?'g':'a')+'" style="margin-left:auto">'+(LPUB?'Received Wed '+W.pub:'Not published yet')+'</span></div>'+
   '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:6px">We commit volume and publish what the work should cost at the network target. How the partner staffs to it is theirs.</div>'+
   '<div class="tscroll"><table class="sheet"><thead><tr><th>Line</th>'+
