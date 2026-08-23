@@ -1110,11 +1110,16 @@ function unsequenced(k){const key=k+'|fifo|'+holdKey(k)+'|'+pinKey(k);
  return SCH[key]||(SCH[key]=stage(k,'fifo',HOLD[k]||{},PIN[k]||{}))}
 function toggleHold(k,sid){HOLD[k]=HOLD[k]||{};HOLD[k][sid]=!HOLD[k][sid];TOURC=null;draw()}
 function clearHolds(k){delete HOLD[k];TOURC=null;draw()}
-function assignTo(k,rid,sid){if(!rid||!sid)return;TOURC=null;PIN[k]=PIN[k]||{};
- for(const r in PIN[k]) if(PIN[k][r]===sid) delete PIN[k][r];   /* one route per slot */
- PIN[k][rid]=sid; draw()}
-function unpinSlot(k,sid){TOURC=null;const p=PIN[k]||{};for(const r in p) if(p[r]===sid) delete p[r]; draw()}
-function clearPins(k){delete PIN[k];TOURC=null;draw()}
+/* the clock on a hand-assigned slot starts the moment it is committed, not when the
+   driver happens to show up, because a slot held for a driver who is not here yet is a
+   position the floor cannot use */
+const PINT={};
+function assignTo(k,rid,sid){if(!rid||!sid)return;TOURC=null;PIN[k]=PIN[k]||{};PINT[k]=PINT[k]||{};
+ for(const r in PIN[k]) if(PIN[k][r]===sid){delete PIN[k][r];delete PINT[k][r]}   /* one route per slot */
+ PIN[k][rid]=sid; PINT[k][rid]=T; draw()}
+function unpinSlot(k,sid){TOURC=null;const p=PIN[k]||{},q=PINT[k]||{};
+ for(const r in p) if(p[r]===sid){delete p[r];delete q[r]} draw()}
+function clearPins(k){delete PIN[k];delete PINT[k];TOURC=null;draw()}
 function pinnedTo(k,sid){const p=PIN[k]||{};for(const r in p) if(p[r]===sid) return r; return null}
 
 function stage(k,mode,holds,pins){
@@ -2007,8 +2012,12 @@ function vStage(){
         '<div class="stm">'+Math.round(T-x.r.scanIn)+'m / '+Math.round(x.r.scanOut-x.r.scanIn)+'m</div>'+dwlChip(dw);}
      else if(x.st==='blocked') body='<div class="snm">blocked by</div><div class="srt">'+x.by+'</div>';
      else if(x.st==='reserved'){const dw=slotDwell(x.r,T);
+       const at=(PINT[k]||{})[x.r.id];
+       const held=(at!==undefined&&T>=at)?Math.round(T-at):null;
        body='<div class="srt">'+x.r.id+'</div><div class="snm">'+x.r.nm+'</div>'+
-        (dw===null?'<div class="stm">due '+hm(x.r.arr)+'</div>':dwlChip(dw,'on site'));}
+        (dw!==null?dwlChip(dw,'wait')
+         :held!==null?dwlChip(held,'held')
+         :'<div class="stm">due '+hm(x.r.arr)+'</div>');}
      else body='<div class="snm" style="color:var(--ink3)">open</div>';
      const hot=x.st==='staged'&&(T-x.r.roll)>18;
      return '<button class="slot '+cl+(x.cls==='lg'?' lgs':'')+(pinned?' pin':'')+(SLOTSEL===x.id?' on':'')+'" onclick="pickSlot(\''+x.id+'\')">'+
@@ -2021,14 +2030,20 @@ function vStage(){
    '<span><i style="background:var(--coral-t);border:1px solid var(--coral-l)"></i>assigned, cart not rolled</span>'+
    '<span><i style="background:#EFECE6;border:1px dashed var(--ink3)"></i>held out</span>'+
    '<span><b style="color:var(--coral)">M</b> assigned by hand</span>'+
-   '<span><span class="dwl ok" style="margin:0">&#9719;</span> driver dwell, from check in &middot; amber past 15m, red past 25m</span>'+
+   '<span><span class="dwl ok" style="margin:0">&#9719;</span> clock: driver on site, or slot held since you assigned it &middot; amber past 15m, red past 25m</span>'+
    '<span style="margin-left:auto"><i style="background:var(--amber)"></i>oversize position</span></div>'+
   (sel?'<div class="warnbox" style="background:var(--panel2);border-color:var(--line);color:var(--ink)">'+
    '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">'+
    '<b style="font-family:var(--mono);font-size:13px">'+sel.id+'</b>'+
    '<span>'+(sel.st==='staged'?'Cart '+sel.r.id+' staged '+hm(sel.r.roll)+' · driver '+sel.r.nm+' due '+hm(sel.r.arr)
      :sel.st==='loading'?sel.r.nm+' scanned in '+hm(sel.r.scanIn)+' · route '+sel.r.id+' · scans out '+hm(sel.r.scanOut)
-     :sel.st==='reserved'?'Assigned to route '+sel.r.id+' · driver '+sel.r.nm+' due '+hm(sel.r.arr)+(sel.r.roll===null?' · engine has not found a cart for it yet':' · cart rolls '+hm(sel.r.roll))
+     :sel.st==='reserved'?(function(){const dw=slotDwell(sel.r,T), at=(PINT[k]||{})[sel.r.id];
+       const held=(at!==undefined&&T>=at)?Math.round(T-at):null;
+       return 'Assigned to route '+sel.r.id+' · driver '+sel.r.nm+
+        (dw!==null?' · on site '+dw+' min, still waiting on a cart'
+         :held!==null?' · slot held '+held+' min, driver due '+hm(sel.r.arr)
+         :' · driver due '+hm(sel.r.arr))+
+        (sel.r.roll===null?' · engine has not found a cart for it yet':' · cart rolls '+hm(sel.r.roll))})()
      :sel.st==='blocked'?'Held by oversize route '+sel.by+' next to it'
      :(HOLD[k]||{})[sel.id]?'Out of the pool.':'Open. Next cart due rolls here.')+'</span>'+
    (pinRoute?'<span class="f r">ASSIGNED BY HAND · '+pinRoute+'</span>':'')+'</div>'+
