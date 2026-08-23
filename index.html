@@ -547,6 +547,14 @@ select.pl:focus{border-color:var(--coral)}
 .lanel.lg{background:var(--amber-t);border-color:var(--amber)}
 .lanel.lg .lc{color:var(--amber-d)}
 .lanes{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+.aud{font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+ background:var(--ink);color:#fff;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.aud.floor{background:var(--blue-d)}
+.dwl{font-size:8.5px;font-weight:800;font-family:var(--mono);border-radius:4px;padding:1px 4px;
+ margin-top:2px;white-space:nowrap;letter-spacing:-.02em}
+.dwl.ok{background:var(--mint-t);color:var(--mint-d)}
+.dwl.warn{background:var(--amber-t);color:var(--amber-d)}
+.dwl.bad{background:var(--coral);color:#fff}
 .slot{width:74px;min-height:56px;align-items:stretch;justify-content:flex-start;border:1px solid var(--line);border-radius:7px;background:var(--panel);
  padding:5px 5px 4px;cursor:pointer;text-align:left;font-family:var(--sans);display:flex;flex-direction:column;gap:1px;position:relative}
 .slot:hover{border-color:var(--ink)}
@@ -1184,6 +1192,19 @@ function rstate(r,t){
 const STL={pending:'Not checked in',appOnly:'Checked in, not here',waiting:'On site, waiting',
  loading:'In a slot, loading',departed:'Departed',unclaimed:'Unclaimed'};
 function dwell(r,t){return rstate(r,t)==='waiting'?Math.max(0,t-r.arr):0}
+/* How long this driver has been in the building, from check in to the moment they roll.
+   The clock starts when they arrive, not when the cart shows up, because the wait before
+   the cart is exactly the number the network loses routes to. */
+function slotDwell(r,t){
+ if(!r||r.arr===null||r.arr===undefined||t<r.arr) return null;
+ const end=(r.scanOut!==null&&r.scanOut!==undefined&&t>=r.scanOut)?r.scanOut:t;
+ return Math.max(0,Math.round(end-r.arr));
+}
+function dwlChip(m,lbl){
+ if(m===null) return '';
+ const c=m>25?'bad':m>15?'warn':'ok';
+ return '<div class="dwl '+c+'">&#9719; '+m+'m'+(lbl?' '+lbl:'')+'</div>';
+}
 function lvl(m){return m>=20?'r':m>=10?'a':'g'}
 function slotAt(k,sid,t){
  const S=sch(k), s=S.slots.find(x=>x.id===sid);
@@ -1912,7 +1933,8 @@ function strip(){
    B.empty+' open · '+B.due+' due · '+B.waiting.length+' waiting</span>'+
  '</div>';
 }
-function hdr(h,sub,noclock,scope){return '<div class="hd"><h1>'+h+'</h1><div class="hdm">'+sub+'</div>'+
+function hdr(h,sub,noclock,scope,aud){return '<div class="hd"><h1>'+h+'</h1>'+
+ (aud?'<span class="aud'+(aud[1]?' floor':'')+'">'+aud[0]+'</span>':'')+'<div class="hdm">'+sub+'</div>'+
  '<span class="hdr">'+(scope||(MK[SEL].n+' · '+facN(MK[SEL].fac)))+(noclock?'':' · '+hm(T)+' · '+phase(T)[1])+'</span></div>'}
 function tile(l,v,n,c){return '<div class="t"><div class="l">'+l+'</div><div class="v '+(c||'')+'">'+v+'</div><div class="n">'+n+'</div></div>'}
 
@@ -1948,7 +1970,7 @@ function vStage(){
  const pinRoute=sel?pinnedTo(k,sel.id):null;
  const cand=B.queue.slice(0,14);
 
- return hdr('Staging · '+MK[SEL].n,'Sort finishes a route, the cart is rolled to an open slot, the driver is sent to it')+
+ return hdr('Staging · '+MK[SEL].n,'Sort finishes a route, the cart is rolled to an open slot, the driver is sent to it',false,null,['Built for the site floor',1])+
   strip()+
  (TOUR>=0?tourBar():simBar('Slot assignment','AUTO'))+
  '<div class="grid g6" style="margin-bottom:12px">'+
@@ -1977,12 +1999,16 @@ function vStage(){
      const cl=held?'held':x.st==='staged'?'staged':x.st==='loading'?'loading':x.st==='blocked'?'blocked':x.st==='reserved'?'resv':'';
      let body='';
      if(held) body='<div class="snm">held out</div>';
-     else if(x.st==='staged') body='<div class="srt">'+x.r.id+'</div><div class="snm">cart waiting</div><div class="stm">'+Math.round(T-x.r.roll)+'m held</div>';
-     else if(x.st==='loading') body='<div class="srt">'+x.r.id+'</div>'+carBot(x.r)+
-       '<div class="stm">'+Math.round(T-x.r.scanIn)+'m / '+Math.round(x.r.scanOut-x.r.scanIn)+'m</div>';
+     else if(x.st==='staged'){const dw=slotDwell(x.r,T);
+       body='<div class="srt">'+x.r.id+'</div><div class="snm">'+(dw===null?'cart waiting':'driver waiting')+'</div>'+
+        (dw===null?'<div class="stm">'+Math.round(T-x.r.roll)+'m held</div>':dwlChip(dw));}
+     else if(x.st==='loading'){const dw=slotDwell(x.r,T);
+       body='<div class="srt">'+x.r.id+'</div>'+carBot(x.r)+
+        '<div class="stm">'+Math.round(T-x.r.scanIn)+'m / '+Math.round(x.r.scanOut-x.r.scanIn)+'m</div>'+dwlChip(dw);}
      else if(x.st==='blocked') body='<div class="snm">blocked by</div><div class="srt">'+x.by+'</div>';
-     else if(x.st==='reserved') body='<div class="srt">'+x.r.id+'</div><div class="snm">'+x.r.nm+'</div>'+
-       '<div class="stm">'+(x.r.roll===null?'awaiting cart':'rolls '+hm(x.r.roll))+'</div>';
+     else if(x.st==='reserved'){const dw=slotDwell(x.r,T);
+       body='<div class="srt">'+x.r.id+'</div><div class="snm">'+x.r.nm+'</div>'+
+        (dw===null?'<div class="stm">due '+hm(x.r.arr)+'</div>':dwlChip(dw,'on site'));}
      else body='<div class="snm" style="color:var(--ink3)">open</div>';
      const hot=x.st==='staged'&&(T-x.r.roll)>18;
      return '<button class="slot '+cl+(x.cls==='lg'?' lgs':'')+(pinned?' pin':'')+(SLOTSEL===x.id?' on':'')+'" onclick="pickSlot(\''+x.id+'\')">'+
@@ -1995,6 +2021,7 @@ function vStage(){
    '<span><i style="background:var(--coral-t);border:1px solid var(--coral-l)"></i>assigned, cart not rolled</span>'+
    '<span><i style="background:#EFECE6;border:1px dashed var(--ink3)"></i>held out</span>'+
    '<span><b style="color:var(--coral)">M</b> assigned by hand</span>'+
+   '<span><span class="dwl ok" style="margin:0">&#9719;</span> driver dwell, from check in &middot; amber past 15m, red past 25m</span>'+
    '<span style="margin-left:auto"><i style="background:var(--amber)"></i>oversize position</span></div>'+
   (sel?'<div class="warnbox" style="background:var(--panel2);border-color:var(--line);color:var(--ink)">'+
    '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">'+
@@ -2239,7 +2266,7 @@ function vPlan(){
    '<button class="'+(PLANVIEW==='site'?'on':'')+'" onclick="setPlanView(\'site\')">Site</button>'+
    '<button class="'+(PLANVIEW==='net'?'on':'')+'" onclick="setPlanView(\'net\')">Central Ops</button></div>' : '';
  const showNet = canNet && PLANVIEW==='net';
- return hdr('Labor plan',(showNet?'Published Wednesday for the week ahead &middot; company sites get hours, partner sites get capacity':'The week Central Ops published, and what you change before Monday'),true)+
+ return hdr('Labor plan',(showNet?'Published Wednesday for the week ahead &middot; company sites get hours, partner sites get capacity':'The week Central Ops published, and what you change before Monday'),true,null,(showNet?['Central Ops publishes',0]:['Site adjusts',1]))+
   '<div class="act" style="margin-bottom:12px">'+(showNet?'<span class="devlbl" style="margin:0">All markets</span>':sel)+tabs+'</div>'+
   (showNet?vPlanNet():vPlanSite());
 }
@@ -2797,7 +2824,7 @@ function vNoc(){
  const esc=site.filter(x=>sstate(x,T)==='escalated').length;
  const working=site.filter(x=>sstate(x,T)==='open').length;
  const defl=site.length?Math.round(100*onSite/Math.max(1,onSite+esc)):0;
- return hdr('NOC','Only what leaves the building. Everything fixable before the next wave goes to the SOP hub')+
+ return hdr('NOC','Only what leaves the building. Everything fixable before the next wave goes to the SOP hub',false,null,['Central Ops and site leads',0])+
   vNew()+
  '<div class="act" style="margin-bottom:12px">'+
   '<button class="abtn p" onclick="openNew()">Raise a ticket</button>'+
@@ -3180,7 +3207,7 @@ function vHome(){
  const sub=(LOOK==='yday')
   ? 'Yesterday &middot; '+ydayName()+' &middot; '+F.length+' market'+(F.length===1?'':'s')
   : lbl+' &middot; '+NETD.start+' to '+NETD.end+' &middot; '+F.length+' market'+(F.length===1?'':'s');
- return hdr('Network',sub,true,(FSITE==='all'?'All sites':MK[FSITE].n)+' &middot; '+(FTYPE==='all'?'Company and 3PL':facN(FTYPE)))+
+ return hdr('Network',sub,true,(FSITE==='all'?'All sites':MK[FSITE].n)+' &middot; '+(FTYPE==='all'?'Company and 3PL':facN(FTYPE)),['Built for Central Ops',0])+
   '<div class="filt">'+
   (LOOK==='yday'?'<div class="ybanner">Volume is each market\'s <b>measured</b> volume for '+DOWL[ydayIdx()]+'. Rate, on-time, driver wait and freight sit at the six week figure: the source workbook is weekly, it has no daily grain.</div>':'')+
   '<span class="fl">Window</span><div class="seg">'+LOOKS.map(x=>
