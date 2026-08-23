@@ -2427,6 +2427,12 @@ function lpPrev(k,v){
    if(e)e.textContent=Math.round(tot*ALLOC[f[0]]/100)});
 }
 const FCOL={sort:'#E84931',launch:'#F0997B',dock:'#2C5F8A',ps:'#B4B0A6'};
+/* A partner gets one input from us: volume. The only thing we hold them to is the
+   outcome, and only the part of the outcome they own. Freight that landed late is
+   ours, so scoring it against them buys an argument instead of a fix. */
+const PSLA=99.0;
+function ctrlOtd(k){return 100-(DS[k].hand+DS[k].aband)/100}      /* their own misses only */
+function notTheirs(k){return Math.max(0,100-DS[k].otd-(DS[k].hand+DS[k].aband)/100)}
 function setCap(k,i,v){if(!CAPC[k])CAPC[k]=[null,null,null,null,null,null,null];
  CAPC[k][i]=Math.max(0,Math.round(+v||0)); draw()}
 function capOf(k,i){return (CAPC[k]&&CAPC[k][i]!=null)?CAPC[k][i]:lpVol(k,i)}
@@ -2717,46 +2723,46 @@ function vPlanCo(k){
 function vPlan3PL(k){
  const W=lpWeek(), wk=lpWk(k); let cap=0;
  for(let i=0;i<7;i++)cap+=capOf(k,i);
- const should=tgtHrs(wk), theirs=wk/SITEA[k].uph;
- return '<div class="grid g4" style="margin-bottom:12px">'+
-  tile('Volume committed',fm(wk),MK[k].n+' &middot; partner operated')+
-  tile('Capacity confirmed',fm(cap),(cap-wk>=0?'+':'')+fm(cap-wk)+' against the commit',Math.abs(cap-wk)<1?'g':cap<wk?'r':'a')+
-  tile('What it should cost',fm(Math.round(should))+' hrs','at the '+f1(UPHT)+' UPH network target')+
-  tile('What it costs them',fm(Math.round(theirs))+' hrs',f1(SITEA[k].uph)+' UPH, '+(theirs-should>0?'+':'')+fm(Math.round(theirs-should))+' above target',theirs-should>60?'r':'a')+
+ const mine=ctrlOtd(k), gap=mine-PSLA, theirs=notTheirs(k);
+ return '<div class="grid g3" style="margin-bottom:12px">'+
+  tile('Volume committed',fm(wk),MK[k].n+' &middot; the only input we send')+
+  tile('On-time expected',f1(PSLA)+'%','measured on what the site controls')+
+  tile('Where they run',f1(mine)+'%',(gap>=0?'+':'')+f1(gap)+' against the standard',gap>=0?'g':gap>-2?'a':'r')+
  '</div>'+
  '<div class="card"><div class="act" style="margin-bottom:4px">'+
   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">'+W.span+' &middot; partner site</div>'+
-  '<span class="tag meas">CAPACITY, NOT HEADCOUNT</span>'+
-  '<span class="hdr" style="margin-left:0">No hours grid here on purpose &middot; we do not publish headcount into a building whose people we do not employ</span>'+
-  '<span class="f '+(LPUB?'g':'a')+'" style="margin-left:auto">'+(LPUB?'Received Wed '+W.pub:'Not published yet')+'</span></div>'+
-  '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:6px">We commit volume and publish what the work should cost at the network target. How the partner staffs to it is theirs.</div>'+
+  '<span class="tag meas">VOLUME AND A SERVICE LEVEL</span>'+
+  '<span class="f '+(LPUB?'g':'a')+'" style="margin-left:auto">'+(LPUB?'Sent Wed '+W.pub:'Not sent yet')+'</span></div>'+
+  '<div style="font-size:10.5px;color:var(--ink3);margin-bottom:6px">We send the volume and the service level. Hours, headcount and the shift plan are theirs.</div>'+
   '<div class="tscroll"><table class="sheet"><thead><tr><th>Line</th>'+
    W.days.map(d=>'<th'+(d.we?' class="we"':'')+'>'+d.dow+' <i class="who">'+d.lbl+'</i></th>').join('')+'<th>Week</th></tr></thead><tbody>'+
    '<tr><td>Volume committed<i class="who">from Central Ops</i></td>'+
     W.days.map((d,i)=>'<td'+(d.we?' class="we"':'')+' style="color:var(--ink3)">'+fm(lpVol(k,i))+'</td>').join('')+
     '<td style="color:var(--ink3)"><b>'+fm(wk)+'</b></td></tr>'+
    '<tr><td>Capacity you confirm<i class="who">packages you can take</i></td>'+
-    W.days.map((d,i)=>'<td'+(d.we?' class="we"':'')+'><input class="cin cell'+((CAPC[k]&&CAPC[k][i]!=null)?' edt':'')+'" type="number" step="100" value="'+capOf(k,i)+'" onchange="setCap(\''+k+'\','+i+',this.value)"></td>').join('')+
+    W.days.map((d,i)=>'<td'+(d.we?' class="we"':'')+'><input class="cin cell'+((CAPC[k]&&CAPC[k][i]!=null)?' edt':'')+
+     '" type="number" step="100" value="'+capOf(k,i)+'" onchange="setCap(\''+k+'\','+i+',this.value)"></td>').join('')+
     '<td><b>'+fm(cap)+'</b></td></tr>'+
-   '<tr><td>What it should cost<i class="who">volume &divide; '+f1(UPHT)+' UPH</i></td>'+
-    W.days.map((d,i)=>'<td'+(d.we?' class="we"':'')+' style="color:var(--ink3)">'+f1(tgtHrs(lpVol(k,i)))+'</td>').join('')+
-    '<td style="color:var(--ink3)"><b>'+f1(should)+'</b></td></tr>'+
    '</tbody></table></div>'+
-  '<div class="legend"><b>No hour plan goes into this building.</b> Publishing headcount into a partner site is control over people we do not employ, '+
-  'and it buys joint employer exposure without buying a single point of on-time. The target is how we price their bid, anchor the renewal, and know '+
-  'which building to walk into before the outcome goes bad.</div></div>'+
+  '<div class="legend"><b>No hour plan and no rate target goes into this building.</b> Publishing either is control over people we do not employ, '+
+  'and it buys joint employer exposure without buying a single point of on-time. We buy the outcome and let them find the way to it.</div></div>'+
+
  '<div class="card mt12"><div class="act" style="margin-bottom:6px">'+
   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">What the partner owes back</div>'+
   '<button class="bsub" onclick="lpCapSubmit(\''+k+'\')"'+(LPUB?'':' disabled')+'>'+(SSUB[k]!==undefined?'Confirmed':'Confirm capacity')+'</button></div>'+
-  '<table class="sheet"><thead><tr><th>Commitment</th><th>Contracted</th><th>This week</th><th>Status</th></tr></thead><tbody>'+
-  '<tr><td>On-time delivery</td><td>95.0%</td><td class="'+(DS[k].otd<95?'neg':'pos')+'">'+f1(DS[k].otd)+'%</td>'+
-   '<td>'+(DS[k].otd<95?'<span class="f a">below</span>':'<span class="f g">met</span>')+'</td></tr>'+
-  '<tr><td>Capacity confirmed by Wednesday</td><td>100%</td><td>'+(SSUB[k]!==undefined?'confirmed':'outstanding')+'</td>'+
+  '<table class="sheet"><thead><tr><th>Commitment</th><th>Standard</th><th>Where they run</th><th>Status</th></tr></thead><tbody>'+
+  '<tr><td>On-time delivery<i class="who">their own misses: handling, stow, scan, drivers quitting</i></td>'+
+   '<td>'+f1(PSLA)+'%</td><td class="'+(gap<0?'neg':'pos')+'">'+f1(mine)+'%</td>'+
+   '<td>'+(gap>=0?'<span class="f g">met</span>':'<span class="f a">'+f1(-gap)+' short</span>')+'</td></tr>'+
+  '<tr><td>Capacity confirmed by Wednesday<i class="who">so we can move volume before Monday</i></td><td>every week</td>'+
+   '<td>'+(SSUB[k]!==undefined?'confirmed':'outstanding')+'</td>'+
    '<td>'+(SSUB[k]!==undefined?'<span class="f g">met</span>':'<span class="f a">open</span>')+'</td></tr>'+
-  '<tr><td>Hours by function, open book</td><td>'+f1(UPHT)+' UPH</td><td>'+f1(SITEA[k].uph)+' UPH</td>'+
-   '<td>'+(SITEA[k].uph<UPHT-2?'<span class="f a">'+f1(UPHT-SITEA[k].uph)+' under</span>':'<span class="f g">at target</span>')+'</td></tr>'+
   '</tbody></table>'+
-  '<div class="legend">Reporting is contractible where staffing is not. These three go in the statement of work, and only the middle one has to clear before Monday.</div></div>'+
+  '<div class="legend">Delivered on-time across everything is <b>'+f1(DS[k].otd)+'%</b>, but <b>'+f1(theirs)+
+  ' points of that miss started before the building opened</b> and is not scored here. '+
+  'Holding a partner to freight we delivered late buys an argument instead of a fix. '+
+  'The standard is reachable: the best market in the network runs '+f1(Math.max.apply(null,MKT.map(m=>ctrlOtd(m.k))))+
+  '% on the same measure.</div></div>'+
  vActLog(k);
 }
 
