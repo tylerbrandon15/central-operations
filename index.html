@@ -600,7 +600,7 @@ select.pl:focus{border-color:var(--coral)}
 .secl{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
 .secn{font-size:10px;color:var(--ink3)}
 .decs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.dec{background:var(--panel);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;overflow:hidden}
+.dcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;overflow:hidden}
 .dech{display:flex;align-items:center;gap:7px;padding:9px 15px;border-bottom:1px solid var(--line);background:var(--panel2)}
 .dech .kind{font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2)}
 .dech .rt{margin-left:auto;font-size:9px;font-weight:800;letter-spacing:.05em;border-radius:999px;padding:2px 8px}
@@ -3286,6 +3286,7 @@ const HVIEWS=[
  {k:'peak', n:'Peak watch',     f:m=>DS[m.k].raband>2}];
 const HUVIEWS=[]; let HVSEL='all', HVSEQ=0, HVREF=false, HPANE='markets';
 function hViewF(){const v=HVIEWS.find(x=>x.k===HVSEL); return v&&v.f?v.f:null}
+function hViewName(){const v=HVIEWS.find(x=>x.k===HVSEL)||HUVIEWS.find(x=>x.k===HVSEL); return v?v.n:'All sites'}
 function setHView(k){HVSEL=k; const u=HUVIEWS.find(x=>x.k===k);
  if(u){FTYPE=u.ftype;FSITE=u.fsite;LOOK=u.look} else {FTYPE='all';FSITE='all'}
  draw()}
@@ -3411,7 +3412,7 @@ function vHome(){
   '<button class="vref'+(HVREF?' on':'')+'" onclick="setHRefine()">Refine &middot; '+
    LOOKS.find(x=>x[0]===LOOK)[1].replace('&middot;','·')+'</button>';
 
- if(!F.length) return hdr('Network','No market matches this view',true,null,['Built for Central Ops',0])+
+ if(!F.length) return hdr('Network','No market matches this view',true,'No sites',['Built for Central Ops',0])+
   '<div class="views">'+chips+'</div>'+
   '<div class="card" style="padding:34px;text-align:center;color:var(--ink3)">Nothing in this view. '+
   '<button class="abtn" onclick="setHView(\'all\')">Back to all markets</button></div>';
@@ -3441,7 +3442,8 @@ function vHome(){
  const botTwo=MKT.slice().sort((a,b)=>DS[a.k].otd-DS[b.k].otd).slice(0,sNone.length).map(m=>m.k).sort().join()===sNone.map(m=>m.k).sort().join();
 
  return hdr('Network',lbl+' &middot; '+NETD.start+' to '+NETD.end+' &middot; '+F.length+' market'+(F.length===1?'':'s'),
-   true,null,['Built for Central Ops',0])+
+   true,(FSITE==='all'?(HVSEL==='all'?'All sites':hViewName()):MK[FSITE].n)+
+     ' &middot; '+(FTYPE==='all'?'Company and 3PL':facN(FTYPE)),['Built for Central Ops',0])+
  '<div class="views">'+chips+'</div>'+
  (HVREF?'<div class="filt">'+
   '<span class="fl">Window</span><div class="seg">'+LOOKS.map(x=>
@@ -3480,7 +3482,7 @@ function vHome(){
   '<span class="secn">a site issue goes back to the site &mdash; these do not</span></div>'+
  '<div class="decs">'+
 
- (ff?'<div class="dec"><div class="dech"><span class="kind">Repeat fault</span>'+
+ (ff?'<div class="dcard"><div class="dech"><span class="kind">Repeat fault</span>'+
   '<span class="rt '+(raised?'done':'eng')+'">'+(raised?'Raised '+raised:'Engineering')+'</span></div>'+
   '<div class="decb"><div class="dect">'+ff.t+'</div>'+
   '<div class="st3"><div><b>'+ff.hits+'</b><i>hits / '+RFWIN+' days</i></div>'+
@@ -3495,7 +3497,7 @@ function vHome(){
     :'<button class="abtn p" onclick="rfSite(\''+ff.top+'\')">Open '+MK[ff.top].n+'</button>')+
    '<button class="abtn" onclick="setPane(\'faults\')">See all '+top8.length+'</button></div></div></div>':'')+
 
- '<div class="dec"><div class="dech"><span class="kind">Tiger team</span>'+
+ '<div class="dcard"><div class="dech"><span class="kind">Tiger team</span>'+
   '<span class="rt ai">AI recommendation</span></div>'+
   '<div class="decb"><div class="dect">Send the team to '+best.n+', not '+worst.n+'</div>'+
   '<div class="st3"><div><b>'+Math.round(DS[best.k].hand)+'</b><i>errors / 10k</i></div>'+
@@ -3506,7 +3508,7 @@ function vHome(){
   '<div class="decg"><button class="abtn p" onclick="pick(\''+best.k+'\');go(\'plan\')">Open '+best.n+'</button>'+
    '<button class="abtn" onclick="pick(\''+worst.k+'\');go(\'sort\')">Compare '+worst.n+'</button></div></div></div>'+
 
- (sNone.length?'<div class="dec"><div class="dech"><span class="kind">Rollout</span>'+
+ (sNone.length?'<div class="dcard"><div class="dech"><span class="kind">Rollout</span>'+
   '<span class="rt '+(sState==='rolled'?'done':sState==='held'?'go':'go')+'">'+
    (sState==='rolled'?'Rolling out':sState==='held'?'Held':'Ready to spread')+'</span></div>'+
   '<div class="decb"><div class="dect">'+HSTD.n+' has not reached '+
