@@ -2046,7 +2046,8 @@ function vStage(){
  const k=SEL, S=sch(k), B=board(k,T), C=sim(k).carts, LN=lanes(k);
  const cs={wait:0,active:0,done:0,stall:0,miss:0}; C.forEach(c=>cs[cstate(c,T)]++);
  const un=unsequenced(k), saved=Math.max(0,un.waitMin-S.waitMin);
- const sel=SLOTSEL?B.slots.find(x=>x.id===SLOTSEL):null;
+ const BS=(B&&B.slots)||[];
+ const sel=SLOTSEL?BS.find(x=>x.id===SLOTSEL):null;
  const heldN=Object.values(HOLD[k]||{}).filter(Boolean).length;
  const pinN=Object.keys(PIN[k]||{}).length;
  const ev=events(k,T,26);
@@ -3416,7 +3417,15 @@ function vHome(){
 
  if(!F.length) return hdr('Network','No market matches this view',true,'No sites',['Built for Central Ops',0])+
   '<div class="views">'+chips+'</div>'+
-  '<div class="card" style="padding:34px;text-align:center;color:var(--ink3)">Nothing in this view. '+
+  '<div class="filt">'+
+   '<span class="fl">Type</span><div class="seg">'+[['all','All'],['Veho','Company'],['3PL','3PL']].map(x=>
+    '<button class="'+(FTYPE===x[0]?'on':'')+'" onclick="setFType(\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div>'+
+   '<span class="fl">Site</span><select class="pl" onchange="setFSite(this.value)"><option value="all">All sites</option>'+
+    MKT.map(m=>'<option value="'+m.k+'"'+(FSITE===m.k?' selected':'')+'>'+m.n+'</option>').join('')+'</select>'+
+   '<button class="abtn p" onclick="clearF()">Clear filters</button></div>'+
+  '<div class="card" style="padding:30px;text-align:center;color:var(--ink3)">'+
+  'No market is both <b>'+(FTYPE==='all'?'any type':facN(FTYPE))+'</b> and <b>'+
+  (FSITE==='all'?'any site':MK[FSITE].n)+'</b> in this view. '+
   '<button class="abtn" onclick="setHView(\'all\')">Back to all markets</button></div>';
 
  const K=netLook(F), O=netLabor(F);
@@ -3706,6 +3715,11 @@ document.addEventListener('keydown',e=>{
  if(e.key==='Escape'&&AGOPEN){AGOPEN=false;AGFOCUS=null;draw()}});
 
 /* ================= router ================= */
+function softReset(){
+ SLOTSEL=null; TSEL=null; SSEL=null; PHONE=null; NEWT=null; TOURC=null;
+ try{delete PIN[SEL]; delete PINT[SEL]; delete HOLD[SEL]}catch(e){}
+ draw();
+}
 function draw(){
  const S_=SEATS[SEAT], s=summ(SEL,T);
  setTx('seatname',S_.n); setTx('seatw',S_.who+' · '+S_.dept); setTx('seatav',S_.av);
@@ -3719,10 +3733,20 @@ function draw(){
   '<span class="ic">'+n[2]+'</span>'+n[1]+
   (bdg[n[0]]?'<span class="ct">'+bdg[n[0]]+'</span>':'')+'</a>').join(''));
  let h='';
- if(SCR==='home')h=vHome();
- else if(SCR==='sort')h=vStage()+vPhones();
- else if(SCR==='plan')h=vPlan();
- else if(SCR==='noc')h=vNoc();
+ try{
+  if(SCR==='home')h=vHome();
+  else if(SCR==='sort')h=vStage()+vPhones();
+  else if(SCR==='plan')h=vPlan();
+  else if(SCR==='noc')h=vNoc();
+ }catch(err){
+  h='<div class="card" style="padding:30px;text-align:center">'+
+    '<div style="font-size:15px;font-weight:800;margin-bottom:6px">This view could not draw</div>'+
+    '<div style="font-size:12.5px;color:var(--ink3);margin-bottom:14px">'+
+    (err&&err.message?String(err.message).replace(/</g,'&lt;'):'unknown')+
+    '</div><button class="abtn p" onclick="softReset()">Reset this screen</button>'+
+    ' <button class="abtn" onclick="go(\'home\')">Back to Network</button></div>';
+  try{console.error('view failed',SCR,err)}catch(e2){}
+ }
  setHt('body',h+vAgentDock());
  if(SCR==='home'&&HPANE==='map'){
   const host=mapHost();
