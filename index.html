@@ -569,6 +569,17 @@ select.pl:focus{border-color:var(--coral)}
 .lpkey{display:flex;gap:16px;margin-top:9px;font-size:10.5px;color:var(--ink3);flex-wrap:wrap}
 .lpkey i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
 .lpout{background:var(--panel2)}
+.stripe{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:11px;
+ overflow:hidden;margin-bottom:12px;flex-wrap:wrap}
+.stripe .cl{padding:9px 15px;border-right:1px solid var(--line);flex:0 0 auto;min-width:104px}
+.stripe .cl:last-child{border-right:0}
+.stripe .k{font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);white-space:nowrap}
+.stripe .v{font-size:23px;font-weight:800;letter-spacing:-.03em;line-height:1.15;margin-top:1px}
+.stripe .v.r{color:var(--coral-d)}.stripe .v.a{color:var(--amber-d)}.stripe .v.g{color:var(--mint-d)}
+.stripe .d{font-size:10px;color:var(--ink3);white-space:nowrap}
+.stripe .say{flex:1 1 260px;padding:9px 15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+ background:var(--panel2);border-left:1px solid var(--line)}
+.stripe .say .fl{margin-right:2px}
 .views{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:11px}
 .vlab{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);margin-right:2px}
 .vchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);
@@ -2057,15 +2068,17 @@ function vStage(){
  return hdr('Staging · '+MK[SEL].n,'Sort finishes a route, the cart is rolled to an open slot, the driver is sent to it',false,null,['Built for the site floor',1])+
   strip()+
  (TOUR>=0?tourBar():simBar('Slot assignment','AUTO'))+
- '<div class="grid g6" style="margin-bottom:12px">'+
-  tile('Slots open',B.empty+' / '+B.total,'ready to take a cart',B.empty===0?'a':'')+
-  tile('Carts staged',B.stagedS,'in a slot, waiting on a driver')+
-  tile('Loading now',B.loadS,'driver scanned in','g')+
-  tile('Due soon, no slot',B.due,'driver here within 30 min',B.due>10?'r':B.due>4?'a':'')+
-  tile('Drivers waiting',B.waiting.length,'on site, no slot yet',B.waiting.length>6?'r':B.waiting.length?'a':'')+
-  tile('At the gate',inbound(k,T).length,'inside the geofence, '+GEOWIN+' min out')+
-  tile('Oversize open',B.lgFree+' / '+B.lgSlots.length,S.hasLg?'dedicated lane':'NO DEDICATED LANE',S.hasLg?(B.lgFree?'':'a'):'r')+
- '</div>'+
+ (function(){const cel=(k,v,d,c)=>'<div class="cl"><div class="k">'+k+'</div>'+
+   '<div class="v '+(c||'')+'">'+v+'</div><div class="d">'+d+'</div></div>';
+  return '<div class="stripe">'+
+   cel('Drivers waiting',B.waiting.length,'on site, no slot',B.waiting.length>6?'r':B.waiting.length?'a':'')+
+   cel('Loading now',B.loadS,'driver scanned in','g')+
+   cel('Carts staged',B.stagedS,'waiting on a driver')+
+   cel('Due soon',B.due,'here within 30 min',B.due>10?'r':B.due>4?'a':'')+
+   cel('Slots open',B.empty+' / '+B.total,'ready for a cart',B.empty===0?'a':'')+
+   cel('At the gate',inbound(k,T).length,'inside the geofence')+
+   cel('Oversize',B.lgFree+' / '+B.lgSlots.length,S.hasLg?'dedicated lane':'no dedicated lane',S.hasLg?(B.lgFree?'':'a'):'r')+
+  '</div>'})()+
  vRec()+
 
  '<div class="card'+foc('lanes')+'" style="margin-bottom:12px">'+
@@ -3020,22 +3033,24 @@ function vNocQ(defl,onSite,working){
  const soon=open.map(x=>({x,m:minsLeft(x,T)})).filter(o=>o.m!==null)
    .sort((a,b)=>a.m-b.m).slice(0,6);
  const cand=incCand(T), live=Object.keys(INC).filter(k=>INC[k]);
- return '<div class="grid g3" style="margin-bottom:12px">'+
-  tile('Open',open.length,'that Central Ops owns')+
-  tile('Unowned',unowned,'nobody has taken them',unowned>3?'r':unowned?'a':'g')+
-  tile('Deflected to SOP',onSite,defl+'% of site issues closed on site','g')+
- '</div>'+
- '<div class="bstrip"><span class="fl">Runs out next</span>'+
-  (soon.length?soon.map(o=>{const v=tx(o.x), cl=o.m<=0?'r':o.m<=15?'a':'';
-   return '<span class="bchip '+cl+'" onclick="tpick(\''+o.x.id+'\')">'+pchip(v.p)+
-    '<b>'+o.x.id+'</b> '+MK[o.x.mk].n+' <b>'+(o.m<=0?'breached':o.m+'m')+'</b></span>'}).join('')
-   :'<span style="font-size:11.5px;color:var(--ink3)">Nothing awaiting first touch. Everything open has been picked up.</span>')+
-  '<span class="hdr" style="margin-left:auto">'+br+' breaching &middot; '+p1+' P1</span></div>'+
- (cand.length?cand.map(c=>'<div class="incban"><span class="incchip">PATTERN</span>'+
+ return (cand.length?cand.map(c=>'<div class="incban"><span class="incchip">PATTERN</span>'+
    '<span><b>'+[...new Set(c.list.map(z=>z.mk))].length+' markets</b> are reporting &ldquo;'+KD[c.kind].t+
    '&rdquo; right now. That is one fault, not '+c.list.length+' tickets.</span>'+
    '<button class="abtn" style="margin-left:auto" onclick="groupInc(\''+c.kind+'\')">Group as one incident</button></div>').join('')
   :'')+
+ (function(){const cel=(k,v,d,c)=>'<div class="cl"><div class="k">'+k+'</div>'+
+   '<div class="v '+(c||'')+'">'+v+'</div><div class="d">'+d+'</div></div>';
+  return '<div class="stripe">'+
+   cel('Open',open.length,'Central Ops owns')+
+   cel('Unowned',unowned,'nobody has taken them',unowned>3?'r':unowned?'a':'g')+
+   cel('Closed on site',onSite,defl+'% deflected','g')+
+   '<div class="say"><span class="fl">Runs out next</span>'+
+   (soon.length?soon.map(o=>{const v=tx(o.x), cl=o.m<=0?'r':o.m<=15?'a':'';
+     return '<span class="bchip '+cl+'" onclick="tpick(\''+o.x.id+'\')">'+pchip(v.p)+
+      '<b>'+o.x.id+'</b> '+MK[o.x.mk].n+' <b>'+(o.m<=0?'breached':o.m+'m')+'</b></span>'}).join('')
+     :'<span style="font-size:11.5px;color:var(--ink3)">Nothing awaiting first touch.</span>')+
+   '<span class="hdr" style="margin-left:auto">'+br+' breaching &middot; '+p1+' P1</span></div>'+
+  '</div>'})()+
  (live.length?live.map(k=>{const i=INC[k];
    const g=i.ids.map(id=>allTix().find(z=>z.id===id)).filter(Boolean);
    const openN=g.filter(z=>tstate(z,T)!=='resolved').length;
