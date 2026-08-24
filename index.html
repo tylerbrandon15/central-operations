@@ -566,6 +566,61 @@ select.pl:focus{border-color:var(--coral)}
 .lpkey{display:flex;gap:16px;margin-top:9px;font-size:10.5px;color:var(--ink3);flex-wrap:wrap}
 .lpkey i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
 .lpout{background:var(--panel2)}
+.views{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:11px}
+.vlab{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);margin-right:2px}
+.vchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);
+ border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600;color:var(--ink2);cursor:pointer;
+ white-space:nowrap;font-family:inherit}
+.vchip:hover{border-color:#D6D1C6}
+.vchip .n{font-family:var(--mono);font-size:10.5px;color:var(--ink3);background:var(--bg);border-radius:999px;padding:1px 6px}
+.vchip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.vchip.on .n{background:rgba(255,255,255,.16);color:#fff}
+.vchip.add{border-style:dashed;color:var(--ink3);font-weight:700}
+.vchip .x{color:var(--ink3);font-weight:800;margin-left:2px}
+.vsep{width:1px;height:20px;background:var(--line);margin:0 3px}
+.vref{margin-left:auto;font-size:12px;color:var(--ink2);border:1px solid var(--line);background:var(--panel);
+ border-radius:8px;padding:5px 11px;cursor:pointer;font-weight:600;font-family:inherit}
+.vref.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.hero{display:grid;grid-template-columns:300px 1fr;gap:18px;background:var(--panel);border:1px solid var(--line);
+ border-radius:14px;padding:19px 22px;margin-bottom:12px}
+.hero .hbig{font-size:50px;font-weight:800;letter-spacing:-.035em;line-height:1}
+.hero .hlab{font-size:9.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
+.hero .hdel{font-size:12.5px;font-weight:700;margin-top:6px}
+.hero .hdel.up{color:var(--mint-d)}.hero .hdel.dn{color:var(--coral-d)}
+.hero .hsub{font-size:11.5px;color:var(--ink3);margin-top:2px}
+.hmini{display:grid;grid-template-columns:repeat(4,1fr);align-self:center}
+.hmini .c{padding:0 16px;border-left:1px solid var(--line)}
+.hmini .c:first-child{border-left:0;padding-left:0}
+.hmini .k{font-size:10.5px;color:var(--ink3);margin-bottom:3px;line-height:1.3}
+.hmini .v{font-size:21px;font-weight:800;letter-spacing:-.02em}
+.hmini .v small{font-size:13px;color:var(--ink3);font-weight:600}
+.hmini .d{font-size:10.5px;color:var(--ink3);margin-top:1px}
+.hmini .v.r{color:var(--coral-d)}.hmini .v.a{color:var(--amber-d)}.hmini .v.g{color:var(--mint-d)}
+.sech{display:flex;align-items:center;gap:10px;margin:16px 0 9px}
+.secl{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.secn{font-size:10px;color:var(--ink3)}
+.decs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.dec{background:var(--panel);border:1px solid var(--line);border-radius:12px;display:flex;flex-direction:column;overflow:hidden}
+.dech{display:flex;align-items:center;gap:7px;padding:9px 15px;border-bottom:1px solid var(--line);background:var(--panel2)}
+.dech .kind{font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2)}
+.dech .rt{margin-left:auto;font-size:9px;font-weight:800;letter-spacing:.05em;border-radius:999px;padding:2px 8px}
+.rt.eng{background:var(--coral-t);color:var(--coral-d)}
+.rt.ai{background:#E7F0F8;color:var(--blue-d)}
+.rt.go{background:var(--amber-t);color:var(--amber-d)}
+.rt.done{background:var(--mint-t);color:var(--mint-d)}
+.decb{padding:13px 15px 15px;display:flex;flex-direction:column;gap:9px;flex:1}
+.dect{font-size:15px;font-weight:800;letter-spacing:-.01em;line-height:1.25}
+.st3{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.st3 div{flex:1;padding:7px 8px;border-left:1px solid var(--line);text-align:center}
+.st3 div:first-child{border-left:0}
+.st3 b{display:block;font-size:17px;font-weight:800;letter-spacing:-.02em;font-family:var(--mono)}
+.st3 i{font-style:normal;font-size:9.5px;color:var(--ink3)}
+.decw{font-size:12.5px;color:var(--ink2);line-height:1.45}.decw b{color:var(--ink)}
+.decg{margin-top:auto;display:flex;align-items:center;gap:7px;padding-top:2px;flex-wrap:wrap}
+.hpanes{display:flex;gap:2px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:2px;margin-left:auto}
+.hpanes button{font-family:inherit;font-size:11.5px;font-weight:700;border:0;background:transparent;color:var(--ink3);
+ border-radius:7px;padding:4px 12px;cursor:pointer}
+.hpanes button.on{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(27,26,24,.08)}
 .aud{font-size:9px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
  background:var(--ink);color:#fff;border-radius:999px;padding:3px 9px;white-space:nowrap}
 .aud.floor{background:var(--blue-d)}
@@ -3219,7 +3274,46 @@ const LOOKS=[['yday','Yesterday'],['day','Last week &middot; Wk 30'],['7d','6 we
 function setFType(v){FTYPE=v;draw()} function setFSite(v){FSITE=v;draw()}
 function setLook(v){LOOK=v;draw()}  function setHQ(i){HQ=i;draw()}
 function clearF(){FTYPE='all';FSITE='all';draw()}
-function fmkts(){return MKT.filter(m=>(FTYPE==='all'||m.fac===FTYPE)&&(FSITE==='all'||m.k===FSITE))}
+/* ---- saved views ----------------------------------------------------------
+   Central Ops looks at the same four or five slices over and over. Those get one
+   click. Everything else lives behind Refine, which is the old filter row. A view
+   built by hand can be saved, which is the only way this scales past eight markets. */
+const OTDT=94.0;                                   /* the on-time standard we publish */
+const HVIEWS=[
+ {k:'all',  n:'All markets'},
+ {k:'below',n:'Below standard', f:m=>DS[m.k].otd<OTDT},
+ {k:'p3',   n:'Partner sites',  f:m=>m.fac==='3PL'},
+ {k:'peak', n:'Peak watch',     f:m=>DS[m.k].raband>2}];
+const HUVIEWS=[]; let HVSEL='all', HVSEQ=0, HVREF=false, HPANE='markets';
+function hViewF(){const v=HVIEWS.find(x=>x.k===HVSEL); return v&&v.f?v.f:null}
+function setHView(k){HVSEL=k; const u=HUVIEWS.find(x=>x.k===k);
+ if(u){FTYPE=u.ftype;FSITE=u.fsite;LOOK=u.look} else {FTYPE='all';FSITE='all'}
+ draw()}
+function saveHView(){HVSEQ++; const k='u'+HVSEQ;
+ HUVIEWS.push({k:k,n:'View '+HVSEQ,ftype:FTYPE,fsite:FSITE,look:LOOK}); HVSEL=k; HVREF=false; draw()}
+function delHView(k,e){if(e)e.stopPropagation(); const i=HUVIEWS.findIndex(x=>x.k===k);
+ if(i>=0)HUVIEWS.splice(i,1); if(HVSEL===k)HVSEL='all'; draw()}
+function setHRefine(){HVREF=!HVREF;draw()}
+function setPane(p){HPANE=p;draw()}
+function fmkts(){const vf=hViewF();
+ return MKT.filter(m=>(FTYPE==='all'||m.fac===FTYPE)&&(FSITE==='all'||m.k===FSITE)&&(!vf||vf(m)))}
+
+/* ---- the standard already in the field ------------------------------------
+   STDROLL says where the launch sequence is live, piloting, or has not started,
+   and it is not decoration: a market running it drops a route in the wrong slot
+   14% of the time against 50% where it never started. Rolling it is the highest
+   leverage thing on this page and it costs nothing to ship. */
+const HSTD={id:'launch', n:'Fixed launch time', src:'B'};
+const HROLLED={};
+function rollStd(id){HROLLED[id]='rolled';draw()}
+function holdStd(id){HROLLED[id]='held';draw()}
+
+/* weekly network on-time, weighted by volume, for the headline trend */
+function netWk(list){const out=[];
+ for(let i=0;i<6;i++){let v=0,p=0;
+  list.forEach(m=>{v+=DS[m.k].wk_otd[i]*DS[m.k].vol; p+=DS[m.k].vol});
+  out.push(p?v/p:0)}
+ return out}
 
 /* the same measures over three windows. A single day swings, a month barely moves. */
 function look(k){
@@ -3308,20 +3402,48 @@ const HOMEQ=[
 
 function vHome(){
  const F=fmkts();
- if(!F.length) return hdr('Network','No market matches these filters',true)+
-  '<div class="card" style="padding:34px;text-align:center;color:var(--ink3)">Nothing selected. <button class="abtn" onclick="clearF()">Clear the filters</button></div>';
- const N=netBench(), K=netLook(F), O=netLabor(F);
+ const chips=HVIEWS.map(v=>'<button class="vchip'+(HVSEL===v.k?' on':'')+'" onclick="setHView(\''+v.k+'\')">'+
+   v.n+' <span class="n">'+MKT.filter(m=>!v.f||v.f(m)).length+'</span></button>').join('')+
+  (HUVIEWS.length?'<span class="vsep"></span>':'')+
+  HUVIEWS.map(u=>'<button class="vchip'+(HVSEL===u.k?' on':'')+'" onclick="setHView(\''+u.k+'\')">'+
+   u.n+' <span class="x" onclick="delHView(\''+u.k+'\',event)">&times;</span></button>').join('')+
+  '<button class="vchip add" onclick="saveHView()">+ Save this view</button>'+
+  '<button class="vref'+(HVREF?' on':'')+'" onclick="setHRefine()">Refine &middot; '+
+   LOOKS.find(x=>x[0]===LOOK)[1].replace('&middot;','·')+'</button>';
+
+ if(!F.length) return hdr('Network','No market matches this view',true,null,['Built for Central Ops',0])+
+  '<div class="views">'+chips+'</div>'+
+  '<div class="card" style="padding:34px;text-align:center;color:var(--ink3)">Nothing in this view. '+
+  '<button class="abtn" onclick="setHView(\'all\')">Back to all markets</button></div>';
+
+ const K=netLook(F), O=netLabor(F);
  const rows=F.map(m=>({m,s:summ(m.k,T),A:attain(m.k),L:look(m.k),LB:labor(m.k)}));
- const over=rows.filter(r=>r.A.band==='over').length, at=rows.filter(r=>r.A.band==='at').length,
-   under=rows.filter(r=>r.A.band==='under').length;
- const sorted=rows.slice().sort((a,b)=>b.A.pct-a.A.pct), span=12;
  const lbl=LOOKS.find(x=>x[0]===LOOK)[1];
- const sub=(LOOK==='yday')
-  ? 'Yesterday &middot; '+ydayName()+' &middot; '+F.length+' market'+(F.length===1?'':'s')
-  : lbl+' &middot; '+NETD.start+' to '+NETD.end+' &middot; '+F.length+' market'+(F.length===1?'':'s');
- return hdr('Network',sub,true,(FSITE==='all'?'All sites':MK[FSITE].n)+' &middot; '+(FTYPE==='all'?'Company and 3PL':facN(FTYPE)),['Built for Central Ops',0])+
-  '<div class="filt">'+
-  (LOOK==='yday'?'<div class="ybanner">Volume is each market\'s <b>measured</b> volume for '+DOWL[ydayIdx()]+'. Rate, on-time, driver wait and freight sit at the six week figure: the source workbook is weekly, it has no daily grain.</div>':'')+
+
+ /* ---- headline ---- */
+ const wk=netWk(F), first=(wk[0]+wk[1]+wk[2])/3, last=(wk[3]+wk[4]+wk[5])/3, del=last-first;
+ const lo=Math.min.apply(null,F.map(m=>DS[m.k].otd)), hi=Math.max.apply(null,F.map(m=>DS[m.k].otd));
+ const under=F.filter(m=>DS[m.k].otd<OTDT).length, u3=F.filter(m=>DS[m.k].otd<OTDT&&m.fac==='3PL').length;
+ const RF=rfRoll(), top8=RF.slice(0,8), flat=top8.filter(x=>x.flat), rtTouched=top8.reduce((a,x)=>a+x.rt,0);
+ const W=52, H=34, mn=Math.min.apply(null,wk), mx=Math.max.apply(null,wk), rg=(mx-mn)||1;
+ const pts=wk.map((v,n)=>(6+n*((240-12)/5)).toFixed(1)+','+(4+(1-(v-mn)/rg)*(H-8)).toFixed(1)).join(' ');
+
+ /* ---- the three decisions ---- */
+ const ff=flat[0]||top8[0];
+ const raised=ff?RFRAISED[ff.kind]:null;
+ const byHand=F.slice().sort((a,b)=>DS[a.k].hand-DS[b.k].hand);
+ const best=byHand[0], worst=byHand[byHand.length-1];
+ const med=(function(){const v=F.map(m=>DS[m.k].hand).sort((a,b)=>a-b);
+   return v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2})();
+ const sLive=MKT.filter(m=>m.std==='live'), sPilot=MKT.filter(m=>m.std==='pilot'), sNone=MKT.filter(m=>m.std==='none');
+ const sState=HROLLED[HSTD.id];
+ const sNoneOtd=sNone.slice().sort((a,b)=>DS[a.k].otd-DS[b.k].otd);
+ const botTwo=MKT.slice().sort((a,b)=>DS[a.k].otd-DS[b.k].otd).slice(0,sNone.length).map(m=>m.k).sort().join()===sNone.map(m=>m.k).sort().join();
+
+ return hdr('Network',lbl+' &middot; '+NETD.start+' to '+NETD.end+' &middot; '+F.length+' market'+(F.length===1?'':'s'),
+   true,null,['Built for Central Ops',0])+
+ '<div class="views">'+chips+'</div>'+
+ (HVREF?'<div class="filt">'+
   '<span class="fl">Window</span><div class="seg">'+LOOKS.map(x=>
    '<button class="'+(LOOK===x[0]?'on':'')+'" onclick="setLook(\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div>'+
   '<span class="fl">Type</span><div class="seg">'+[['all','All'],['Veho','Company'],['3PL','3PL']].map(x=>
@@ -3329,79 +3451,126 @@ function vHome(){
   '<span class="fl">Site</span><select class="pl" onchange="setFSite(this.value)"><option value="all">All sites</option>'+
    MKT.map(m=>'<option value="'+m.k+'"'+(FSITE===m.k?' selected':'')+'>'+m.n+'</option>').join('')+'</select>'+
   ((FTYPE!=='all'||FSITE!=='all')?'<button class="abtn" onclick="clearF()">Clear</button>':'')+
-  '<span class="fl" style="margin-left:auto">'+fm(K.vol)+' packages a day · '+fm(K.hours)+' paid hours a day</span></div>'+
- '<div class="kband">'+
-  '<div class="kseg u"><div class="ksegh"><span class="ksegt">UTR &middot; under the roof</span>'+
-   '<span class="ksegs">launch and the building. The site runs it, Central Ops sets the standard.</span></div><div class="row">'+
-   '<div class="kpi"><div class="kl">On-time delivery</div><div class="kv '+(K.otd<93?'r':K.otd<95?'a':'g')+'">'+f1(K.otd)+'%</div><div class="kd">'+lbl.toLowerCase()+', volume weighted</div></div>'+
-   '<div class="kpi"><div class="kl">On-time launch</div><div class="kv '+(K.lnch<92?'r':K.lnch<97?'a':'g')+'">'+f1(K.lnch)+'%</div><div class="kd">'+fm(K.sd-K.pu)+' of '+fm(K.sd)+' site days left at plan</div></div>'+
-   '<div class="kpi"><div class="kl">Packages per hour</div><div class="kv">'+f1(K.uph)+'</div><div class="kd">target '+f1(UPHT)+' &middot; '+(K.uph-UPHT>=0?'+':'')+f1(K.uph-UPHT)+' against it</div></div>'+
-   '<div class="kpi"><div class="kl">Handling errors</div><div class="kv '+(K.hand>85?'r':K.hand>55?'a':'g')+'">'+fm(Math.round(K.hand/1e4*K.vol))+'</div><div class="kd">a day &middot; mis-stow, late stow, wrong driver</div></div>'+
-   '<div class="kpi"><div class="kl">Hours on rework</div><div class="kv '+(K.rework>20?'r':K.rework>15?'a':'g')+'">'+f1(K.rework)+'%</div><div class="kd">share of paid hours spent twice</div></div>'+
+  '<span class="fl" style="margin-left:auto">'+fm(K.vol)+' packages a day &middot; '+fm(K.hours)+' paid hours a day</span></div>':'')+
+
+ '<div class="hero"><div>'+
+  '<div class="hlab">On-time delivery</div>'+
+  '<div class="hbig">'+f1(K.otd)+'<span style="font-size:25px">%</span></div>'+
+  '<div class="hdel '+(del>=0?'up':'dn')+'">'+(del>=0?'+':'&minus;')+f1(Math.abs(del))+
+   ' pts vs the first three weeks</div>'+
+  '<div class="hsub">'+lbl.replace('&middot;','·')+' &middot; volume weighted &middot; '+F.length+' market'+(F.length===1?'':'s')+'</div>'+
+  '<svg width="240" height="'+H+'" viewBox="0 0 240 '+H+'" style="margin-top:11px">'+
+   '<polyline fill="none" stroke="'+(del>=0?'var(--mint-d)':'var(--coral)')+'" stroke-width="2.2" stroke-linejoin="round" points="'+pts+'"/>'+
+  '</svg></div>'+
+  '<div class="hmini">'+
+   '<div class="c"><div class="k">Faults that land in every market</div>'+
+    '<div class="v '+(flat.length>3?'r':'a')+'">'+flat.length+' <small>of '+top8.length+'</small></div>'+
+    '<div class="d">the platform, not the buildings</div></div>'+
+   '<div class="c"><div class="k">Routes touched, last '+RFWIN+' days</div>'+
+    '<div class="v r">'+fm(rtTouched)+'</div><div class="d">by repeat faults alone</div></div>'+
+   '<div class="c"><div class="k">Spread, best to worst</div>'+
+    '<div class="v '+((hi-lo)>6?'a':'g')+'">'+f1(hi-lo)+' <small>pts</small></div>'+
+    '<div class="d">same playbook, '+f1(lo)+' to '+f1(hi)+'</div></div>'+
+   '<div class="c"><div class="k">Markets below the '+f1(OTDT)+'% standard</div>'+
+    '<div class="v '+(under?'a':'g')+'">'+under+' <small>of '+F.length+'</small></div>'+
+    '<div class="d">'+(under&&u3===under?'all of them partner sites':under?u3+' of them partner sites':'none')+'</div></div>'+
   '</div></div>'+
-  '<div class="kseg r"><div class="ksegh"><span class="ksegt">OTR &middot; on the road</span>'+
-   '<span class="ksegs">middle mile in, drivers out. Different team, different fix.</span></div><div class="row">'+
-   '<div class="kpi"><div class="kl">Freight arriving on time</div><div class="kv '+((100-K.late)<90?'r':(100-K.late)<94?'a':'g')+'">'+f1(100-K.late)+'%</div><div class="kd">middle mile trips landing at or before plan</div></div>'+
-   '<div class="kpi"><div class="kl">Driver wait</div><div class="kv '+(K.ci>20?'r':K.ci>14?'a':'g')+'">'+f1(K.ci)+'</div><div class="kd">median minutes, check in to first load</div></div>'+
-   '<div class="kpi"><div class="kl">Packages missed to a quit</div><div class="kv '+(K.aband>250?'r':K.aband>120?'a':'g')+'">'+fm(Math.round(K.aband/1e4*K.vol))+'</div><div class="kd">a day &middot; driver dropped the route</div></div>'+
-  '</div></div>'+
+
+ '<div class="sech"><span class="secl">Decisions this week</span>'+
+  '<span class="secn">a site issue goes back to the site &mdash; these do not</span></div>'+
+ '<div class="decs">'+
+
+ (ff?'<div class="dec"><div class="dech"><span class="kind">Repeat fault</span>'+
+  '<span class="rt '+(raised?'done':'eng')+'">'+(raised?'Raised '+raised:'Engineering')+'</span></div>'+
+  '<div class="decb"><div class="dect">'+ff.t+'</div>'+
+  '<div class="st3"><div><b>'+ff.hits+'</b><i>hits / '+RFWIN+' days</i></div>'+
+   '<div><b>'+fm(ff.rt)+'</b><i>routes touched</i></div>'+
+   '<div><b>'+(ff.flat?MKT.length+' of '+MKT.length:Math.round(ff.share)+'%')+'</b><i>'+(ff.flat?'markets':MK[ff.top].n)+'</i></div></div>'+
+  '<div class="decw">'+(ff.flat
+    ?'It lands at the <b>same rate in every market</b>, so it is not a building. Every site runs the same build. No SOP closes this one.'
+    :'It concentrates in <b>'+MK[ff.top].n+'</b> at '+f1(ff.mult)+' times the average market, so it goes back with the SOP.')+'</div>'+
+  '<div class="decg">'+(ff.flat
+    ?(raised?'<span class="f g">In front of engineering</span>'
+            :'<button class="abtn p" onclick="rfRaise(\''+ff.kind+'\')">Send to engineering</button>')
+    :'<button class="abtn p" onclick="rfSite(\''+ff.top+'\')">Open '+MK[ff.top].n+'</button>')+
+   '<button class="abtn" onclick="setPane(\'faults\')">See all '+top8.length+'</button></div></div></div>':'')+
+
+ '<div class="dec"><div class="dech"><span class="kind">Tiger team</span>'+
+  '<span class="rt ai">AI recommendation</span></div>'+
+  '<div class="decb"><div class="dect">Send the team to '+best.n+', not '+worst.n+'</div>'+
+  '<div class="st3"><div><b>'+Math.round(DS[best.k].hand)+'</b><i>errors / 10k</i></div>'+
+   '<div><b>'+Math.round(med)+'</b><i>median here</i></div>'+
+   '<div><b>4 wks</b><i>on the floor</i></div></div>'+
+  '<div class="decw">'+best.n+' makes <b>'+f1(DS[worst.k].hand/DS[best.k].hand)+' times fewer mistakes</b> than '+worst.n+
+   ' and nothing in the data explains how. You can copy a process. You cannot copy a problem.</div>'+
+  '<div class="decg"><button class="abtn p" onclick="pick(\''+best.k+'\');go(\'plan\')">Open '+best.n+'</button>'+
+   '<button class="abtn" onclick="pick(\''+worst.k+'\');go(\'sort\')">Compare '+worst.n+'</button></div></div></div>'+
+
+ (sNone.length?'<div class="dec"><div class="dech"><span class="kind">Rollout</span>'+
+  '<span class="rt '+(sState==='rolled'?'done':sState==='held'?'go':'go')+'">'+
+   (sState==='rolled'?'Rolling out':sState==='held'?'Held':'Ready to spread')+'</span></div>'+
+  '<div class="decb"><div class="dect">'+HSTD.n+' has not reached '+
+   sNoneOtd.map(m=>m.n).join(' or ')+'</div>'+
+  '<div class="st3"><div><b>'+sLive.length+'</b><i>live</i></div>'+
+   '<div><b>'+sPilot.length+'</b><i>piloting</i></div>'+
+   '<div><b>'+sNone.length+'</b><i>not started</i></div></div>'+
+  '<div class="decw">A market running it drops a route in the wrong slot <b>14% of the time</b>. '+
+   'Where it never started that is <b>50%</b>.'+
+   (botTwo?' The '+sNone.length+' it has not reached are the bottom '+sNone.length+' on on-time.':'')+
+   ' It was written with '+MK[HSTD.src].n+'&rsquo;s site lead and costs nothing to ship.</div>'+
+  '<div class="decg">'+(sState
+    ?'<span class="f '+(sState==='rolled'?'g':'a')+'">'+(sState==='rolled'?'Rolling to '+sNone.map(m=>m.n).join(' and '):'Held for now')+'</span>'
+    :'<button class="abtn p" onclick="rollStd(\''+HSTD.id+'\')">Roll to '+sNone.length+' market'+(sNone.length===1?'':'s')+'</button>'+
+     '<button class="abtn" onclick="holdStd(\''+HSTD.id+'\')">Hold</button>')+'</div></div></div>':'')+
  '</div>'+
- '<div class="mapwrap">'+
-  '<div class="card" style="padding:0;overflow:hidden">'+
-   '<div style="padding:10px 14px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--line)">'+
-   '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Network map</div>'+
-   '<button class="mk'+(PLAYING?' on':'')+'" id="wxPlay" onclick="playRadar()">'+(PLAYING?'Pause':'Play radar')+'</button><span class="hdr" id="wxTs"></span>'+
-   '<span class="hdr" id="wxSrc" style="margin-left:auto">loading radar</span></div>'+
-   '<div id="mapslot" style="height:428px;width:100%"></div></div>'+
-  '<div id="wxPanel2">'+vWx()+'</div>'+
- '</div>'+
- '<div class="card mt12"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:4px">'+
-  '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Against the standard</div><span class="tag meas">MEASURED</span>'+
-  '<div class="planlg"><span><b>'+over+'</b> exceeding</span><span><b>'+at+'</b> at plan</span><span><b>'+under+'</b> under</span></div>'+
-  '<span class="hdr" style="margin-left:auto">UPH run against the '+f1(UPHT)+' network target Central Ops publishes</span></div>'+
-  '<div class="vchart"><div class="vplanline"><span>target '+f1(UPHT)+'</span></div><div class="vgrid">'+
-  sorted.map(r=>{
-   const off=Math.max(-span,Math.min(span,r.A.pct-100)), h=Math.abs(off)/span*88;
-   const cl=r.A.band==='over'?'over':r.A.band==='under'?'under':'at';
-   return '<div class="vcol" onclick="pick(\''+r.m.k+'\');go(\'plan\')">'+
-    '<div class="vbox">'+
-     '<i class="vbar '+cl+'" style="height:'+Math.max(2,h)+'px"></i>'+
-     '<span class="vval '+cl+'" style="'+(off>=0?'bottom:calc(50% + '+(Math.max(2,h)+4)+'px)':'top:calc(50% + '+(Math.max(2,h)+4)+'px)')+'">'+
-      (off>=0?'+':'')+f1(r.A.pct-100)+'%</span>'+
-    '</div>'+
-    '<div class="vlbl">'+r.m.n+'</div><div class="vsub">'+f1(r.A.a)+' / '+f1(r.A.p)+'</div></div>'}).join('')+
-  '</div></div></div>'+
- '<h2>Every market <span>'+lbl+(FTYPE!=='all'||FSITE!=='all'?', filtered':'')+' &middot; every column is a workbook figure</span> <span class="tag meas">MEASURED</span></h2>'+
- '<div class="tscroll"><table class="wide"><thead><tr>'+
-  '<th>Market</th><th>Region</th><th>Type</th><th>Volume / day</th><th>On-time delivery</th><th>6 week OTD</th>'+
-  '<th>UPH</th><th>Paid hrs / day</th><th>Hours vs standard</th><th>Rework</th><th>Check-in to load</th>'+
-  '<th>Missed to quits</th><th>Routes abandoned</th><th>Handling defects</th><th>Freight late</th></tr></thead><tbody>'+
- rows.sort((x,y)=>x.L.otd-y.L.otd).map(r=>
-  '<tr style="cursor:pointer" onclick="pick(\''+r.m.k+'\');go(\'plan\')">'+
-  '<td>'+r.m.n+' <span style="color:var(--ink3);font-weight:400">'+r.m.k+'</span>'+agMark('home',r.m.k)+'</td>'+
-  '<td class="tx2">'+r.m.region+'</td><td class="tx2">'+facN(r.m.fac)+'</td><td>'+fm(r.L.vol)+'</td>'+
-  '<td class="'+(r.L.otd<92?'neg':r.L.otd>=96?'pos':'')+'">'+f1(r.L.otd)+'%</td>'+
-  '<td>'+spark(r.L.wk,54,15)+'</td>'+
-  '<td class="'+(r.L.uph<86?'neg':r.L.uph>=95?'pos':'')+'">'+f1(r.L.uph)+'</td>'+
-  '<td>'+f1(r.L.hours)+'</td>'+
-  '<td class="'+(r.LB.over?'neg':'pos')+'">'+(r.LB.pct>=0?'+':'')+f1(r.LB.pct)+'%</td>'+
-  '<td class="'+(r.L.rework>20?'neg':'')+'">'+f1(r.L.rework)+'%</td>'+
-  '<td class="'+(r.L.ci>20?'neg':'')+'">'+f1(r.L.ci)+' min</td>'+
-  '<td class="'+(r.L.aband>300?'neg':'')+'">'+(r.L.aband/100).toFixed(2)+'%</td>'+
-  '<td class="'+(r.L.raband>4?'neg':'')+'">'+f1(r.L.raband)+'%</td>'+
-  '<td class="'+(r.L.hand>70?'neg':'')+'">'+(r.L.hand/100).toFixed(2)+'%</td>'+
-  '<td class="'+(r.L.late>10?'neg':'')+'">'+f1(r.L.late)+'%</td></tr>').join('')+
- '<tr class="tot"><td>Network</td><td></td><td></td><td>'+fm(K.vol)+'</td><td>'+f1(K.otd)+'%</td><td></td>'+
-  '<td>'+f1(K.uph)+'</td><td>'+f1(K.hours)+'</td><td>'+(O.pct>=0?'+':'')+f1(O.pct)+'%</td><td>'+f1(K.rework)+'%</td>'+
-  '<td>'+f1(K.ci)+' min</td><td>'+(K.aband/100).toFixed(2)+'%</td><td>'+f1(K.raband)+'%</td>'+
-  '<td>'+(K.hand/100).toFixed(2)+'%</td><td>'+f1(K.late)+'%</td></tr></tbody></table></div>'+
- '<div class="legend"><b>Missed to quits</b> packages that missed because a driver dropped the route, as a share of volume. '+
-  '<b>Routes abandoned</b> share of planned routes a driver accepted and then dropped. '+
-  '<b>Handling defects</b> mis-stowed, damaged or misrouted units, as a share of volume. '+
-  '<b>Indirect share</b> paid hours that did not move a package.</div>';
+
+ '<div class="sech"><span class="secl">'+(HPANE==='markets'?'Markets':HPANE==='faults'?'Repeat faults':'Network map')+'</span>'+
+  '<span class="secn">'+(HPANE==='markets'
+    ? F.length+' market'+(F.length===1?'':'s')+' &middot; '+lbl.replace('&middot;','·')+' &middot; click a row to open it'
+    : HPANE==='faults'
+    ? 'last '+RFWIN+' days &middot; ranked by routes touched, not by which site was loudest'
+    : 'live radar and the National Weather Service check')+'</span>'+
+  '<div class="hpanes">'+[['markets','Markets'],['faults','Faults'],['map','Map']].map(x=>
+   '<button class="'+(HPANE===x[0]?'on':'')+'" onclick="setPane(\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div></div>'+
+
+ (HPANE==='markets'
+  ? '<div class="tscroll"><table class="wide"><thead><tr>'+
+    '<th>Market</th><th>Region</th><th>Type</th><th>Volume / day</th><th>On-time delivery</th><th>6 week OTD</th>'+
+    '<th>UPH</th><th>Paid hrs / day</th><th>Hours vs standard</th><th>Rework</th><th>Check-in to load</th>'+
+    '<th>Missed to quits</th><th>Routes abandoned</th><th>Handling defects</th><th>Freight late</th></tr></thead><tbody>'+
+    rows.sort((x,y)=>x.L.otd-y.L.otd).map(r=>
+     '<tr style="cursor:pointer" onclick="pick(\''+r.m.k+'\');go(\'plan\')">'+
+     '<td>'+r.m.n+' <span style="color:var(--ink3);font-weight:400">'+r.m.k+'</span>'+agMark('home',r.m.k)+'</td>'+
+     '<td class="tx2">'+r.m.region+'</td><td class="tx2">'+facN(r.m.fac)+'</td><td>'+fm(r.L.vol)+'</td>'+
+     '<td class="'+(r.L.otd<92?'neg':r.L.otd>=96?'pos':'')+'">'+f1(r.L.otd)+'%</td>'+
+     '<td>'+spark(r.L.wk,54,15)+'</td>'+
+     '<td class="'+(r.L.uph<86?'neg':r.L.uph>=95?'pos':'')+'">'+f1(r.L.uph)+'</td>'+
+     '<td>'+f1(r.L.hours)+'</td>'+
+     '<td class="'+(r.LB.over?'neg':'pos')+'">'+(r.LB.pct>=0?'+':'')+f1(r.LB.pct)+'%</td>'+
+     '<td class="'+(r.L.rework>20?'neg':'')+'">'+f1(r.L.rework)+'%</td>'+
+     '<td class="'+(r.L.ci>20?'neg':'')+'">'+f1(r.L.ci)+' min</td>'+
+     '<td class="'+(r.L.aband>300?'neg':'')+'">'+(r.L.aband/100).toFixed(2)+'%</td>'+
+     '<td class="'+(r.L.raband>4?'neg':'')+'">'+f1(r.L.raband)+'%</td>'+
+     '<td class="'+(r.L.hand>70?'neg':'')+'">'+(r.L.hand/100).toFixed(2)+'%</td>'+
+     '<td class="'+(r.L.late>10?'neg':'')+'">'+f1(r.L.late)+'%</td></tr>').join('')+
+    '<tr class="tot"><td>Network</td><td></td><td></td><td>'+fm(K.vol)+'</td><td>'+f1(K.otd)+'%</td><td></td>'+
+     '<td>'+f1(K.uph)+'</td><td>'+f1(K.hours)+'</td><td>'+(O.pct>=0?'+':'')+f1(O.pct)+'%</td><td>'+f1(K.rework)+'%</td>'+
+     '<td>'+f1(K.ci)+' min</td><td>'+(K.aband/100).toFixed(2)+'%</td><td>'+f1(K.raband)+'%</td>'+
+     '<td>'+(K.hand/100).toFixed(2)+'%</td><td>'+f1(K.late)+'%</td></tr></tbody></table></div>'+
+    '<div class="legend"><b>Missed to quits</b> packages that missed because a driver dropped the route, as a share of volume. '+
+    '<b>Routes abandoned</b> share of planned routes a driver accepted and then dropped. '+
+    '<b>Handling defects</b> mis-stowed, damaged or misrouted units, as a share of volume.</div>'
+  : HPANE==='faults'
+  ? vRepeat()
+  : '<div class="mapwrap"><div class="card" style="padding:0;overflow:hidden">'+
+    '<div style="padding:10px 14px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--line)">'+
+    '<div style="font-size:11px;font-weight:800;letter-spacing:.05em;color:var(--ink2);text-transform:uppercase">Network map</div>'+
+    '<button class="mk'+(PLAYING?' on':'')+'" id="wxPlay" onclick="playRadar()">'+(PLAYING?'Pause':'Play radar')+'</button>'+
+    '<span class="hdr" id="wxTs"></span><span class="hdr" id="wxSrc" style="margin-left:auto">loading radar</span></div>'+
+    '<div id="mapslot" style="height:428px;width:100%"></div></div>'+
+    '<div id="wxPanel2">'+vWx()+'</div></div>');
 }
 
-/* the v-logo panel runs the same questions as the Home widget */
 function drawAsk(){
  setHt('askchips',HOMEQ.map((q,i)=>'<button class="mk" style="background:'+(HQ===i?'var(--coral)':'#2A2723')+';border-color:'+(HQ===i?'var(--coral)':'#3A3733')+';color:'+(HQ===i?'#fff':'#B5AFA6')+'" onclick="askGo('+i+')">'+q[0]+'</button>').join(''));
  setHt('askout','<div style="color:#8B857C;font-size:11px;margin-bottom:6px">'+HOMEQ[HQ][0]+'</div>'+HOMEQ[HQ][1]());
@@ -3551,7 +3720,7 @@ function draw(){
  else if(SCR==='plan')h=vPlan();
  else if(SCR==='noc')h=vNoc();
  setHt('body',h+vAgentDock());
- if(SCR==='home'){
+ if(SCR==='home'&&HPANE==='map'){
   const host=mapHost();
   let live=false; try{live=!!(MAP&&host&&MAP.getContainer()===host&&host.isConnected)}catch(e){live=false}
   if(!live) initMap();
