@@ -199,6 +199,9 @@ h2 span{font-weight:600;text-transform:none;color:var(--ink3);letter-spacing:0}
  .nwcard{max-height:88vh;overflow-y:auto}
 }
 .t{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+.grid.g6 .t{padding:8px 11px}
+.grid.g6 .t .v{font-size:19px;margin:1px 0 0}
+.grid.g6 .t .n{font-size:9.5px;line-height:1.3}
 .t .l{font-size:9px;font-weight:800;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em}
 .t .v{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.1;margin:3px 0 1px}
 .t .n{font-size:10.5px;color:var(--ink3)}
@@ -806,6 +809,7 @@ table.sheet tr.tot td:first-child{font-weight:800}
  padding:7px 11px;font-size:11px;line-height:1.45;margin-bottom:2px}
 .ybanner b{font-weight:800}
 .filt{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 11px;margin-bottom:12px}
+.filt .pl{width:auto;flex:0 0 auto;min-width:132px;max-width:210px}
 .filt .fl{font-size:9.5px;font-weight:800;letter-spacing:.07em;color:var(--ink3);text-transform:uppercase}
 .dbwrap{display:flex;flex-direction:column;gap:4px}
 .db{display:grid;grid-template-columns:104px 1fr 54px;gap:9px;align-items:center;cursor:pointer;padding:1px 0}
@@ -884,7 +888,7 @@ table.wide td.tx2{font-family:var(--sans);font-size:11.5px;font-weight:400;color
 table.wide th{white-space:normal;line-height:1.2;font-size:9.5px}
 table.wide tr.tot td{background:var(--panel2);font-weight:800;border-top:1.5px solid var(--line2)}
 
-.slot{min-height:70px}
+.slot{min-height:82px;padding:5px 4px}
 .bot{position:relative;height:20px;margin:1px 0 2px;color:var(--mint-d)}
 .bot .car{width:34px;height:16px;position:absolute;left:14px;bottom:1px;animation:bob 1.7s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
@@ -2279,7 +2283,7 @@ const DOWN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 /* day of week curve straight from the workbook, normalised to 7.0 */
 const SHAPE={Mon:NETD.shape[0],Tue:NETD.shape[1],Wed:NETD.shape[2],Thu:NETD.shape[3],Fri:NETD.shape[4],Sat:NETD.shape[5],Sun:NETD.shape[6]};
 const PV={}, PI={}, SUPH={}, PRSN={}, SUBMITTED={}; let PUSHED=null;        /* site overrides: volume, indirect, uph, reason */
-let PLANVIEW='site';
+let PLANVIEW='net';
 function setPlanView(v){PLANVIEW=v;draw()}
 
 function planDays(){const out=[],n=new Date();
@@ -2352,8 +2356,8 @@ function vPlan(){
  const sel='<select class="pl" style="min-width:250px;font-weight:700" onchange="pick(this.value)"'+(lock?' disabled':'')+'>'+
   MKT.map(m=>'<option value="'+m.k+'"'+(m.k===SEL?' selected':'')+'>'+m.n+' · '+m.rt+' routes · '+facN(m.fac)+'</option>').join('')+'</select>';
  const tabs = canNet ? '<div class="seg" style="margin-left:auto">'+
-   '<button class="'+(PLANVIEW==='site'?'on':'')+'" onclick="setPlanView(\'site\')">Site</button>'+
-   '<button class="'+(PLANVIEW==='net'?'on':'')+'" onclick="setPlanView(\'net\')">Central Ops</button></div>' : '';
+   '<button class="'+(PLANVIEW==='net'?'on':'')+'" onclick="setPlanView(\'net\')">Central Ops</button>'+
+   '<button class="'+(PLANVIEW==='site'?'on':'')+'" onclick="setPlanView(\'site\')">Site</button></div>' : '';
  const showNet = canNet && PLANVIEW==='net';
  return hdr('Labor plan',(showNet?'Published Wednesday for the week ahead &middot; company sites get hours, partner sites get capacity':'The week Central Ops published, and what you change before Monday'),true,null,(showNet?['Central Ops publishes',0]:['Site adjusts',1]))+
   '<div class="act" style="margin-bottom:12px">'+(showNet?'<span class="devlbl" style="margin:0">All markets</span>':sel)+tabs+'</div>'+
@@ -3052,9 +3056,7 @@ function vNocQ(defl,onSite,working){
   '<span class="fl">Site</span><select class="pl" onchange="tfilt(\'m\',this.value)"><option value="all">All sites</option>'+
    MKT.map(m=>'<option value="'+m.k+'"'+(TFM===m.k?' selected':'')+'>'+m.n+'</option>').join('')+'</select>'+
   '<button class="abtn" onclick="tclear()">Reset</button>'+
-  '<span class="fl" style="margin-left:auto">'+q.length+' in view &middot; '+
-   '<span class="kbd">j</span> <span class="kbd">k</span> move &middot; <span class="kbd">c</span> claim &middot; '+
-   '<span class="kbd">a</span> ack &middot; <span class="kbd">r</span> resolve</span></div>'+
+  '<span class="fl" style="margin-left:auto">'+q.length+' in view</span></div>'+
  '<div class="dwrap">'+
   '<div class="card" style="padding:0;overflow:hidden">'+
    '<div class="tkh" style="grid-template-columns:46px 1fr 86px 84px 84px 40px 76px"><span>Priority</span><span>Ticket</span><span>Disposition</span><span>Team</span><span>Site</span><span>Owner</span><span>SLA</span></div>'+
